@@ -490,12 +490,12 @@ hr {
 /* line 235, C:/Users/HP/Desktop/July-HTML/292 Health coach/assets/scss/_common.scss */
 .owl-carousel:hover .owl-nav div:hover {
   color: #fff;
-  background: #ff3500;
+  background: #FF6F00;
 }
 
 /* line 244, C:/Users/HP/Desktop/July-HTML/292 Health coach/assets/scss/_common.scss */
 .btn {
-  background: #ff1313;
+  background: #FF6F00;
   font-family: "Oswald", sans-serif;
   text-transform: uppercase;
   padding: 27px 44px;
@@ -528,7 +528,7 @@ hr {
   top: 0;
   width: 101%;
   height: 101%;
-  background: #c20505;
+  background: #b84d00;
   z-index: 1;
   border-radius: 5px;
   transition: transform 0.5s;
@@ -647,7 +647,7 @@ hr {
   top: 0;
   width: 101%;
   height: 101%;
-  background: #FF0000;
+  background: #FF6F00;
   z-index: -1;
   transition: transform 0.5s;
   transition-timing-function: ease;
@@ -672,7 +672,7 @@ hr {
 /* scrollUp */
 /* line 402, C:/Users/HP/Desktop/July-HTML/292 Health coach/assets/scss/_common.scss */
 #scrollUp, #back-top {
-  background: #FF0000;
+  background: #FF6F00;
   height: 50px;
   width: 50px;
   right: 31px;
@@ -3576,7 +3576,7 @@ hr {
 
 /* line 135, C:/Users/HP/Desktop/July-HTML/292 Health coach/assets/scss/_h1-hero.scss */
 .slider-area .video-icon a {
-  background: #ff1313;
+  background: #FF6F00;
   color: #fff;
   width: 80px;
   height: 80px;
@@ -3621,7 +3621,7 @@ hr {
   bottom: -2px;
   right: -2px;
   border-radius: inherit;
-  border: 1px solid #ff1313;
+  border: 1px solid #FF6F00;
   -webkit-animation: btnIconRipple 2s cubic-bezier(0.23, 1, 0.32, 1) both infinite;
   animation: btnIconRipple 2s cubic-bezier(0.23, 1, 0.32, 1) both infinite;
 }
@@ -3650,7 +3650,7 @@ hr {
 /* line 190, C:/Users/HP/Desktop/July-HTML/292 Health coach/assets/scss/_h1-hero.scss */
 .slider-area .video-icon a.btn-icon:hover {
   background: #fff;
-  color: #ff1313;
+  color: #FF6F00;
 }
 
 /* line 200, C:/Users/HP/Desktop/July-HTML/292 Health coach/assets/scss/_h1-hero.scss */
@@ -3861,7 +3861,7 @@ hr {
 /* line 35, C:/Users/HP/Desktop/July-HTML/292 Health coach/assets/scss/_pricing.scss */
 .pricing-area .properties:hover .border-btn2 {
   color: #fff;
-  background: #ff1313;
+  background: #FF6F00;
   -webkit-transition: 0.4s;
   -moz-transition: 0.4s;
   -o-transition: 0.4s;
@@ -3966,7 +3966,7 @@ hr {
 /* line 30, C:/Users/HP/Desktop/July-HTML/292 Health coach/assets/scss/_video-area.scss */
 .video-icon a {
   background: #fff;
-  color: #FF0000;
+  color: #FF6F00;
   width: 110px;
   height: 110px;
   display: inline-block;
@@ -4052,7 +4052,7 @@ hr {
   bottom: -2px;
   right: -2px;
   border-radius: inherit;
-  border: 1px solid #FF0000;
+  border: 1px solid #FF6F00;
   -webkit-animation: btnIconRipple 2s cubic-bezier(0.23, 1, 0.32, 1) both infinite;
   animation: btnIconRipple 2s cubic-bezier(0.23, 1, 0.32, 1) both infinite;
 }
@@ -4612,12 +4612,12 @@ hr {
 
 /* line 24, C:/Users/HP/Desktop/July-HTML/292 Health coach/assets/scss/_footer.scss */
 .footer-area .footer-bottom .footer-copy-right p i {
-  color: #FF0000;
+  color: #FF6F00;
 }
 
 /* line 27, C:/Users/HP/Desktop/July-HTML/292 Health coach/assets/scss/_footer.scss */
 .footer-area .footer-bottom .footer-copy-right p a {
-  color: #FF0000;
+  color: #FF6F00;
 }
 
 /* line 29, C:/Users/HP/Desktop/July-HTML/292 Health coach/assets/scss/_footer.scss */
@@ -5271,7 +5271,7 @@ hr {
 
 /* line 611, C:/Users/HP/Desktop/July-HTML/292 Health coach/assets/scss/_blog_page.scss */
 .blog_details a:hover {
-  color: #ff1313;
+  color: #FF6F00;
 }
 
 /* line 616, C:/Users/HP/Desktop/July-HTML/292 Health coach/assets/scss/_blog_page.scss */
@@ -5339,7 +5339,7 @@ hr {
   left: 10px;
   display: block;
   color: #fff;
-  background-color: #FF0000;
+  background-color: #FF6F00;
   padding: 8px 15px;
   border-radius: 5px;
 }
@@ -5434,7 +5434,7 @@ hr {
 
 /* line 761, C:/Users/HP/Desktop/July-HTML/292 Health coach/assets/scss/_blog_page.scss */
 .blog_right_sidebar .search_widget .input-group button {
-  background: #FF0000;
+  background: #FF6F00;
   border-left: 0;
   border: 1px solid #f0e9ff;
   padding: 4px 15px;
@@ -5572,7 +5572,7 @@ hr {
 
 /* line 912, C:/Users/HP/Desktop/July-HTML/292 Health coach/assets/scss/_blog_page.scss */
 .blog_right_sidebar .tag_cloud_widget ul li a:hover {
-  background: #FF0000;
+  background: #FF6F00;
   color: #fff !important;
   -webkit-text-fill-color: #fff;
   text-decoration: none;
@@ -5820,7 +5820,7 @@ hr {
 
 /* line 1278, C:/Users/HP/Desktop/July-HTML/292 Health coach/assets/scss/_blog_page.scss */
 .single-post-area .blog-author a:hover {
-  color: #ff1313;
+  color: #FF6F00;
 }
 
 /* line 1283, C:/Users/HP/Desktop/July-HTML/292 Health coach/assets/scss/_blog_page.scss */
