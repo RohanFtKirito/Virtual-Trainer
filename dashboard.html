@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Virtual Trainer</title>
+    <link rel="stylesheet" href="assets/css/bootstrap.min.css">
+    <link rel="stylesheet" href="assets/css/style.css">
+    <style>
+        :root {
+            --primary-color: #667eea;
+            --secondary-color: #764ba2;
+            --success-color: #28a745;
+            --info-color: #17a2b8;
+            --warning-color: #ffc107;
+        }
+        
+        body {
+            background: #f8f9fa;
+        }
+        
+        .dashboard-header {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            color: white;
+            padding: 30px 0;
+            margin-bottom: 30px;
+        }
+        
+        .stat-card {
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+            transition: transform 0.3s;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .stat-card h3 {
+            font-size: 36px;
+            margin-bottom: 5px;
+        }
+        
+        .stat-card p {
+            color: #666;
+            margin: 0;
+        }
+        
+        .stat-card.exercises h3 { color: var(--primary-color); }
+        .stat-card.diet h3 { color: var(--success-color); }
+        .stat-card.calories h3 { color: var(--warning-color); }
+        
+        .section-card {
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+        
+        .section-card h4 {
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #f8f9fa;
+            color: #333;
+        }
+        
+        .activity-item {
+            padding: 15px;
+            border-bottom: 1px solid #f8f9fa;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .activity-item:last-child {
+            border-bottom: none;
+        }
+        
+        .activity-item .activity-name {
+            font-weight: 500;
+            color: #333;
+        }
+        
+        .activity-item .activity-date {
+            color: #999;
+            font-size: 12px;
+        }
+        
+        .activity-item .activity-badge {
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+        }
+        
+        .badge-exercise {
+            background: #e3f2fd;
+            color: #1976d2;
+        }
+        
+        .badge-diet {
+            background: #e8f5e9;
+            color: #388e3c;
+        }
+        
+        .nav-menu {
+            background: white;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 15px 0;
+            margin-bottom: 30px;
+        }
+        
+        .nav-menu a {
+            color: #333;
+            text-decoration: none;
+            padding: 10px 20px;
+            display: inline-block;
+        }
+        
+        .nav-menu a:hover {
+            color: var(--primary-color);
+        }
+        
+        .nav-menu .logout-btn {
+            background: #dc3545;
+            color: white;
+            border-radius: 5px;
+            margin-left: 20px;
+        }
+        
+        .nav-menu .logout-btn:hover {
+            background: #c82333;
+            color: white;
+        }
+        
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .quick-action-btn {
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            text-decoration: none;
+            color: white;
+            transition: opacity 0.3s;
+        }
+        
+        .quick-action-btn:hover {
+            opacity: 0.9;
+        }
+        
+        .quick-action-btn.training {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .quick-action-btn.diet {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+        }
+        
+        .quick-action-btn.progress {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="nav-menu">
+        <div class="container">
+            <span style="font-weight: bold; font-size: 20px;">Virtual Trainer</span>
+            <div style="float: right;">
+                <a href="{{ url_for('dashboard') }}">Dashboard</a>
+                <a href="{{ url_for('training') }}">Training</a>
+                <a href="{{ url_for('diet_home') }}">Diet</a>
+                <a href="{{ url_for('logout') }}" class="logout-btn">Logout</a>
+            </div>
+        </div>
+    </nav>
+    
+    <!-- Dashboard Header -->
+    <div class="dashboard-header">
+        <div class="container">
+            <h2>Welcome, {{ current_user.username }}!</h2>
+            <p>Track your fitness journey and achieve your goals</p>
+        </div>
+    </div>
+    
+    <div class="container">
+        <!-- Flash Messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        
+        <!-- Stats Row -->
+        <div class="row">
+            <div class="col-md-4">
+                <div class="stat-card exercises">
+                    <h3>{{ total_exercises }}</h3>
+                    <p>Exercise Sessions</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="stat-card diet">
+                    <h3>{{ total_diet_logs }}</h3>
+                    <p>Diet Logs</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="stat-card calories">
+                    <h3>{{ total_calories }}</h3>
+                    <p>Calories Burned</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Quick Actions -->
+        <div class="section-card">
+            <h4>Quick Actions</h4>
+            <div class="quick-actions">
+                <a href="{{ url_for('training') }}" class="quick-action-btn training">
+                    Start Training →
+                </a>
+                <a href="{{ url_for('diet_home') }}" class="quick-action-btn diet">
+                    Log Diet →
+                </a>
+                <a href="#" class="quick-action-btn progress" onclick="alert('Progress charts coming soon!'); return false;">
+                    View Progress →
+                </a>
+            </div>
+        </div>
+        
+        <!-- Recent Activities -->
+        <div class="row">
+            <div class="col-md-6">
+                <div class="section-card">
+                    <h4>Recent Exercises</h4>
+                    {% if recent_exercises %}
+                        {% for exercise in recent_exercises %}
+                            <div class="activity-item">
+                                <div>
+                                    <div class="activity-name">{{ exercise.exercise_name }}</div>
+                                    <div class="activity-date">{{ exercise.created_at.strftime('%B %d, %Y at %I:%M %p') }}</div>
+                                </div>
+                                <span class="activity-badge badge-exercise">
+                                    {% if exercise.calories_burned %}{{ exercise.calories_burned }} cal{% else %}Completed{% endif %}
+                                </span>
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <p style="color: #999; text-align: center; padding: 20px;">No exercises logged yet. <a href="{{ url_for('training') }}">Start training!</a></p>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div class="col-md-6">
+                <div class="section-card">
+                    <h4>Recent Diet Logs</h4>
+                    {% if recent_diets %}
+                        {% for diet in recent_diets %}
+                            <div class="activity-item">
+                                <div>
+                                    <div class="activity-name">{{ diet.food_name }}</div>
+                                    <div class="activity-date">{{ diet.created_at.strftime('%B %d, %Y at %I:%M %p') }}</div>
+                                </div>
+                                <span class="activity-badge badge-diet">{{ diet.category }}</span>
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <p style="color: #999; text-align: center; padding: 20px;">No diet logs yet. <a href="{{ url_for('diet_home') }}">Log your first meal!</a></p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- API Info -->
+        <div class="section-card">
+            <h4>API Access</h4>
+            <p>Access your data programmatically using our REST API:</p>
+            <div style="background: #f8f9fa; padding: 15px; border-radius: 5px; font-family: monospace;">
+                <p>GET /api/exercises - Get exercise history</p>
+                <p>POST /api/exercises - Log new exercise</p>
+                <p>GET /api/diet - Get diet logs</p>
+                <p>POST /api/diet - Log diet entry</p>
+                <p>GET /api/progress - Get progress summary</p>
+            </div>
+            <p style="margin-top: 15px; color: #666;"><small>Note: API endpoints require authentication. Use your session cookie.</small></p>
+        </div>
+    </div>
+    
+    <!-- Footer -->
+    <footer style="background: #333; color: white; padding: 20px 0; margin-top: 50px; text-align: center;">
+        <p>© 2024 Virtual Trainer. All rights reserved.</p>
+    </footer>
+</body>
+</html>
+

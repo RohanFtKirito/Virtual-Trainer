@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Downward Dog - Virtual Trainer</title>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/pose/pose.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+            min-height: 100vh;
+            color: white;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .header h1 {
+            font-size: 1.5rem;
+        }
+        
+        .back-btn {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 25px;
+            text-decoration: none;
+            transition: background 0.3s;
+        }
+        
+        .back-btn:hover {
+            background: rgba(255,255,255,0.3);
+        }
+        
+        .main-content {
+            display: flex;
+            padding: 20px;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .video-container {
+            flex: 1;
+            min-width: 400px;
+            background: #000;
+            border-radius: 15px;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        #webcam {
+            width: 100%;
+            height: 480px;
+            object-fit: cover;
+            transform: scaleX(-1);
+        }
+        
+        #canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 480px;
+            transform: scaleX(-1);
+        }
+        
+        .stats-panel {
+            width: 300px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .stat-card {
+            background: rgba(255,255,255,0.1);
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+        }
+        
+        .stat-card h3 {
+            color: #aaa;
+            font-size: 0.9rem;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+        }
+        
+        .stat-value {
+            font-size: 3rem;
+            font-weight: bold;
+            color: #f5576c;
+        }
+        
+        .timer-value {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #f5576c;
+        }
+        
+        .feedback {
+            background: rgba(40, 167, 69, 0.2);
+            border: 2px solid #28a745;
+            border-radius: 15px;
+            padding: 15px;
+            text-align: center;
+        }
+        
+        .feedback.warning {
+            background: rgba(255, 193, 7, 0.2);
+            border-color: #ffc107;
+        }
+        
+        .feedback.error {
+            background: rgba(220, 53, 69, 0.2);
+            border-color: #dc3545;
+        }
+        
+        .feedback h4 {
+            color: #28a745;
+            margin-bottom: 10px;
+        }
+        
+        .feedback.warning h4 {
+            color: #ffc107;
+        }
+        
+        .feedback.error h4 {
+            color: #dc3545;
+        }
+        
+        .instructions {
+            background: rgba(255,255,255,0.05);
+            border-radius: 15px;
+            padding: 20px;
+        }
+        
+        .instructions h4 {
+            color: #f5576c;
+            margin-bottom: 15px;
+        }
+        
+        .instructions ul {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .instructions li {
+            padding: 8px 0;
+            padding-left: 25px;
+            position: relative;
+        }
+        
+        .instructions li:before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: #28a745;
+        }
+        
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.9);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        
+        .loading-overlay.hidden {
+            display: none;
+        }
+        
+        .spinner {
+            width: 60px;
+            height: 60px;
+            border: 4px solid rgba(255,255,255,0.3);
+            border-top-color: #f5576c;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .loading-text {
+            margin-top: 20px;
+            font-size: 1.2rem;
+        }
+        
+        .camera-status {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            background: rgba(0,0,0,0.7);
+        }
+        
+        .camera-status.active {
+            background: rgba(40, 167, 69, 0.8);
+        }
+        
+        @media (max-width: 768px) {
+            .main-content {
+                flex-direction: column;
+            }
+            
+            .video-container {
+                min-width: 100%;
+            }
+            
+            #webcam, #canvas {
+                height: 360px;
+            }
+            
+            .stats-panel {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="spinner"></div>
+        <div class="loading-text">Loading AI Model...</div>
+    </div>
+    
+    <!-- Header -->
+    <div class="header">
+        <h1>🧘 Downward Facing Dog</h1>
+        <a href="/index2.html" class="back-btn">← Back to Exercises</a>
+    </div>
+    
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Video Container -->
+        <div class="video-container">
+            <video id="webcam" autoplay playsinline></video>
+            <canvas id="canvas"></canvas>
+            <div class="camera-status" id="cameraStatus">Camera Off</div>
+        </div>
+        
+        <!-- Stats Panel -->
+        <div class="stats-panel">
+            <!-- Timer -->
+            <div class="stat-card">
+                <h3>Pose Duration</h3>
+                <div class="timer-value" id="timer">00:00</div>
+            </div>
+            
+            <!-- Body Angle -->
+            <div class="stat-card">
+                <h3>Body Angle</h3>
+                <div class="stat-value" id="bodyAngle">--°</div>
+            </div>
+            
+            <!-- Status -->
+            <div class="stat-card">
+                <h3>Current Status</h3>
+                <div class="stat-value" id="status" style="font-size: 1.2rem;">Ready</div>
+            </div>
+            
+            <!-- Feedback -->
+            <div class="feedback" id="feedback">
+                <h4>📍 Get into position</h4>
+                <p>Start on hands and knees</p>
+            </div>
+            
+            <!-- Instructions -->
+            <div class="instructions">
+                <h4>📋 How to Do Downward Dog</h4>
+                <ul>
+                    <li>Start on hands and knees</li>
+                    <li>Walk hands forward slightly</li>
+                    <li>Lift hips up and back</li>
+                    <li>Form an inverted V shape</li>
+                    <li>Press chest toward thighs</li>
+                    <li>Press Q to stop camera</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Variables for pose tracking
+        let startTime = null;
+        let elapsedSeconds = 0;
+        let timerInterval = null;
+        let isInPosition = false;
+        
+        const timerDisplay = document.getElementById('timer');
+        const bodyAngleDisplay = document.getElementById('bodyAngle');
+        const statusDisplay = document.getElementById('status');
+        const feedbackDiv = document.getElementById('feedback');
+        const cameraStatus = document.getElementById('cameraStatus');
+        
+        // Format time as MM:SS
+        function formatTime(seconds) {
+            const mins = Math.floor(seconds / 60);
+            const secs = seconds % 60;
+            return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+        }
+        
+        // Calculate angle between three points
+        function calculateAngle(a, b, c) {
+            const radians = Math.atan2(c.y - b.y, c.x - b.x) - Math.atan2(a.y - b.y, a.x - b.x);
+            let angle = Math.abs(radians * 180.0 / Math.PI);
+            if (angle > 180.0) angle = 360 - angle;
+            return angle;
+        }
+        
+        // MediaPipe Pose setup
+        const pose = new Pose({locateFile: (file) => {
+            return `https://cdn.jsdelivr.net/npm/@mediapipe/pose/${file}`;
+        }});
+        
+        pose.setOptions({
+            modelComplexity: 1,
+            smoothLandmarks: true,
+            enableSegmentation: false,
+            smoothSegmentation: false,
+            minDetectionConfidence: 0.5,
+            minTrackingConfidence: 0.5
+        });
+        
+        pose.onResults(onResults);
+        
+        // Camera setup
+        const videoElement = document.getElementById('webcam');
+        const canvasElement = document.getElementById('canvas');
+        const canvasCtx = canvasElement.getContext('2d');
+        
+        const camera = new Camera(videoElement, {
+            onFrame: async () => {
+                await pose.send({image: videoElement});
+            },
+            width: 640,
+            height: 480
+        });
+        
+        // Timer functions
+        function startTimer() {
+            if (!startTime) {
+                startTime = Date.now();
+                timerInterval = setInterval(() => {
+                    elapsedSeconds = Math.floor((Date.now() - startTime) / 1000);
+                    timerDisplay.textContent = formatTime(elapsedSeconds);
+                }, 1000);
+            }
+        }
+        
+        function stopTimer() {
+            if (startTime) {
+                clearInterval(timerInterval);
+                startTime = null;
+            }
+        }
+        
+        // Results handler
+        function onResults(results) {
+            // Hide loading overlay
+            document.getElementById('loadingOverlay').classList.add('hidden');
+            cameraStatus.textContent = '● Live';
+            cameraStatus.classList.add('active');
+            
+            canvasElement.width = videoElement.videoWidth;
+            canvasElement.height = videoElement.videoHeight;
+            
+            canvasCtx.save();
+            canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
+            canvasCtx.drawImage(results.image, 0, 0, canvasElement.width, canvasElement.height);
+            
+            if (results.poseLandmarks) {
+                // Draw pose landmarks
+                drawConnectors(canvasCtx, results.poseLandmarks, POSE_CONNECTIONS,
+                    {color: '#f5576c', lineWidth: 2});
+                drawLandmarks(canvasCtx, results.poseLandmarks,
+                    {color: '#ffffff', lineWidth: 1, radius: 3});
+                
+                const landmarks = results.poseLandmarks;
+                
+                // Get key landmarks for downward dog
+                const leftWrist = landmarks[15];
+                const leftShoulder = landmarks[11];
+                const leftHip = landmarks[23];
+                const leftKnee = landmarks[25];
+                const leftAnkle = landmarks[27];
+                const rightWrist = landmarks[16];
+                const rightShoulder = landmarks[12];
+                const rightHip = landmarks[24];
+                const rightKnee = landmarks[26];
+                const rightAnkle = landmarks[29];
+                
+                // Check visibility
+                const isVisible = leftWrist.visibility > 0.5 && leftHip.visibility > 0.5 && leftAnkle.visibility > 0.5;
+                
+                if (isVisible) {
+                    // Calculate the inverted V angle (shoulder-hip-ankle)
+                    // In downward dog, this should be around 90 degrees (inverted V)
+                    const shoulderMid = {
+                        x: (leftShoulder.x + rightShoulder.x) / 2,
+                        y: (leftShoulder.y + rightShoulder.y) / 2
+                    };
+                    const hipMid = {
+                        x: (leftHip.x + rightHip.x) / 2,
+                        y: (leftHip.y + rightHip.y) / 2
+                    };
+                    const ankleMid = {
+                        x: (leftAnkle.x + rightAnkle.x) / 2,
+                        y: (leftAnkle.y + rightAnkle.y) / 2
+                    };
+                    
+                    // Calculate angle at hip
+                    const hipAngle = calculateAngle(shoulderMid, hipMid, ankleMid);
+                    
+                    // Draw body line
+                    canvasCtx.beginPath();
+                    canvasCtx.moveTo(leftWrist.x * canvasElement.width, leftWrist.y * canvasElement.height);
+                    canvasCtx.lineTo(leftHip.x * canvasElement.width, leftHip.y * canvasElement.height);
+                    canvasCtx.lineTo(leftAnkle.x * canvasElement.width, leftAnkle.y * canvasElement.height);
+                    canvasCtx.strokeStyle = hipAngle > 60 && hipAngle < 120 ? '#28a745' : '#ffc107';
+                    canvasCtx.lineWidth = 4;
+                    canvasCtx.stroke();
+                    
+                    // Update displays
+                    bodyAngleDisplay.textContent = Math.round(hipAngle) + '°';
+                    
+                    // Check if in proper downward dog position
+                    // Angle should be between 60-120 degrees for proper inverted V
+                    if (hipAngle >= 60 && hipAngle <= 120) {
+                        isInPosition = true;
+                        startTimer();
+                        statusDisplay.textContent = 'In Pose ✓';
+                        updateFeedback('good', 'Perfect form! Hold the pose');
+                    } else if (hipAngle > 120) {
+                        isInPosition = false;
+                        stopTimer();
+                        statusDisplay.textContent = 'Too Flat';
+                        updateFeedback('warning', 'Lift hips higher');
+                    } else if (hipAngle < 60) {
+                        isInPosition = false;
+                        stopTimer();
+                        statusDisplay.textContent = 'Too Steep';
+                        updateFeedback('warning', 'Lower hips slightly');
+                    }
+                    
+                    // Draw angle
+                    canvasCtx.font = 'bold 24px Arial';
+                    canvasCtx.fillStyle = 'white';
+                    canvasCtx.fillText(`Hip: ${Math.round(hipAngle)}°`, canvasElement.width / 2 - 40, 50);
+                } else {
+                    stopTimer();
+                    statusDisplay.textContent = 'Not Detected';
+                    updateFeedback('warning', 'Move into frame');
+                }
+            }
+            
+            canvasCtx.restore();
+        }
+        
+        // Update feedback display
+        function updateFeedback(type, message) {
+            feedbackDiv.className = 'feedback';
+            if (type !== 'good') {
+                feedbackDiv.classList.add(type);
+            }
+            feedbackDiv.innerHTML = `<h4>${getFeedbackTitle(type)}</h4><p>${message}</p>`;
+        }
+        
+        function getFeedbackTitle(type) {
+            const titles = {
+                'good': '✓ Good Form',
+                'warning': '⚠️ Attention',
+                'error': '❌ Error'
+            };
+            return titles[type] || '';
+        }
+        
+        // Start camera
+        camera.start();
+        
+        // Keyboard control
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'q' || e.key === 'Q') {
+                stopTimer();
+                window.location.href = '/index2.html';
+            }
+        });
+    </script>
+</body>
+</html>
+
