@@ -490,6 +490,56 @@ def diet_search():
         return render_template('diet-search.html', rows=[], error=str(e))
 
 
+@app.route('/diet/calculate', methods=['POST'])
+def calculate_bmi_calories():
+    """Calculate BMI, BMR, maintenance calories, and protein requirement"""
+    try:
+        # Get user inputs
+        height_cm = float(request.form['height'])
+        weight_kg = float(request.form['weight'])
+        age = int(request.form['age'])
+        gender = request.form['gender']
+        
+        # Calculate BMI
+        height_m = height_cm / 100  # Convert cm to meters
+        bmi = weight_kg / (height_m ** 2)
+        
+        # Calculate BMR using Mifflin-St Jeor Equation
+        if gender.lower() == 'male':
+            bmr = (10 * weight_kg) + (6.25 * height_cm) - (5 * age) + 5
+        else:
+            bmr = (10 * weight_kg) + (6.25 * height_cm) - (5 * age) - 161
+        
+        # Calculate maintenance calories (moderate activity level)
+        maintenance_calories = bmr * 1.55
+        
+        # Calculate protein required (grams) = weight (kg) × 1.6
+        protein_required = weight_kg * 1.6
+        
+        # Determine BMI category
+        if bmi < 18.5:
+            bmi_category = 'Underweight'
+        elif 18.5 <= bmi <= 24.9:
+            bmi_category = 'Normal'
+        elif 25 <= bmi <= 29.9:
+            bmi_category = 'Overweight'
+        else:
+            bmi_category = 'Obese'
+        
+        # Render results on same page
+        return render_template('diet-mainpage.html', 
+                               bmi_result=True,
+                               bmi_value=round(bmi, 2),
+                               bmi_category=bmi_category,
+                               maintenance_calories=round(maintenance_calories, 2),
+                               bmr_value=round(bmr, 2),
+                               protein_required=round(protein_required, 2))
+    except Exception as e:
+        return render_template('diet-mainpage.html', 
+                               bmi_result=True,
+                               error=f'Error calculating: {str(e)}')
+
+
 # ==================== REST API Endpoints ====================
 
 # --- Users API ---
