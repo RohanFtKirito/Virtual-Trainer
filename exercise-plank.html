@@ -273,7 +273,7 @@
             <!-- Form Score -->
             <div class="stat-card">
                 <h3>Form Score</h3>
-                <div class="stat-value" id="formScore">100%</div>
+                <div class="stat-value" id="formScore">0%</div>
             </div>
             
             <!-- Status -->
@@ -308,10 +308,8 @@
         let startTime = null;
         let elapsedSeconds = 0;
         let timerInterval = null;
-        let formScore = 100;
+        let formScore = 0;  // Initialize at 0% - will update based on detection
         let isInPlankPosition = false;
-        let totalGoodFrames = 0;
-        let totalFrames = 0;
         
         const timerDisplay = document.getElementById('timer');
         const formScoreDisplay = document.getElementById('formScore');
@@ -418,8 +416,6 @@
                 const isVisible = leftShoulder.visibility > 0.5 && leftHip.visibility > 0.5 && leftAnkle.visibility > 0.5;
                 
                 if (isVisible) {
-                    totalFrames++;
-                    
                     // Calculate body alignment (shoulder to ankle line)
                     const shoulderMidY = (leftShoulder.y + rightShoulder.y) / 2;
                     const hipMidY = (leftHip.y + rightHip.y) / 2;
@@ -450,24 +446,32 @@
                         isInPlankPosition = true;
                         startTimer();
                         statusDisplay.textContent = 'Holding ✓';
-                        totalGoodFrames++;
                         
-                        // Update form score
-                        formScore = Math.round((totalGoodFrames / totalFrames) * 100);
+                        // Update form score to 100% for perfect plank
+                        formScore = 100;
                         formScoreDisplay.textContent = formScore + '%';
                         
                         updateFeedback('good', 'Great form! Keep holding');
                     } else if (bodyAngle < 150) {
                         isInPlankPosition = false;
                         statusDisplay.textContent = 'Too Low';
+                        // Update form score to 40% for wrong posture
+                        formScore = 40;
+                        formScoreDisplay.textContent = formScore + '%';
                         updateFeedback('warning', 'Lift your hips higher');
                     } else if (hipHeightRatio > 1.5) {
                         isInPlankPosition = false;
                         statusDisplay.textContent = 'Hips Too High';
+                        // Update form score to 40% for wrong posture
+                        formScore = 40;
+                        formScoreDisplay.textContent = formScore + '%';
                         updateFeedback('warning', 'Lower your hips');
                     } else {
                         isInPlankPosition = false;
                         statusDisplay.textContent = 'Adjust Position';
+                        // Update form score to 40% for wrong posture
+                        formScore = 40;
+                        formScoreDisplay.textContent = formScore + '%';
                         updateFeedback('warning', 'Straighten your body');
                     }
                     
@@ -478,6 +482,9 @@
                 } else {
                     stopTimer();
                     statusDisplay.textContent = 'Not Detected';
+                    // Update form score to 0% when not detected
+                    formScore = 0;
+                    formScoreDisplay.textContent = formScore + '%';
                     updateFeedback('warning', 'Move into frame');
                 }
             }

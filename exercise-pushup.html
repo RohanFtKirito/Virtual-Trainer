@@ -305,6 +305,23 @@
         let feedbackDiv = document.getElementById('feedback');
         let cameraStatus = document.getElementById('cameraStatus');
         
+        // Initialize speech synthesis for voice feedback
+        const synth = window.speechSynthesis;
+        
+        function speak(text) {
+            // Prevent overlapping speech
+            if (synth.speaking) return;
+            const utterance = new SpeechSynthesisUtterance(String(text));
+            utterance.rate = 1.2;
+            utterance.pitch = 1.0;
+            synth.speak(utterance);
+        }
+        
+        // Test voice on page load
+        setTimeout(() => {
+            speak("Exercise started");
+        }, 1000);
+        
         // Angle calculation function
         function calculateAngle(a, b, c) {
             const radians = Math.atan2(c.y - b.y, c.x - b.x) - Math.atan2(a.y - b.y, a.x - b.x);
@@ -414,13 +431,15 @@
                         stageDisplay.textContent = 'Arms Extended';
                         updateFeedback('good', 'Lower your body');
                     } else if (avgAngle < 70 && stage === 'up') {
-                        // Check if body is in proper position (not too angled)
+                    // Check if body is in proper position (not too angled)
                         if (bodyAngle > 120 && bodyAngle < 160) {
                             stage = 'down';
                             repCount++;
                             repCountDisplay.textContent = repCount;
                             stageDisplay.textContent = 'Push Up! ✓';
                             updateFeedback('good', 'Good rep! Push up');
+                            // Voice feedback for rep count
+                            speak(repCount);
                         } else {
                             updateFeedback('warning', 'Keep body straight');
                         }

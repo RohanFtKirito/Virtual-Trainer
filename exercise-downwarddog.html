@@ -309,12 +309,30 @@
         let elapsedSeconds = 0;
         let timerInterval = null;
         let isInPosition = false;
+        let stage = null; // For voice flag: 'correct' or 'incorrect'
         
         const timerDisplay = document.getElementById('timer');
         const bodyAngleDisplay = document.getElementById('bodyAngle');
         const statusDisplay = document.getElementById('status');
         const feedbackDiv = document.getElementById('feedback');
         const cameraStatus = document.getElementById('cameraStatus');
+        
+        // Initialize speech synthesis for voice feedback
+        const synth = window.speechSynthesis;
+        
+        function speak(text) {
+            // Prevent overlapping speech
+            if (synth.speaking) return;
+            const utterance = new SpeechSynthesisUtterance(String(text));
+            utterance.rate = 1.0;
+            utterance.pitch = 1.0;
+            synth.speak(utterance);
+        }
+        
+        // Test voice on page load
+        setTimeout(() => {
+            speak("Exercise started");
+        }, 1000);
         
         // Format time as MM:SS
         function formatTime(seconds) {
@@ -454,16 +472,31 @@
                         startTimer();
                         statusDisplay.textContent = 'In Pose ✓';
                         updateFeedback('good', 'Perfect form! Hold the pose');
+                        // Voice feedback with flag to avoid repetition
+                        if (stage !== 'correct') {
+                            speak('Correct');
+                            stage = 'correct';
+                        }
                     } else if (hipAngle > 120) {
                         isInPosition = false;
                         stopTimer();
                         statusDisplay.textContent = 'Too Flat';
                         updateFeedback('warning', 'Lift hips higher');
+                        // Voice feedback with flag
+                        if (stage !== 'wrong') {
+                            speak('Adjust');
+                            stage = 'wrong';
+                        }
                     } else if (hipAngle < 60) {
                         isInPosition = false;
                         stopTimer();
                         statusDisplay.textContent = 'Too Steep';
                         updateFeedback('warning', 'Lower hips slightly');
+                        // Voice feedback with flag
+                        if (stage !== 'wrong') {
+                            speak('Adjust');
+                            stage = 'wrong';
+                        }
                     }
                     
                     // Draw angle
