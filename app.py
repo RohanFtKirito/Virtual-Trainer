@@ -7,6 +7,7 @@ from flask import Flask, render_template, request, redirect, url_for, flash, jso
 from flask_sqlalchemy import SQLAlchemy
 from flask_bcrypt import Bcrypt
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
+from flask_cors import CORS
 from datetime import datetime
 import pickle
 import pandas as pd
@@ -15,6 +16,9 @@ import os
 
 # ==================== Flask Configuration ====================
 app = Flask(__name__, template_folder='.', static_folder='assets')
+
+# Enable CORS for all routes
+CORS(app)
 
 # Secret key for sessions (change in production)
 app.config['SECRET_KEY'] = 'virtual-trainer-secret-key-2024'
@@ -947,6 +951,7 @@ def calculate_bmi_calories():
 @app.route('/api/users', methods=['GET'])
 def api_get_users():
     """Get all users (admin only)"""
+    print("API HIT:", request.path)
     users = User.query.all()
     return jsonify([{
         'id': u.id,
@@ -960,9 +965,10 @@ def api_get_users():
 @login_required
 def api_get_user(user_id):
     """Get specific user info"""
+    print("API HIT:", request.path)
     if user_id != current_user.id:
         return jsonify({'error': 'Unauthorized'}), 403
-    
+
     user = User.query.get_or_404(user_id)
     return jsonify({
         'id': user.id,
@@ -978,6 +984,7 @@ def api_get_user(user_id):
 @login_required
 def api_get_exercises():
     """Get user's exercise history"""
+    print("API HIT:", request.path)
     exercises = ExerciseHistory.query.filter_by(user_id=current_user.id)\
         .order_by(ExerciseHistory.created_at.desc()).all()
     return jsonify([{
@@ -994,8 +1001,9 @@ def api_get_exercises():
 @login_required
 def api_add_exercise():
     """Log a new exercise"""
+    print("API HIT:", request.path)
     data = request.get_json()
-    
+
     exercise = ExerciseHistory(
         user_id=current_user.id,
         exercise_name=data.get('exercise_name'),
@@ -1005,7 +1013,7 @@ def api_add_exercise():
     )
     db.session.add(exercise)
     db.session.commit()
-    
+
     return jsonify({'message': 'Exercise logged successfully', 'id': exercise.id}), 201
 
 
@@ -1013,10 +1021,11 @@ def api_add_exercise():
 @login_required
 def api_delete_exercise(exercise_id):
     """Delete an exercise log"""
+    print("API HIT:", request.path)
     exercise = ExerciseHistory.query.get_or_404(exercise_id)
     if exercise.user_id != current_user.id:
         return jsonify({'error': 'Unauthorized'}), 403
-    
+
     db.session.delete(exercise)
     db.session.commit()
     return jsonify({'message': 'Exercise deleted successfully'})
@@ -1028,6 +1037,7 @@ def api_delete_exercise(exercise_id):
 @login_required
 def api_get_diet():
     """Get user's diet logs"""
+    print("API HIT:", request.path)
     diets = DietLog.query.filter_by(user_id=current_user.id)\
         .order_by(DietLog.created_at.desc()).all()
     return jsonify([{
@@ -1045,8 +1055,9 @@ def api_get_diet():
 @login_required
 def api_add_diet():
     """Log a new diet entry"""
+    print("API HIT:", request.path)
     data = request.get_json()
-    
+
     diet = DietLog(
         user_id=current_user.id,
         food_name=data.get('food_name'),
@@ -1057,7 +1068,7 @@ def api_add_diet():
     )
     db.session.add(diet)
     db.session.commit()
-    
+
     return jsonify({'message': 'Diet logged successfully', 'id': diet.id}), 201
 
 
@@ -1065,10 +1076,11 @@ def api_add_diet():
 @login_required
 def api_delete_diet(diet_id):
     """Delete a diet log"""
+    print("API HIT:", request.path)
     diet = DietLog.query.get_or_404(diet_id)
     if diet.user_id != current_user.id:
         return jsonify({'error': 'Unauthorized'}), 403
-    
+
     db.session.delete(diet)
     db.session.commit()
     return jsonify({'message': 'Diet log deleted successfully'})
@@ -1080,18 +1092,19 @@ def api_delete_diet(diet_id):
 @login_required
 def api_get_progress():
     """Get user's progress summary"""
+    print("API HIT:", request.path)
     # Exercise stats
     total_exercises = ExerciseHistory.query.filter_by(user_id=current_user.id).count()
     total_calories = db.session.query(db.func.sum(ExerciseHistory.calories_burned))\
         .filter_by(user_id=current_user.id).scalar() or 0
-    
+
     # Diet stats
     total_diet_logs = DietLog.query.filter_by(user_id=current_user.id).count()
     total_protein = db.session.query(db.func.sum(DietLog.protein))\
         .filter_by(user_id=current_user.id).scalar() or 0
     total_calories_consumed = db.session.query(db.func.sum(DietLog.calories))\
         .filter_by(user_id=current_user.id).scalar() or 0
-    
+
     return jsonify({
         'exercise': {
             'total_sessions': total_exercises,
