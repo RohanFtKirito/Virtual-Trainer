@@ -867,7 +867,7 @@
 				</div>
 			</div>
 
-			<form action="/diet/calculate" method="POST" onsubmit="showLoading()">
+			<form id="bmi-calculator-form" method="POST">
 				<div class="form-grid">
 					<div class="form-group">
 						<label for="height">Height (cm)</label>
@@ -912,21 +912,6 @@
 					Calculating...
 				</span>
 			</form>
-
-			{% if bmi_result %}
-				{% if error %}
-					<div class="error">{{ error }}</div>
-				{% else %}
-					<div class="result-box">
-						<h3><i class="fas fa-check-circle"></i> Your Results</h3>
-						<p><span>BMI:</span> <strong>{{ bmi_value }}</strong></p>
-						<p><span>BMI Category:</span> <strong>{{ bmi_category }}</strong></p>
-						<p><span>BMR (Basal Metabolic Rate):</span> <strong>{{ bmr_value }} kcal/day</strong></p>
-						<p><span>Maintenance Calories:</span> <strong>{{ maintenance_calories }} kcal/day</strong></p>
-						<p><span>Protein Required:</span> <strong>{{ protein_required }} g/day</strong></p>
-					</div>
-				{% endif %}
-			{% endif %}
 		</div>
 
 		<!-- SECTION 2: AI Diet Analysis -->
@@ -941,7 +926,7 @@
 				</div>
 			</div>
 
-			<form action="/diet/analyze" method="POST" id="diet-analysis-form">
+			<form id="diet-analysis-form" method="POST">
 				<div class="form-grid">
 					<div class="form-group">
 						<label for="input_1">Calories</label>
@@ -989,53 +974,6 @@
 					Analyze Diet
 				</button>
 			</form>
-
-			{% if analysis_result %}
-				<div class="analysis-result-box">
-					<!-- Score Section -->
-					<div class="score-section">
-						<div class="score-circle">
-							<span class="score-value">{{ analysis_result.score }}</span>
-							<span class="score-label">Score</span>
-						</div>
-						<div class="score-text">
-							<h3>Diet Quality Score</h3>
-							<p>{{ analysis_result.score_message }}</p>
-						</div>
-					</div>
-
-					<!-- Breakdown Section -->
-					<div class="breakdown-section">
-						<h4><i class="fas fa-chart-pie"></i> Macro Breakdown</h4>
-						<ul class="analysis-list">
-							{% for item in analysis_result.analysis %}
-								<li class="analysis-item">
-									<span class="item-text">{{ item }}</span>
-								</li>
-							{% endfor %}
-						</ul>
-					</div>
-
-					<!-- Suggestions Section -->
-					<div class="suggestions-section">
-						<h4><i class="fas fa-lightbulb"></i> AI Suggestions</h4>
-						<ul class="suggestions-list">
-							{% for suggestion in analysis_result.suggestions %}
-								<li class="suggestion-item">
-									<i class="fas fa-check-circle"></i>
-									<span>{{ suggestion }}</span>
-								</li>
-							{% endfor %}
-						</ul>
-					</div>
-
-					<!-- Quick Fix Section -->
-					<div class="quick-fix-section">
-						<h4><i class="fas fa-bolt"></i> Quick Fix</h4>
-						<p class="quick-fix-text">{{ analysis_result.quick_fix }}</p>
-					</div>
-				</div>
-			{% endif %}
 		</div>
 
 		<!-- SECTION 2-3: Food Recommendation Categories -->
@@ -1052,7 +990,7 @@
 					</div>
 				</div>
 
-				<form action="/diet/weightgain" method="POST">
+				<form id="weightgain-form" method="POST">
 					<div class="filter-section">
 						<span class="filter-label">Filters</span>
 						<div class="filter-options">
@@ -1080,30 +1018,6 @@
 						Get Weight Gain Foods
 					</button>
 				</form>
-
-				{% if weightgainfoods %}
-					<div class="food-list">
-						<p>✓ Recommended Indian foods for healthy weight gain:</p>
-						<ul>
-							{% for item in weightgainfoods.split('\n') %}
-								{% if item.strip() %}
-									<li>
-										<div class="food-item-content">
-											<div class="food-name">{{ item.split(' - ')[0] if ' - ' in item else item }}</div>
-											{% if ' - ' in item %}
-												<div class="food-description">{{ item.split(' - ')[1] }}</div>
-											{% endif %}
-										</div>
-										<div class="food-tags">
-											<span class="food-tag high-energy">High Energy</span>
-											<span class="food-tag protein">Protein</span>
-										</div>
-									</li>
-								{% endif %}
-							{% endfor %}
-						</ul>
-					</div>
-				{% endif %}
 			</div>
 
 			<!-- Weight Loss Foods -->
@@ -1118,7 +1032,7 @@
 					</div>
 				</div>
 
-				<form action="/diet/weightloss" method="POST">
+				<form id="weightloss-form" method="POST">
 					<div class="filter-section">
 						<span class="filter-label">Filters</span>
 						<div class="filter-options">
@@ -1146,37 +1060,13 @@
 						Get Weight Loss Foods
 					</button>
 				</form>
-
-				{% if weightlossfoods %}
-					<div class="food-list">
-						<p>✓ Recommended Indian foods for healthy weight loss:</p>
-						<ul>
-							{% for item in weightlossfoods.split('\n') %}
-								{% if item.strip() %}
-									<li>
-										<div class="food-item-content">
-											<div class="food-name">{{ item.split(' - ')[0] if ' - ' in item else item }}</div>
-											{% if ' - ' in item %}
-												<div class="food-description">{{ item.split(' - ')[1] }}</div>
-											{% endif %}
-										</div>
-										<div class="food-tags">
-											<span class="food-tag low-cal">Low Calorie</span>
-											<span class="food-tag protein">High Protein</span>
-										</div>
-									</li>
-								{% endif %}
-							{% endfor %}
-						</ul>
-					</div>
-				{% endif %}
 			</div>
 		</div>
 
 		<!-- CTA Section -->
 		<div class="cta-section">
 			<p>Want to explore more food options?</p>
-			<form action="/diet/search" method="GET">
+			<form action="https://virtual-trainer-backend.onrender.com/diet/search" method="GET" target="_blank">
 				<button type="submit" class="btn btn-primary">
 					<i class="fas fa-database"></i>
 					View Complete Food Database
@@ -1187,13 +1077,309 @@
 
 	<!-- JavaScript -->
 	<script>
-		function showLoading() {
-			var btn = document.getElementById('calculate-btn');
-			var msg = document.getElementById('loading-msg');
-			btn.disabled = true;
-			btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Calculating...';
-			msg.style.display = 'inline-flex';
+		// Backend API Base URL
+		const API_BASE = "https://virtual-trainer-backend.onrender.com";
+
+		// Show loading state
+		function showLoading(btn, msg) {
+			if (btn) {
+				btn.disabled = true;
+				btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+			}
+			if (msg) {
+				msg.style.display = 'inline-flex';
+			}
 		}
+
+		// Hide loading state
+		function hideLoading(btn, msg, originalText) {
+			if (btn) {
+				btn.disabled = false;
+				btn.innerHTML = originalText;
+			}
+			if (msg) {
+				msg.style.display = 'none';
+			}
+		}
+
+		// Display error message
+		function showError(message) {
+			alert('Error: ' + message);
+		}
+
+		// BMI Calculator Form Handler
+		document.getElementById('bmi-calculator-form').addEventListener('submit', async function(e) {
+			e.preventDefault();
+
+			const btn = document.getElementById('calculate-btn');
+			const msg = document.getElementById('loading-msg');
+			const originalBtnText = '<i class="fas fa-chart-line"></i> Calculate BMI & Calories';
+
+			showLoading(btn, msg);
+
+			const formData = new FormData(this);
+			const data = {
+				height: formData.get('height'),
+				weight: formData.get('weight'),
+				age: formData.get('age'),
+				gender: formData.get('gender')
+			};
+
+			try {
+				const response = await fetch(`${API_BASE}/diet/calculate`, {
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json'
+					},
+					body: JSON.stringify(data)
+				});
+
+				if (!response.ok) {
+					throw new Error('Failed to calculate');
+				}
+
+				const result = await response.json();
+
+				// Remove existing result box if any
+				const existingResult = this.parentElement.querySelector('.result-box');
+				if (existingResult) existingResult.remove();
+
+				// Create and display result box
+				const resultBox = document.createElement('div');
+				resultBox.className = 'result-box';
+				resultBox.innerHTML = `
+					<h3><i class="fas fa-check-circle"></i> Your Results</h3>
+					<p><span>BMI:</span> <strong>${result.bmi_value}</strong></p>
+					<p><span>BMI Category:</span> <strong>${result.bmi_category}</strong></p>
+					<p><span>BMR (Basal Metabolic Rate):</span> <strong>${result.bmr_value} kcal/day</strong></p>
+					<p><span>Maintenance Calories:</span> <strong>${result.maintenance_calories} kcal/day</strong></p>
+					<p><span>Protein Required:</span> <strong>${result.protein_required} g/day</strong></p>
+				`;
+				this.parentElement.appendChild(resultBox);
+
+			} catch (error) {
+				console.error('BMI Calculator Error:', error);
+				showError('Could not calculate BMI. Please try again.');
+			} finally {
+				hideLoading(btn, msg, originalBtnText);
+			}
+		});
+
+		// Diet Analysis Form Handler
+		document.getElementById('diet-analysis-form').addEventListener('submit', async function(e) {
+			e.preventDefault();
+
+			const btn = this.querySelector('button[type="submit"]');
+			const originalBtnText = btn.innerHTML;
+			btn.disabled = true;
+			btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Analyzing...';
+
+			const formData = new FormData(this);
+			const data = {
+				input_1: formData.get('input_1'),
+				input_2: formData.get('input_2'),
+				input_3: formData.get('input_3'),
+				goal: formData.get('goal')
+			};
+
+			try {
+				const response = await fetch(`${API_BASE}/diet/analyze`, {
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json'
+					},
+					body: JSON.stringify(data)
+				});
+
+				if (!response.ok) {
+					throw new Error('Failed to analyze diet');
+				}
+
+				const result = await response.json();
+
+				// Remove existing result if any
+				const existingResult = this.parentElement.querySelector('.analysis-result-box');
+				if (existingResult) existingResult.remove();
+
+				// Create and display analysis result
+				const resultBox = document.createElement('div');
+				resultBox.className = 'analysis-result-box';
+				resultBox.innerHTML = `
+					<div class="score-section">
+						<div class="score-circle">
+							<span class="score-value">${result.score}</span>
+							<span class="score-label">Score</span>
+						</div>
+						<div class="score-text">
+							<h3>Diet Quality Score</h3>
+							<p>${result.score_message}</p>
+						</div>
+					</div>
+					<div class="breakdown-section">
+						<h4><i class="fas fa-chart-pie"></i> Macro Breakdown</h4>
+						<ul class="analysis-list">
+							${result.analysis.map(item => `<li class="analysis-item"><span class="item-text">${item}</span></li>`).join('')}
+						</ul>
+					</div>
+					<div class="suggestions-section">
+						<h4><i class="fas fa-lightbulb"></i> AI Suggestions</h4>
+						<ul class="suggestions-list">
+							${result.suggestions.map(s => `<li class="suggestion-item"><i class="fas fa-check-circle"></i><span>${s}</span></li>`).join('')}
+						</ul>
+					</div>
+					<div class="quick-fix-section">
+						<h4><i class="fas fa-bolt"></i> Quick Fix</h4>
+						<p class="quick-fix-text">${result.quick_fix}</p>
+					</div>
+				`;
+				this.parentElement.appendChild(resultBox);
+
+			} catch (error) {
+				console.error('Diet Analysis Error:', error);
+				showError('Could not analyze diet. Please try again.');
+			} finally {
+				btn.disabled = false;
+				btn.innerHTML = originalBtnText;
+			}
+		});
+
+		// Weight Gain Form Handler
+		document.getElementById('weightgain-form').addEventListener('submit', async function(e) {
+			e.preventDefault();
+
+			const btn = this.querySelector('button[type="submit"]');
+			const originalBtnText = btn.innerHTML;
+			btn.disabled = true;
+			btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Loading...';
+
+			const formData = new FormData(this);
+			const vegetarian = formData.get('vegetarian');
+
+			try {
+				const response = await fetch(`${API_BASE}/diet/weightgain`, {
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json'
+					},
+					body: JSON.stringify({
+						vegetarian: vegetarian ? 'vegetarian' : ''
+					})
+				});
+
+				if (!response.ok) {
+					throw new Error('Failed to get recommendations');
+				}
+
+				const text = await response.text();
+				const weightgainfoods = text;
+
+				// Remove existing result if any
+				const existingResult = this.parentElement.querySelector('.food-list');
+				if (existingResult) existingResult.remove();
+
+				// Parse and display food list
+				const foodListDiv = document.createElement('div');
+				foodListDiv.className = 'food-list';
+				foodListDiv.innerHTML = '<p>✓ Recommended Indian foods for healthy weight gain:</p><ul></ul>';
+				const ul = foodListDiv.querySelector('ul');
+
+				weightgainfoods.split('\n').forEach(item => {
+					if (item.trim()) {
+						const li = document.createElement('li');
+						const parts = item.split(' - ');
+						li.innerHTML = `
+							<div class="food-item-content">
+								<div class="food-name">${parts[0]}</div>
+								${parts[1] ? `<div class="food-description">${parts[1]}</div>` : ''}
+							</div>
+							<div class="food-tags">
+								<span class="food-tag high-energy">High Energy</span>
+								<span class="food-tag protein">Protein</span>
+							</div>
+						`;
+						ul.appendChild(li);
+					}
+				});
+
+				this.parentElement.appendChild(foodListDiv);
+
+			} catch (error) {
+				console.error('Weight Gain Error:', error);
+				showError('Could not load recommendations. Please try again.');
+			} finally {
+				btn.disabled = false;
+				btn.innerHTML = originalBtnText;
+			}
+		});
+
+		// Weight Loss Form Handler
+		document.getElementById('weightloss-form').addEventListener('submit', async function(e) {
+			e.preventDefault();
+
+			const btn = this.querySelector('button[type="submit"]');
+			const originalBtnText = btn.innerHTML;
+			btn.disabled = true;
+			btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Loading...';
+
+			const formData = new FormData(this);
+			const vegetarian = formData.get('vegetarian');
+
+			try {
+				const response = await fetch(`${API_BASE}/diet/weightloss`, {
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json'
+					},
+					body: JSON.stringify({
+						vegetarian: vegetarian ? 'vegetarian' : ''
+					})
+				});
+
+				if (!response.ok) {
+					throw new Error('Failed to get recommendations');
+				}
+
+				const text = await response.text();
+				const weightlossfoods = text;
+
+				// Remove existing result if any
+				const existingResult = this.parentElement.querySelector('.food-list');
+				if (existingResult) existingResult.remove();
+
+				// Parse and display food list
+				const foodListDiv = document.createElement('div');
+				foodListDiv.className = 'food-list';
+				foodListDiv.innerHTML = '<p>✓ Recommended Indian foods for healthy weight loss:</p><ul></ul>';
+				const ul = foodListDiv.querySelector('ul');
+
+				weightlossfoods.split('\n').forEach(item => {
+					if (item.trim()) {
+						const li = document.createElement('li');
+						const parts = item.split(' - ');
+						li.innerHTML = `
+							<div class="food-item-content">
+								<div class="food-name">${parts[0]}</div>
+								${parts[1] ? `<div class="food-description">${parts[1]}</div>` : ''}
+							</div>
+							<div class="food-tags">
+								<span class="food-tag low-cal">Low Calorie</span>
+								<span class="food-tag protein">High Protein</span>
+							</div>
+						`;
+						ul.appendChild(li);
+					}
+				});
+
+				this.parentElement.appendChild(foodListDiv);
+
+			} catch (error) {
+				console.error('Weight Loss Error:', error);
+				showError('Could not load recommendations. Please try again.');
+			} finally {
+				btn.disabled = false;
+				btn.innerHTML = originalBtnText;
+			}
+		});
 	</script>
 </body>
 </html>
