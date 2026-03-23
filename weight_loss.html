@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Virtual Trainer - Weight Loss Training</title>
+	<!-- Google Fonts -->
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+	<!-- Font Awesome -->
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+	<style>
+		/* ==================== Reset & Base Styles ==================== */
+		* {
+			margin: 0;
+			padding: 0;
+			box-sizing: border-box;
+		}
+
+		body {
+			font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+			background: linear-gradient(135deg, #0f0f23 0%, #1a1a3e 50%, #0d0d1f 100%);
+			min-height: 100vh;
+			color: #ffffff;
+			line-height: 1.6;
+			position: relative;
+			overflow-x: hidden;
+		}
+
+		body::before {
+			content: '';
+			position: fixed;
+			top: 0;
+			left: 0;
+			width: 100%;
+			height: 100%;
+			background-image: url('/assets/img/index2/collage.png');
+			background-size: cover;
+			background-position: center;
+			opacity: 0.08;
+			z-index: 0;
+			pointer-events: none;
+		}
+
+		/* ==================== Layout ==================== */
+		.container {
+			max-width: 1400px;
+			margin: 0 auto;
+			padding: 40px 24px;
+			position: relative;
+			z-index: 1;
+		}
+
+		/* ==================== Navigation ==================== */
+		.nav-bar {
+			display: flex;
+			gap: 12px;
+			margin-bottom: 40px;
+			flex-wrap: wrap;
+		}
+
+		.nav-link {
+			display: inline-flex;
+			align-items: center;
+			gap: 8px;
+			padding: 12px 20px;
+			background: rgba(255, 255, 255, 0.05);
+			border: 1px solid rgba(255, 255, 255, 0.1);
+			color: #b0b0cc;
+			text-decoration: none;
+			border-radius: 10px;
+			font-size: 14px;
+			font-weight: 500;
+			transition: all 0.3s ease;
+			backdrop-filter: blur(10px);
+		}
+
+		.nav-link:hover {
+			background: rgba(255, 107, 107, 0.15);
+			border-color: rgba(255, 107, 107, 0.3);
+			color: #ff6b6b;
+			transform: translateY(-2px);
+		}
+
+		.nav-link i {
+			font-size: 16px;
+		}
+
+		/* ==================== Hero Section ==================== */
+		.hero {
+			text-align: center;
+			margin-bottom: 60px;
+		}
+
+		.hero-badge {
+			display: inline-flex;
+			align-items: center;
+			gap: 8px;
+			padding: 8px 16px;
+			background: rgba(255, 107, 107, 0.15);
+			border: 1px solid rgba(255, 107, 107, 0.3);
+			border-radius: 20px;
+			font-size: 13px;
+			font-weight: 600;
+			color: #ff6b6b;
+			margin-bottom: 20px;
+			text-transform: uppercase;
+			letter-spacing: 1px;
+		}
+
+		.hero h1 {
+			font-size: clamp(36px, 6vw, 56px);
+			font-weight: 900;
+			background: linear-gradient(135deg, #ff6b6b 0%, #ffa502 100%);
+			-webkit-background-clip: text;
+			-webkit-text-fill-color: transparent;
+			background-clip: text;
+			margin-bottom: 16px;
+			line-height: 1.1;
+		}
+
+		.hero p {
+			font-size: 18px;
+			color: #8a8aa8;
+			max-width: 700px;
+			margin: 0 auto;
+		}
+
+		/* ==================== Exercise Cards Grid ==================== */
+		.exercises-grid {
+			display: grid;
+			grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+			gap: 24px;
+		}
+
+		/* ==================== Exercise Card ==================== */
+		.exercise-card {
+			background: rgba(255, 255, 255, 0.03);
+			border: 1px solid rgba(255, 255, 255, 0.08);
+			border-radius: 20px;
+			overflow: hidden;
+			transition: all 0.4s ease;
+		}
+
+		.exercise-card:hover {
+			transform: translateY(-8px);
+			border-color: rgba(255, 107, 107, 0.3);
+			box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+		}
+
+		.exercise-image {
+			position: relative;
+			height: 200px;
+			overflow: hidden;
+		}
+
+		.exercise-image img {
+			width: 100%;
+			height: 100%;
+			object-fit: cover;
+			transition: transform 0.6s ease;
+		}
+
+		.exercise-card:hover .exercise-image img {
+			transform: scale(1.1);
+		}
+
+		.exercise-overlay {
+			position: absolute;
+			top: 0;
+			left: 0;
+			width: 100%;
+			height: 100%;
+			background: linear-gradient(180deg, rgba(15, 15, 35, 0.2) 0%, rgba(15, 15, 35, 0.7) 100%);
+			z-index: 1;
+		}
+
+		.exercise-badge {
+			position: absolute;
+			top: 16px;
+			left: 16px;
+			padding: 6px 14px;
+			background: rgba(255, 107, 107, 0.9);
+			border-radius: 6px;
+			font-size: 11px;
+			font-weight: 700;
+			text-transform: uppercase;
+			letter-spacing: 0.5px;
+			color: #ffffff;
+			z-index: 2;
+		}
+
+		.exercise-difficulty {
+			position: absolute;
+			top: 16px;
+			right: 16px;
+			padding: 6px 12px;
+			background: rgba(0, 0, 0, 0.6);
+			backdrop-filter: blur(10px);
+			border-radius: 6px;
+			font-size: 11px;
+			font-weight: 600;
+			text-transform: uppercase;
+			letter-spacing: 0.5px;
+			color: #b0b0cc;
+			z-index: 2;
+		}
+
+		.exercise-difficulty.beginner {
+			color: #28a745;
+		}
+
+		.exercise-difficulty.intermediate {
+			color: #ffa502;
+		}
+
+		.exercise-difficulty.advanced {
+			color: #ff6b6b;
+		}
+
+		.exercise-content {
+			padding: 24px;
+		}
+
+		.exercise-title {
+			font-size: 20px;
+			font-weight: 800;
+			color: #ffffff;
+			margin-bottom: 8px;
+		}
+
+		.exercise-description {
+			font-size: 14px;
+			color: #8a8aa8;
+			margin-bottom: 16px;
+			line-height: 1.6;
+		}
+
+		.exercise-meta {
+			display: flex;
+			gap: 16px;
+			margin-bottom: 20px;
+		}
+
+		.meta-item {
+			display: flex;
+			align-items: center;
+			gap: 6px;
+			font-size: 12px;
+			color: #b0b0cc;
+		}
+
+		.meta-item i {
+			color: #ff6b6b;
+			font-size: 14px;
+		}
+
+		.exercise-button {
+			display: inline-flex;
+			align-items: center;
+			justify-content: center;
+			gap: 10px;
+			width: 100%;
+			padding: 14px 20px;
+			background: linear-gradient(135deg, #ff6b6b 0%, #ee5a5a 100%);
+			border: none;
+			border-radius: 10px;
+			color: #ffffff;
+			font-size: 14px;
+			font-weight: 600;
+			cursor: pointer;
+			transition: all 0.3s ease;
+			text-decoration: none;
+			box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
+		}
+
+		.exercise-button:hover {
+			background: linear-gradient(135deg, #ff8787 0%, #ff6b6b 100%);
+			transform: translateY(-2px);
+			box-shadow: 0 6px 20px rgba(255, 107, 107, 0.4);
+		}
+
+		.exercise-button.secondary {
+			background: rgba(255, 255, 255, 0.05);
+			border: 1px solid rgba(255, 107, 107, 0.3);
+		}
+
+		.exercise-button.secondary:hover {
+			background: rgba(255, 107, 107, 0.15);
+			border-color: rgba(255, 107, 107, 0.5);
+		}
+
+		.button-group {
+			display: flex;
+			gap: 12px;
+			margin-top: 16px;
+		}
+
+		.button-group .exercise-button {
+			flex: 1;
+		}
+
+		/* ==================== Tips Section ==================== */
+		.tips-section {
+			background: rgba(255, 255, 255, 0.02);
+			border: 1px solid rgba(255, 255, 255, 0.05);
+			border-radius: 20px;
+			padding: 40px;
+			margin-top: 60px;
+		}
+
+		.tips-header {
+			text-align: center;
+			margin-bottom: 32px;
+		}
+
+		.tips-header h2 {
+			font-size: 28px;
+			font-weight: 800;
+			color: #ffffff;
+			margin-bottom: 8px;
+		}
+
+		.tips-header p {
+			color: #8a8aa8;
+			font-size: 15px;
+		}
+
+		.tips-grid {
+			display: grid;
+			grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+			gap: 24px;
+		}
+
+		.tip-card {
+			background: rgba(255, 255, 255, 0.03);
+			border: 1px solid rgba(255, 255, 255, 0.08);
+			border-radius: 12px;
+			padding: 24px;
+			transition: all 0.3s ease;
+		}
+
+		.tip-card:hover {
+			background: rgba(255, 255, 255, 0.05);
+			border-color: rgba(255, 107, 107, 0.2);
+			transform: translateY(-4px);
+		}
+
+		.tip-icon {
+			width: 48px;
+			height: 48px;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			background: linear-gradient(135deg, rgba(255, 107, 107, 0.2) 0%, rgba(255, 165, 2, 0.2) 100%);
+			border-radius: 12px;
+			font-size: 20px;
+			color: #ff6b6b;
+			margin-bottom: 16px;
+		}
+
+		.tip-card h3 {
+			font-size: 16px;
+			font-weight: 700;
+			color: #ffffff;
+			margin-bottom: 8px;
+		}
+
+		.tip-card p {
+			font-size: 13px;
+			color: #8a8aa8;
+			line-height: 1.6;
+		}
+
+		/* ==================== Responsive Design ==================== */
+		@media (max-width: 768px) {
+			.container {
+				padding: 24px 16px;
+			}
+
+			.nav-bar {
+				flex-direction: column;
+			}
+
+			.nav-link {
+				width: 100%;
+				justify-content: center;
+			}
+
+			.hero h1 {
+				font-size: 32px;
+			}
+
+			.exercises-grid {
+				grid-template-columns: 1fr;
+			}
+
+			.tips-section {
+				padding: 24px;
+			}
+		}
+
+		@media (max-width: 480px) {
+			.hero h1 {
+				font-size: 28px;
+			}
+
+			.exercise-content {
+				padding: 20px;
+			}
+		}
+	</style>
+</head>
+<body>
+	<div class="container">
+		<!-- Navigation -->
+		<nav class="nav-bar">
+			<a href="/" class="nav-link">
+				<i class="fas fa-home"></i>
+				<span>Back to Home</span>
+			</a>
+			<a href="/courses.html" class="nav-link">
+				<i class="fas fa-arrow-left"></i>
+				<span>All Programs</span>
+			</a>
+			<a href="/weight-gain" class="nav-link">
+				<i class="fas fa-dumbbell"></i>
+				<span>Weight Gain</span>
+			</a>
+		</nav>
+
+		<!-- Hero Section -->
+		<section class="hero">
+			<div class="hero-badge">
+				<i class="fas fa-fire"></i>
+				<span>Burn Fat</span>
+			</div>
+			<h1>Weight Loss Training</h1>
+			<p>High-intensity cardio and bodyweight exercises to burn calories, boost metabolism, and achieve your weight loss goals</p>
+		</section>
+
+		<!-- Exercises Grid -->
+		<div class="exercises-grid">
+			<!-- Jumping Jacks -->
+			<div class="exercise-card">
+				<div class="exercise-image">
+					<img src="https://images.unsplash.com/photo-1599058945522-28d584b6f0ff?w=600&h=400&fit=crop" alt="Jumping Jacks">
+					<div class="exercise-overlay"></div>
+					<span class="exercise-badge">Cardio</span>
+					<span class="exercise-difficulty beginner">Beginner</span>
+				</div>
+				<div class="exercise-content">
+					<h3 class="exercise-title">Jumping Jacks</h3>
+					<p class="exercise-description">Classic full-body cardio exercise that elevates heart rate and burns calories. Perfect warm-up or HIIT component.</p>
+					<div class="exercise-meta">
+						<span class="meta-item"><i class="fas fa-weight-hanging"></i> Bodyweight</span>
+						<span class="meta-item"><i class="fas fa-fire"></i> 100 cal/10 min</span>
+					</div>
+					<a href="https://www.youtube.com/watch?v=dmMwK4OoUjM" target="_blank" class="exercise-button">
+						<i class="fab fa-youtube"></i>
+						Watch Tutorial
+					</a>
+				</div>
+			</div>
+
+			<!-- Burpees -->
+			<div class="exercise-card">
+				<div class="exercise-image">
+					<img src="https://images.unsplash.com/photo-1599058945522-28d584b6f0ff?w=600&h=400&fit=crop" alt="Burpees">
+					<div class="exercise-overlay"></div>
+					<span class="exercise-badge">HIIT</span>
+					<span class="exercise-difficulty intermediate">Intermediate</span>
+				</div>
+				<div class="exercise-content">
+					<h3 class="exercise-title">Burpees</h3>
+					<p class="exercise-description">The ultimate fat-burning exercise! Combines squat, push-up, and jump for maximum calorie burn in minimal time.</p>
+					<div class="exercise-meta">
+						<span class="meta-item"><i class="fas fa-weight-hanging"></i> Bodyweight</span>
+						<span class="meta-item"><i class="fas fa-fire"></i> 150 cal/10 min</span>
+					</div>
+					<a href="https://www.youtube.com/watch?v=TU8DffXiTME" target="_blank" class="exercise-button">
+						<i class="fab fa-youtube"></i>
+						Watch Tutorial
+					</a>
+				</div>
+			</div>
+
+			<!-- Mountain Climbers -->
+			<div class="exercise-card">
+				<div class="exercise-image">
+					<img src="https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=600&h=400&fit=crop" alt="Mountain Climbers">
+					<div class="exercise-overlay"></div>
+					<span class="exercise-badge">Core</span>
+					<span class="exercise-difficulty intermediate">Intermediate</span>
+				</div>
+				<div class="exercise-content">
+					<h3 class="exercise-title">Mountain Climbers</h3>
+					<p class="exercise-description">Dynamic core exercise that also provides cardio benefits. Engages multiple muscle groups while burning fat.</p>
+					<div class="exercise-meta">
+						<span class="meta-item"><i class="fas fa-weight-hanging"></i> Bodyweight</span>
+						<span class="meta-item"><i class="fas fa-fire"></i> 120 cal/10 min</span>
+					</div>
+					<a href="https://www.youtube.com/watch?v=nmwgirgXLYM" target="_blank" class="exercise-button">
+						<i class="fab fa-youtube"></i>
+						Watch Tutorial
+					</a>
+				</div>
+			</div>
+
+			<!-- Plank -->
+			<div class="exercise-card">
+				<div class="exercise-image">
+					<img src="https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=600&h=400&fit=crop" alt="Plank">
+					<div class="exercise-overlay"></div>
+					<span class="exercise-badge">Core</span>
+					<span class="exercise-difficulty beginner">Beginner</span>
+				</div>
+				<div class="exercise-content">
+					<h3 class="exercise-title">Plank</h3>
+					<p class="exercise-description">Isometric core exercise that strengthens abs, back, and shoulders. Build stability and burn calories effectively.</p>
+					<div class="exercise-meta">
+						<span class="meta-item"><i class="fas fa-weight-hanging"></i> Bodyweight</span>
+						<span class="meta-item"><i class="fas fa-clock"></i> 30-60 sec</span>
+					</div>
+					<div class="button-group">
+						<a href="/exercise/plank" class="exercise-button">
+							<i class="fas fa-camera"></i>
+							Start AI Training
+						</a>
+						<a href="https://www.youtube.com/watch?v=ASdvN_XEl_c" target="_blank" class="exercise-button secondary">
+							<i class="fab fa-youtube"></i>
+							Watch Tutorial
+						</a>
+					</div>
+				</div>
+			</div>
+
+			<!-- High Knees -->
+			<div class="exercise-card">
+				<div class="exercise-image">
+					<img src="https://images.unsplash.com/photo-1599058945522-28d584b6f0ff?w=600&h=400&fit=crop" alt="High Knees">
+					<div class="exercise-overlay"></div>
+					<span class="exercise-badge">Cardio</span>
+					<span class="exercise-difficulty beginner">Beginner</span>
+				</div>
+				<div class="exercise-content">
+					<h3 class="exercise-title">High Knees</h3>
+					<p class="exercise-description">High-intensity cardio move that elevates heart rate quickly. Great for burning calories and improving leg endurance.</p>
+					<div class="exercise-meta">
+						<span class="meta-item"><i class="fas fa-weight-hanging"></i> Bodyweight</span>
+						<span class="meta-item"><i class="fas fa-fire"></i> 130 cal/10 min</span>
+					</div>
+					<a href="https://www.youtube.com/watch?v=A5vhbOcJLyA" target="_blank" class="exercise-button">
+						<i class="fab fa-youtube"></i>
+						Watch Tutorial
+					</a>
+				</div>
+			</div>
+		</div>
+
+		<!-- Tips Section -->
+		<div class="tips-section">
+			<div class="tips-header">
+				<h2><i class="fas fa-lightbulb"></i> Weight Loss Tips</h2>
+				<p>Maximize your results with these guidelines</p>
+			</div>
+			<div class="tips-grid">
+				<div class="tip-card">
+					<div class="tip-icon">
+						<i class="fas fa-fire-alt"></i>
+					</div>
+					<h3>Create Calorie Deficit</h3>
+					<p>Consume 300-500 calories below maintenance daily. Combine with exercise for sustainable weight loss.</p>
+				</div>
+				<div class="tip-card">
+					<div class="tip-icon">
+						<i class="fas fa-heartbeat"></i>
+					</div>
+					<h3>Stay Consistent</h3>
+					<p>Aim for at least 150 minutes of moderate cardio per week. Consistency beats intensity every time.</p>
+				</div>
+				<div class="tip-card">
+					<div class="tip-icon">
+						<i class="fas fa-dumbbell"></i>
+					</div>
+					<h3>Add Strength Training</h3>
+					<p>Build muscle to boost metabolism. More muscle = more calories burned even at rest.</p>
+				</div>
+				<div class="tip-card">
+					<div class="tip-icon">
+						<i class="fas fa-glass-water"></i>
+					</div>
+					<h3>Hydrate Well</h3>
+					<p>Drink water before meals to feel fuller. Proper hydration also optimizes fat burning and workout performance.</p>
+				</div>
+			</div>
+		</div>
+	</div>
+</body>
+</html>

@@ -1,334 +1,478 @@
-<!doctype html>
-<html class="no-js" lang="zxx">
+<!DOCTYPE html>
+<html lang="en">
 <head>
-    <meta charset="utf-8">
-    <meta http-equiv="x-ua-compatible" content="ie=edge">
-    <title>Virtual Trainer</title>
-    <meta name="description" content="">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="manifest" href="site.webmanifest">
-    <link rel="shortcut icon" type="image/x-icon" href="assets/img/favicon.ico">
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Virtual Trainer - Exercise Training</title>
+	<!-- Google Fonts -->
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+	<!-- Font Awesome -->
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-    <!-- CSS here -->
-    <link rel="stylesheet" href="assets/css/bootstrap.min.css">
-    <link rel="stylesheet" href="assets/css/owl.carousel.min.css">
-    <link rel="stylesheet" href="assets/css/slicknav.css">
-    <link rel="stylesheet" href="assets/css/flaticon.css">
-    <link rel="stylesheet" href="assets/css/gijgo.css">
-    <link rel="stylesheet" href="assets/css/animate.min.css">
-    <link rel="stylesheet" href="assets/css/animated-headline.css">
-    <link rel="stylesheet" href="assets/css/magnific-popup.css">
-    <link rel="stylesheet" href="assets/css/fontawesome-all.min.css">
-    <link rel="stylesheet" href="assets/css/themify-icons.css">
-    <link rel="stylesheet" href="assets/css/slick.css">
-    <link rel="stylesheet" href="assets/css/nice-select.css">
-    <link rel="stylesheet" href="assets/css/style.css">
+	<style>
+		/* ==================== Reset & Base Styles ==================== */
+		* {
+			margin: 0;
+			padding: 0;
+			box-sizing: border-box;
+		}
+
+		body {
+			font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+			background: linear-gradient(135deg, #0f0f23 0%, #1a1a3e 50%, #0d0d1f 100%);
+			min-height: 100vh;
+			color: #ffffff;
+			line-height: 1.6;
+			position: relative;
+			overflow-x: hidden;
+		}
+
+		body::before {
+			content: '';
+			position: fixed;
+			top: 0;
+			left: 0;
+			width: 100%;
+			height: 100%;
+			background-image: url('/assets/img/index2/collage.png');
+			background-size: cover;
+			background-position: center;
+			opacity: 0.08;
+			z-index: 0;
+			pointer-events: none;
+		}
+
+		/* ==================== Layout ==================== */
+		.container {
+			max-width: 1200px;
+			margin: 0 auto;
+			padding: 40px 24px;
+			position: relative;
+			z-index: 1;
+		}
+
+		/* ==================== Navigation ==================== */
+		.nav-bar {
+			display: flex;
+			gap: 12px;
+			margin-bottom: 40px;
+			flex-wrap: wrap;
+		}
+
+		.nav-link {
+			display: inline-flex;
+			align-items: center;
+			gap: 8px;
+			padding: 12px 20px;
+			background: rgba(255, 255, 255, 0.05);
+			border: 1px solid rgba(255, 255, 255, 0.1);
+			color: #b0b0cc;
+			text-decoration: none;
+			border-radius: 10px;
+			font-size: 14px;
+			font-weight: 500;
+			transition: all 0.3s ease;
+			backdrop-filter: blur(10px);
+		}
+
+		.nav-link:hover {
+			background: rgba(255, 107, 107, 0.15);
+			border-color: rgba(255, 107, 107, 0.3);
+			color: #ff6b6b;
+			transform: translateY(-2px);
+		}
+
+		.nav-link i {
+			font-size: 16px;
+		}
+
+		/* ==================== Hero Section ==================== */
+		.hero {
+			text-align: center;
+			margin-bottom: 60px;
+		}
+
+		.hero-badge {
+			display: inline-flex;
+			align-items: center;
+			gap: 8px;
+			padding: 8px 16px;
+			background: rgba(255, 107, 107, 0.15);
+			border: 1px solid rgba(255, 107, 107, 0.3);
+			border-radius: 20px;
+			font-size: 13px;
+			font-weight: 600;
+			color: #ff6b6b;
+			margin-bottom: 20px;
+			text-transform: uppercase;
+			letter-spacing: 1px;
+		}
+
+		.hero h1 {
+			font-size: clamp(36px, 6vw, 56px);
+			font-weight: 900;
+			background: linear-gradient(135deg, #ff6b6b 0%, #ffa502 100%);
+			-webkit-background-clip: text;
+			-webkit-text-fill-color: transparent;
+			background-clip: text;
+			margin-bottom: 16px;
+			line-height: 1.1;
+		}
+
+		.hero p {
+			font-size: 18px;
+			color: #8a8aa8;
+			max-width: 600px;
+			margin: 0 auto;
+		}
+
+		/* ==================== Cards Grid ==================== */
+		.cards-grid {
+			display: grid;
+			grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+			gap: 32px;
+			margin-bottom: 60px;
+		}
+
+		/* ==================== Training Card ==================== */
+		.training-card {
+			position: relative;
+			background: rgba(255, 255, 255, 0.03);
+			border: 1px solid rgba(255, 255, 255, 0.08);
+			border-radius: 24px;
+			overflow: hidden;
+			transition: all 0.4s ease;
+			cursor: pointer;
+			text-decoration: none;
+			color: inherit;
+			display: block;
+		}
+
+		.training-card:hover {
+			transform: translateY(-8px);
+			border-color: rgba(255, 107, 107, 0.3);
+			box-shadow: 0 30px 60px rgba(0, 0, 0, 0.4);
+		}
+
+		.card-image {
+			position: relative;
+			height: 280px;
+			overflow: hidden;
+		}
+
+		.card-image img {
+			width: 100%;
+			height: 100%;
+			object-fit: cover;
+			transition: transform 0.6s ease;
+		}
+
+		.training-card:hover .card-image img {
+			transform: scale(1.1);
+		}
+
+		.card-overlay {
+			position: absolute;
+			top: 0;
+			left: 0;
+			width: 100%;
+			height: 100%;
+			background: linear-gradient(180deg, rgba(15, 15, 35, 0.3) 0%, rgba(15, 15, 35, 0.8) 100%);
+			z-index: 1;
+		}
+
+		.card-icon {
+			position: absolute;
+			top: 20px;
+			right: 20px;
+			width: 56px;
+			height: 56px;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			background: rgba(255, 107, 107, 0.9);
+			border-radius: 12px;
+			font-size: 24px;
+			color: #ffffff;
+			z-index: 2;
+			box-shadow: 0 8px 20px rgba(255, 107, 107, 0.4);
+		}
+
+		.card-content {
+			padding: 32px;
+			position: relative;
+			z-index: 2;
+		}
+
+		.card-tag {
+			display: inline-block;
+			padding: 6px 14px;
+			background: rgba(255, 107, 107, 0.15);
+			border-radius: 6px;
+			font-size: 11px;
+			font-weight: 700;
+			text-transform: uppercase;
+			letter-spacing: 1px;
+			color: #ff6b6b;
+			margin-bottom: 12px;
+		}
+
+		.card-title {
+			font-size: 28px;
+			font-weight: 800;
+			color: #ffffff;
+			margin-bottom: 12px;
+			transition: color 0.3s ease;
+		}
+
+		.training-card:hover .card-title {
+			color: #ff6b6b;
+		}
+
+		.card-description {
+			font-size: 15px;
+			color: #8a8aa8;
+			margin-bottom: 24px;
+			line-height: 1.7;
+		}
+
+		.card-features {
+			display: flex;
+			flex-wrap: wrap;
+			gap: 12px;
+			margin-bottom: 24px;
+		}
+
+		.feature-item {
+			display: flex;
+			align-items: center;
+			gap: 6px;
+			font-size: 13px;
+			color: #b0b0cc;
+		}
+
+		.feature-item i {
+			color: #28a745;
+			font-size: 12px;
+		}
+
+		.card-button {
+			display: inline-flex;
+			align-items: center;
+			gap: 10px;
+			padding: 14px 28px;
+			background: linear-gradient(135deg, #ff6b6b 0%, #ee5a5a 100%);
+			border: none;
+			border-radius: 10px;
+			color: #ffffff;
+			font-size: 15px;
+			font-weight: 600;
+			cursor: pointer;
+			transition: all 0.3s ease;
+			box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
+		}
+
+		.card-button:hover {
+			background: linear-gradient(135deg, #ff8787 0%, #ff6b6b 100%);
+			transform: translateY(-2px);
+			box-shadow: 0 6px 20px rgba(255, 107, 107, 0.4);
+		}
+
+		/* ==================== Stats Section ==================== */
+		.stats-section {
+			background: rgba(255, 255, 255, 0.02);
+			border: 1px solid rgba(255, 255, 255, 0.05);
+			border-radius: 20px;
+			padding: 40px;
+			margin-bottom: 40px;
+		}
+
+		.stats-grid {
+			display: grid;
+			grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+			gap: 24px;
+		}
+
+		.stat-card {
+			text-align: center;
+		}
+
+		stat-icon {
+			width: 64px;
+			height: 64px;
+			margin: 0 auto 16px;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			background: linear-gradient(135deg, rgba(255, 107, 107, 0.2) 0%, rgba(255, 165, 2, 0.2) 100%);
+			border-radius: 16px;
+			font-size: 24px;
+			color: #ff6b6b;
+		}
+
+		.stat-value {
+			font-size: 36px;
+			font-weight: 900;
+			color: #ffffff;
+			margin-bottom: 4px;
+		}
+
+		.stat-label {
+			font-size: 13px;
+			color: #8a8aa8;
+			text-transform: uppercase;
+			letter-spacing: 0.5px;
+		}
+
+		/* ==================== Responsive Design ==================== */
+		@media (max-width: 768px) {
+			.container {
+				padding: 24px 16px;
+			}
+
+			.nav-bar {
+				flex-direction: column;
+			}
+
+			.nav-link {
+				width: 100%;
+				justify-content: center;
+			}
+
+			.hero h1 {
+				font-size: 32px;
+			}
+
+			.cards-grid {
+				grid-template-columns: 1fr;
+				gap: 24px;
+			}
+
+			.card-image {
+				height: 220px;
+			}
+
+			.card-content {
+				padding: 24px;
+			}
+
+			.card-title {
+				font-size: 24px;
+			}
+		}
+
+		@media (max-width: 480px) {
+			.hero h1 {
+				font-size: 28px;
+			}
+
+			.card-image {
+				height: 200px;
+			}
+
+			.stats-grid {
+				grid-template-columns: 1fr;
+			}
+		}
+	</style>
 </head>
-<body class="black-bg">
-    <!-- ? Preloader Start -->
-    <div id="preloader-active">
-        <div class="preloader d-flex align-items-center justify-content-center">
-            <div class="preloader-inner position-relative">
-                <div class="preloader-circle"></div>
-                <!-- <div class="preloader-img pere-text">
-                    <img src="assets/img/logo/loder.png" alt="">
-                </div> -->
-            </div>
-        </div>
-    </div>
-    <!-- Preloader Start -->
-    <header>
-        <!-- Header Start -->
-        <div class="header-area header-transparent">
-            <div class="main-header header-sticky">
-                <div class="container-fluid">
-                    <div class="menu-wrapper d-flex align-items-center justify-content-between">
-                        <!-- Logo -->
-                        <!-- <div class="logo">
-                            <a href="index.html"><img src="assets/img/logo/logo.png" alt=""></a>
-                        </div> -->
-                        <!-- Main-menu -->
-                        <div class="main-menu f-right d-none d-lg-block">
-                            <nav>
-                                <ul id="navigation">
-                                    <li><a href="index.html">Home</a></li>
-                                    <li><a href="about.html">About</a></li>
-                                    <li><a href="courses.html">Courses</a></li>
-                                    <!-- <li><a href="pricing.html">Pricing</a></li> -->
-                                    <li><a href="blog.html">Blog</a>
-                                        <ul class="submenu">
-                                            <li><a href="blog.html">Blog</a></li>
-                                            <li><a href="blog_details.html">Blog Details</a></li>
-                                            <li><a href="elements.html">Elements</a></li>
-                                        </ul>
-                                    </li>
-                                    <li><a href="contact.html">Contact</a></li>
-                                </ul>
-                            </nav>
-                        </div>          
-                        <!-- Header-btn -->
-                        <div class="header-btns d-none d-lg-block f-right">
-                           <a href="contact.html" class="btn">Contact me</a>
-                       </div>
-                       <!-- Mobile Menu -->
-                       <div class="col-12">
-                        <div class="mobile_menu d-block d-lg-none"></div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <!-- Header End -->
-</header>
-<main>
-    <!--? Hero Start -->
-    <div class="slider-area2">
-        <div class="slider-height2 d-flex align-items-center">
-            <div class="container">
-                <div class="row">
-                    <div class="col-xl-12">
-                        <div class="hero-cap hero-cap2 pt-70">
-                            <h2>Courses</h2>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <!-- Hero End -->
-    <!--? Team -->
-    <section class="team-area fix section-padding30">
-        <div class="container">
-            <div class="row">
-                <div class="col-xl-12">
-                    <div class="section-tittle text-center mb-55">
-<h2>We Offer</h2>
-                    </div>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-lg-4 col-md-6">
-                    <div class="single-cat text-center mb-30">
-                        <div class="cat-icon">
-                            <img src="assets/img/gallery/team1.png" alt="">
-                        </div>
-                        <div class="cat-cap">
-                            <h5><a href="services.html">Body Building</a></h5>
-                            <p>You’ll look at graphs and charts in Task One, how to approach the task </p>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-lg-4 col-md-6">
-                    <div class="single-cat text-center mb-30">
-                        <div class="cat-icon">
-                            <img src="assets/img/gallery/team2.png" alt="">
-                        </div>
-                        <div class="cat-cap">
-                            <h5><a href="services.html">Muscle Gain</a></h5>
-                            <p>You’ll look at graphs and charts in Task One, how to approach the task </p>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-lg-4 col-md-6">
-                    <div class="single-cat text-center mb-30">
-                        <div class="cat-icon">
-                            <img src="assets/img/gallery/team3.png" alt="">
-                        </div>
-                        <div class="cat-cap">
-                            <h5><a href="services.html">Weight Loss</a></h5>
-                            <p>You’ll look at graphs and charts in Task One, how to approach the task </p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-    <!-- Services End -->
-    <!-- Traning categories Start -->
-    <section class="traning-categories black-bg">
-        <div class="container-fluid">
-            <div class="row">
-                <div class="col-xl-6 col-lg-6">
-                    <div class="single-topic text-center mb-30">
-                        <div class="topic-img">
-                            <img src="assets/img/gallery/cat1.png" alt="">
-                            <div class="topic-content-box">
-                                <div class="topic-content">
-                                    <h3>Personal traning</h3>
-                                    <p>Virtual Trainer will train you! <br> By spectating you virtually </p>
-                                    <a href="index2.html" class="border-btn">START TO TRAIN</a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-xl-6 col-lg-6">
-                    <div class="single-topic text-center mb-30">
-                        <div class="topic-img">
-                            <img src="assets/img/gallery/cat2.png" alt="">
-                            <div class="topic-content-box">
-                                <div class="topic-content">
-                                    <h3>Recommendations</h3>
-                                    <p>Virtual Trainer will provide suggestions by monitoring you. <br> </p>
-                                    <a href="/diet" class="btn">GET SUGGESTIONS</a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-    <!-- Traning categories End-->
+<body>
+	<div class="container">
+		<!-- Navigation -->
+		<nav class="nav-bar">
+			<a href="/" class="nav-link">
+				<i class="fas fa-home"></i>
+				<span>Back to Home</span>
+			</a>
+			<a href="/index2.html" class="nav-link">
+				<i class="fas fa-dumbbell"></i>
+				<span>AI Training</span>
+			</a>
+			<a href="/diet" class="nav-link">
+				<i class="fas fa-utensils"></i>
+				<span>Diet Recommendations</span>
+			</a>
+		</nav>
 
-    <!-- ? services-area -->
-    <section class="services-area">
-        <div class="container">
-            <div class="row justify-content-between">
-                <div class="col-xl-4 col-lg-4 col-md-6 col-sm-8">
-                    <div class="single-services mb-40">
-                        <div class="features-icon">
-                            <img src="assets/img/icon/icon1.svg" alt="">
-                        </div>
-                        <div class="features-caption">
-                            <h3>Location</h3>
-                            <p>You’ll look at graphs and charts in Task One, how to approach </p>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-xl-3 col-lg-4 col-md-6 col-sm-8">
-                    <div class="single-services mb-40">
-                        <div class="features-icon">
-                            <img src="assets/img/icon/icon2.svg" alt="">
-                        </div>
-                        <div class="features-caption">
-                            <h3>Phone</h3>
-                            <p>(90) 111 222 333</p>
-                            <p>  (78) 444 555 666</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-xl-3 col-lg-4 col-md-6 col-sm-8">
-                    <div class="single-services mb-40">
-                        <div class="features-icon">
-                            <img src="assets/img/icon/icon3.svg" alt="">
-                        </div>
-                        <div class="features-caption">
-<h3>Email</h3>
-                            <p>vtrainer007@gmail.com</p>
-                            <p>contact123@abc.com</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-</main>
-<footer>
-    <!--? Footer Start-->
-    <div class="footer-area black-bg">
-        <div class="container">
-            <div class="footer-top footer-padding">
-                <!-- Footer Menu -->
-                <div class="row">
-                    <div class="col-xl-12">
-                        <div class="single-footer-caption mb-50 text-center">
-                            <!-- logo -->
-                            <!-- <div class="footer-logo wow fadeInUp" data-wow-duration="1s" data-wow-delay=".2s">
-                                <a href="index.html"><img src="assets/img/logo/logo2_footer.png" alt=""></a>
-                            </div> -->
-                            <!-- Menu -->
-                            <!-- Header Start -->
-                            <div class="header-area main-header2 wow fadeInUp" data-wow-duration="2s" data-wow-delay=".4s">
-                                <div class="main-header main-header2">
-                                    <div class="menu-wrapper menu-wrapper2">
-                                        <!-- Main-menu -->
-                                        <div class="main-menu main-menu2 text-center">
-                                            <nav>
-                                                <ul>
-                                                    <li><a href="index.html">Home</a></li>
-                                                    <li><a href="about.html">About</a></li>
-                                                    <li><a href="courses.html">Courses</a></li>
-                                                    <!-- <li><a href="pricing.html">Pricing</a></li> -->
-                                                    <li><a href="contact.html">Contact</a></li>
-                                                </ul>
-                                            </nav>
-                                        </div>   
-                                    </div>
-                                </div>
-                            </div>
-                            <!-- Header End -->
-                            <!-- social -->
-                            <div class="footer-social mt-30 wow fadeInUp" data-wow-duration="3s" data-wow-delay=".8s">
-                                <a href="#"><i class="fab fa-twitter"></i></a>
-                                <a href="https://bit.ly/sai4ull"><i class="fab fa-facebook-f"></i></a>
-                                <a href="#"><i class="fab fa-pinterest-p"></i></a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <!-- Footer Bottom -->
-            <div class="footer-bottom">
-                <div class="row d-flex align-items-center">
-                    <div class="col-lg-12">
-                        <!-- <div class="footer-copy-right text-center"> -->
-                            <!-- <p>Link back to Colorlib can't be removed. Template is licensed under CC BY 3.0. -->
-                              <!-- Copyright &copy;<script>document.write(new Date().getFullYear());</script> All rights reserved | This template is made with <i class="fa fa-heart" aria-hidden="true"></i> by <a href="https://colorlib.com" target="_blank">Colorlib</a> -->
-                              <!-- Link back to Colorlib can't be removed. Template is licensed under CC BY 3.0. --></p>
-                          <!-- </div> -->
-                      </div>
-                  </div>
-              </div>
-          </div>
-      </div>
-      <!-- Footer End-->
-  </footer>
-  <!-- Scroll Up -->
-  <div id="back-top" >
-    <a title="Go to Top" href="#"> <i class="fas fa-level-up-alt"></i></a>
-</div>
+		<!-- Hero Section -->
+		<section class="hero">
+			<div class="hero-badge">
+				<i class="fas fa-robot"></i>
+				<span>AI-Powered Training</span>
+			</div>
+			<h1>AI Powered Training Programs</h1>
+			<p>Experience the future of fitness with real-time AI posture detection and guided tutorials</p>
+		</section>
 
-<!-- JS here -->
+		<!-- Main AI Training Card -->
+		<div class="cards-grid">
+			<a href="/index2.html" class="training-card" style="grid-column: 1 / -1;">
+				<div class="card-image">
+					<img src="https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=1200&h=600&fit=crop" alt="AI Exercise Trainer">
+					<div class="card-overlay"></div>
+					<div class="card-icon">
+						<i class="fas fa-robot"></i>
+					</div>
+				</div>
+				<div class="card-content">
+					<span class="card-tag">AI-Powered Training</span>
+					<h2 class="card-title">AI Exercise Trainer</h2>
+					<p class="card-description">
+						Train smarter with real-time AI posture detection, guided tutorials, and goal-based exercise recommendations. Get instant feedback on your form and achieve your fitness goals faster.
+					</p>
+					<div class="card-features">
+						<span class="feature-item"><i class="fas fa-check"></i> Real-time pose detection</span>
+						<span class="feature-item"><i class="fas fa-check"></i> Video tutorials</span>
+						<span class="feature-item"><i class="fas fa-check"></i> AI-based recommendations</span>
+						<span class="feature-item"><i class="fas fa-check"></i> Beginner-friendly</span>
+					</div>
+					<span class="card-button">
+						<i class="fas fa-play"></i>
+						Start Training
+					</span>
+				</div>
+			</a>
+		</div>
 
-<script src="./assets/js/vendor/modernizr-3.5.0.min.js"></script>
-<!-- Jquery, Popper, Bootstrap -->
-<script src="./assets/js/vendor/jquery-1.12.4.min.js"></script>
-<script src="./assets/js/popper.min.js"></script>
-<script src="./assets/js/bootstrap.min.js"></script>
-<!-- Jquery Mobile Menu -->
-<script src="./assets/js/jquery.slicknav.min.js"></script>
-
-<!-- Jquery Slick , Owl-Carousel Plugins -->
-<script src="./assets/js/owl.carousel.min.js"></script>
-<script src="./assets/js/slick.min.js"></script>
-<!-- One Page, Animated-HeadLin -->
-<script src="./assets/js/wow.min.js"></script>
-<script src="./assets/js/animated.headline.js"></script>
-<script src="./assets/js/jquery.magnific-popup.js"></script>
-
-<!-- Date Picker -->
-<script src="./assets/js/gijgo.min.js"></script>
-<!-- Nice-select, sticky -->
-<script src="./assets/js/jquery.nice-select.min.js"></script>
-<script src="./assets/js/jquery.sticky.js"></script>
-
-<!-- counter , waypoint,Hover Direction -->
-<script src="./assets/js/jquery.counterup.min.js"></script>
-<script src="./assets/js/waypoints.min.js"></script>
-<script src="./assets/js/jquery.countdown.min.js"></script>
-<script src="./assets/js/hover-direction-snake.min.js"></script>
-
-<!-- contact js -->
-<script src="./assets/js/contact.js"></script>
-<script src="./assets/js/jquery.form.js"></script>
-<script src="./assets/js/jquery.validate.min.js"></script>
-<script src="./assets/js/mail-script.js"></script>
-<script src="./assets/js/jquery.ajaxchimp.min.js"></script>
-
-<!-- Jquery Plugins, main Jquery -->	
-<script src="./assets/js/plugins.js"></script>
-<script src="./assets/js/main.js"></script>
-
+		<!-- What You Get Section -->
+		<div class="stats-section" style="margin-top: 60px;">
+			<div style="text-align: center; margin-bottom: 40px;">
+				<h2 style="font-size: 32px; font-weight: 800; color: #ffffff; margin-bottom: 12px;">What You Get</h2>
+				<p style="color: #8a8aa8; font-size: 16px;">Everything you need for smart, effective training</p>
+			</div>
+			<div class="stats-grid">
+				<div class="stat-card">
+					<div class="stat-icon">
+						<i class="fas fa-robot"></i>
+					</div>
+					<h3 style="font-size: 20px; font-weight: 700; color: #ffffff; margin-bottom: 8px;">AI Training</h3>
+					<p style="font-size: 14px; color: #8a8aa8;">Real-time pose detection with instant feedback</p>
+				</div>
+				<div class="stat-card">
+					<div class="stat-icon">
+						<i class="fas fa-video"></i>
+					</div>
+					<h3 style="font-size: 20px; font-weight: 700; color: #ffffff; margin-bottom: 8px;">Guided Tutorials</h3>
+					<p style="font-size: 14px; color: #8a8aa8;">Professional video instructions for every exercise</p>
+				</div>
+				<div class="stat-card">
+					<div class="stat-icon">
+						<i class="fas fa-brain"></i>
+					</div>
+					<h3 style="font-size: 20px; font-weight: 700; color: #ffffff; margin-bottom: 8px;">Smart Recommendations</h3>
+					<p style="font-size: 14px; color: #8a8aa8;">AI suggests exercises based on your goals</p>
+				</div>
+				<div class="stat-card">
+					<div class="stat-icon">
+						<i class="fas fa-chart-line"></i>
+					</div>
+					<h3 style="font-size: 20px; font-weight: 700; color: #ffffff; margin-bottom: 8px;">Progress Tracking</h3>
+					<p style="font-size: 14px; color: #8a8aa8;">Monitor your reps, time, and improvements</p>
+				</div>
+			</div>
+		</div>
+	</div>
 </body>
 </html>

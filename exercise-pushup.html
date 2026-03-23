@@ -4,237 +4,385 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PushUp - Virtual Trainer</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- MediaPipe -->
     <script src="https://cdn.jsdelivr.net/npm/@mediapipe/pose/pose.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js"></script>
+
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
-        
+
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #0f0f23 0%, #1a1a3e 50%, #0d0d1f 100%);
             min-height: 100vh;
             color: white;
         }
-        
+
+        /* ==================== Header ==================== */
         .header {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            padding: 15px 20px;
+            padding: 20px 24px;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
         }
-        
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .header-icon {
+            width: 48px;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            font-size: 20px;
+        }
+
         .header h1 {
-            font-size: 1.5rem;
+            font-size: 24px;
+            font-weight: 800;
+            margin: 0;
         }
-        
+
         .back-btn {
-            background: rgba(255,255,255,0.2);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 24px;
+            background: rgba(255, 255, 255, 0.2);
             color: white;
-            padding: 10px 20px;
             border-radius: 25px;
             text-decoration: none;
-            transition: background 0.3s;
+            font-weight: 600;
+            font-size: 14px;
+            transition: all 0.3s ease;
         }
-        
+
         .back-btn:hover {
-            background: rgba(255,255,255,0.3);
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateX(-4px);
         }
-        
+
+        /* ==================== Main Content ==================== */
         .main-content {
+            display: grid;
+            grid-template-columns: 1fr 350px;
+            gap: 24px;
+            padding: 24px;
+            max-width: 1800px;
+            margin: 0 auto;
+        }
+
+        /* ==================== Video Container ==================== */
+        .video-section {
             display: flex;
-            padding: 20px;
-            gap: 20px;
-            flex-wrap: wrap;
+            flex-direction: column;
+            gap: 24px;
         }
-        
+
         .video-container {
-            flex: 1;
-            min-width: 400px;
-            background: #000;
-            border-radius: 15px;
-            overflow: hidden;
             position: relative;
+            background: #000;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+            border: 2px solid rgba(118, 75, 162, 0.2);
         }
-        
+
         #webcam {
             width: 100%;
-            height: 480px;
+            height: auto;
+            min-height: 500px;
             object-fit: cover;
             transform: scaleX(-1);
+            display: block;
         }
-        
+
         #canvas {
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
-            height: 480px;
+            height: 100%;
             transform: scaleX(-1);
+            pointer-events: none;
         }
-        
+
+        .camera-status {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 700;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .camera-status.active {
+            background: rgba(40, 167, 69, 0.8);
+            border-color: rgba(40, 167, 69, 0.3);
+        }
+
+        .camera-status::before {
+            content: '';
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #dc3545;
+        }
+
+        .camera-status.active::before {
+            background: #28a745;
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        /* ==================== Stats Panel ==================== */
         .stats-panel {
-            width: 300px;
             display: flex;
             flex-direction: column;
-            gap: 15px;
+            gap: 20px;
         }
-        
+
         .stat-card {
-            background: rgba(255,255,255,0.1);
-            border-radius: 15px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            padding: 24px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: rgba(118, 75, 162, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .stat-label {
+            font-size: 12px;
+            font-weight: 600;
+            color: #8a8aa8;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 12px;
+        }
+
+        .stat-value {
+            font-size: 48px;
+            font-weight: 900;
+            color: #764ba2;
+            line-height: 1;
+            margin-bottom: 4px;
+        }
+
+        .stat-unit {
+            font-size: 14px;
+            color: #6a6a7a;
+        }
+
+        /* ==================== Feedback ==================== */
+        .feedback {
+            background: rgba(40, 167, 69, 0.15);
+            border: 2px solid rgba(40, 167, 69, 0.3);
+            border-radius: 16px;
             padding: 20px;
             text-align: center;
+            transition: all 0.3s ease;
         }
-        
-        .stat-card h3 {
-            color: #aaa;
-            font-size: 0.9rem;
-            margin-bottom: 10px;
-            text-transform: uppercase;
-        }
-        
-        .stat-value {
-            font-size: 3rem;
-            font-weight: bold;
-            color: #764ba2;
-        }
-        
-        .stat-unit {
-            color: #888;
-            font-size: 1rem;
-        }
-        
-        .feedback {
-            background: rgba(40, 167, 69, 0.2);
-            border: 2px solid #28a745;
-            border-radius: 15px;
-            padding: 15px;
-            text-align: center;
-        }
-        
+
         .feedback.warning {
-            background: rgba(255, 193, 7, 0.2);
-            border-color: #ffc107;
+            background: rgba(255, 193, 7, 0.15);
+            border-color: rgba(255, 193, 7, 0.3);
         }
-        
+
         .feedback.error {
-            background: rgba(220, 53, 69, 0.2);
-            border-color: #dc3545;
+            background: rgba(220, 53, 69, 0.15);
+            border-color: rgba(220, 53, 69, 0.3);
         }
-        
+
         .feedback h4 {
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 8px;
             color: #28a745;
-            margin-bottom: 10px;
         }
-        
+
         .feedback.warning h4 {
             color: #ffc107;
         }
-        
+
         .feedback.error h4 {
             color: #dc3545;
         }
-        
+
+        .feedback p {
+            font-size: 14px;
+            color: #b0b0cc;
+        }
+
+        /* ==================== Instructions ==================== */
         .instructions {
-            background: rgba(255,255,255,0.05);
-            border-radius: 15px;
-            padding: 20px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            padding: 24px;
         }
-        
+
         .instructions h4 {
+            font-size: 16px;
+            font-weight: 700;
             color: #764ba2;
-            margin-bottom: 15px;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
-        
+
         .instructions ul {
             list-style: none;
             padding: 0;
         }
-        
+
         .instructions li {
-            padding: 8px 0;
-            padding-left: 25px;
+            padding: 10px 0;
+            padding-left: 28px;
             position: relative;
+            font-size: 14px;
+            color: #b0b0cc;
+            line-height: 1.5;
         }
-        
-        .instructions li:before {
-            content: "✓";
+
+        .instructions li::before {
+            content: '\f00c';
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
             position: absolute;
             left: 0;
             color: #28a745;
         }
-        
+
+        /* ==================== Loading Overlay ==================== */
         .loading-overlay {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0,0,0,0.9);
+            background: rgba(0, 0, 0, 0.95);
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
             z-index: 1000;
+            backdrop-filter: blur(10px);
         }
-        
+
         .loading-overlay.hidden {
             display: none;
         }
-        
+
         .spinner {
             width: 60px;
             height: 60px;
-            border: 4px solid rgba(255,255,255,0.3);
+            border: 4px solid rgba(255, 255, 255, 0.1);
             border-top-color: #764ba2;
             border-radius: 50%;
             animation: spin 1s linear infinite;
         }
-        
+
         @keyframes spin {
             to { transform: rotate(360deg); }
         }
-        
+
         .loading-text {
             margin-top: 20px;
-            font-size: 1.2rem;
+            font-size: 16px;
+            font-weight: 600;
+            color: #ffffff;
         }
-        
-        .camera-status {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            padding: 5px 15px;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            background: rgba(0,0,0,0.7);
-        }
-        
-        .camera-status.active {
-            background: rgba(40, 167, 69, 0.8);
-        }
-        
-        @media (max-width: 768px) {
+
+        /* ==================== Responsive ==================== */
+        @media (max-width: 1024px) {
             .main-content {
+                grid-template-columns: 1fr;
+            }
+
+            .stats-panel {
+                flex-direction: row;
+                flex-wrap: wrap;
+            }
+
+            .stat-card {
+                flex: 1;
+                min-width: 150px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+                gap: 16px;
+                text-align: center;
+            }
+
+            .main-content {
+                padding: 16px;
+            }
+
+            #webcam {
+                min-height: 360px;
+            }
+
+            .stats-panel {
                 flex-direction: column;
             }
-            
-            .video-container {
-                min-width: 100%;
+
+            .stat-value {
+                font-size: 36px;
             }
-            
-            #webcam, #canvas {
-                height: 360px;
+        }
+
+        @media (max-width: 480px) {
+            .header h1 {
+                font-size: 20px;
             }
-            
-            .stats-panel {
-                width: 100%;
+
+            .back-btn {
+                padding: 10px 20px;
+                font-size: 13px;
+            }
+
+            .stat-value {
+                font-size: 32px;
             }
         }
     </style>
@@ -245,45 +393,59 @@
         <div class="spinner"></div>
         <div class="loading-text">Loading AI Model...</div>
     </div>
-    
+
     <!-- Header -->
     <div class="header">
-        <h1>💪 PushUp Detection</h1>
-        <a href="/index2.html" class="back-btn">← Back to Exercises</a>
+        <div class="header-left">
+            <div class="header-icon">
+                <i class="fas fa-hand-rock"></i>
+            </div>
+            <h1>PushUp Detection</h1>
+        </div>
+        <a href="/index2.html" class="back-btn">
+            <i class="fas fa-arrow-left"></i>
+            Back to Exercises
+        </a>
     </div>
-    
+
     <!-- Main Content -->
     <div class="main-content">
-        <!-- Video Container -->
-        <div class="video-container">
-            <video id="webcam" autoplay playsinline></video>
-            <canvas id="canvas"></canvas>
-            <div class="camera-status" id="cameraStatus">Camera Off</div>
+        <!-- Video Section -->
+        <div class="video-section">
+            <div class="video-container">
+                <video id="webcam" autoplay playsinline></video>
+                <canvas id="canvas"></canvas>
+                <div class="camera-status" id="cameraStatus">
+                    <span></span>
+                    Camera Off
+                </div>
+            </div>
         </div>
-        
+
         <!-- Stats Panel -->
         <div class="stats-panel">
             <!-- Rep Counter -->
             <div class="stat-card">
-                <h3>Rep Count</h3>
+                <div class="stat-label">Rep Count</div>
                 <div class="stat-value" id="repCount">0</div>
+                <div class="stat-unit">reps</div>
             </div>
-            
+
             <!-- Stage Indicator -->
             <div class="stat-card">
-                <h3>Current Stage</h3>
-                <div class="stat-value" id="stage" style="font-size: 1.5rem;">Ready</div>
+                <div class="stat-label">Current Stage</div>
+                <div class="stat-value" id="stage" style="font-size: 24px;">Ready</div>
             </div>
-            
+
             <!-- Feedback -->
             <div class="feedback" id="feedback">
-                <h4>📍 Get into push-up position</h4>
-                <p>Face down, hands shoulder-width apart</p>
+                <h4>✓ Good Form</h4>
+                <p>Get into push-up position</p>
             </div>
-            
+
             <!-- Instructions -->
             <div class="instructions">
-                <h4>📋 How to Do Push-Ups</h4>
+                <h4><i class="fas fa-clipboard-list"></i> How to Do Push-Ups</h4>
                 <ul>
                     <li>Start in plank position</li>
                     <li>Place hands shoulder-width apart</li>
@@ -295,46 +457,78 @@
             </div>
         </div>
     </div>
-    
+
     <script>
-        // Variables for rep counting
+        // ==================== VARIABLES ====================
         let repCount = 0;
-        let stage = 'up'; // 'up' = arms extended (top), 'down' = arms bent (bottom)
+        let stage = 'up';
         let stageDisplay = document.getElementById('stage');
         let repCountDisplay = document.getElementById('repCount');
         let feedbackDiv = document.getElementById('feedback');
         let cameraStatus = document.getElementById('cameraStatus');
-        
-        // Initialize speech synthesis for voice feedback
+
+        // ==================== SIMPLE SMOOTHING & DEBOUNCE ====================
+        const elbowAngleWindow = [];
+        const WINDOW_SIZE = 5;
+        let lastRepTime = 0;
+        const REP_COOLDOWN = 500;
+        let lastElbowAngle = 0;
+
+        // ==================== FIXED THRESHOLDS (SIMPLIFIED) ====================
+        const UP_THRESHOLD = 160;     // Body up
+        const DOWN_THRESHOLD = 80;    // Body down
+
+        // ==================== SPEECH SYNTHESIS ====================
         const synth = window.speechSynthesis;
-        
+
         function speak(text) {
-            // Prevent overlapping speech
             if (synth.speaking) return;
             const utterance = new SpeechSynthesisUtterance(String(text));
             utterance.rate = 1.2;
             utterance.pitch = 1.0;
             synth.speak(utterance);
         }
-        
-        // Test voice on page load
-        setTimeout(() => {
-            speak("Exercise started");
-        }, 1000);
-        
-        // Angle calculation function
+
+        setTimeout(() => speak("Exercise started"), 1000);
+
+        // ==================== HELPER FUNCTIONS (SIMPLIFIED) ====================
+
+        // Calculate angle (2D is sufficient)
         function calculateAngle(a, b, c) {
             const radians = Math.atan2(c.y - b.y, c.x - b.x) - Math.atan2(a.y - b.y, a.x - b.x);
             let angle = Math.abs(radians * 180.0 / Math.PI);
             if (angle > 180.0) angle = 360 - angle;
             return angle;
         }
-        
-        // MediaPipe Pose setup
+
+        function smoothAngle(newAngle, window) {
+            window.push(newAngle);
+            if (window.length > WINDOW_SIZE) {
+                window.shift();
+            }
+            const sum = window.reduce((a, b) => a + b, 0);
+            return sum / window.length;
+        }
+
+        // RELAXED visibility check (0.5 threshold)
+        function checkVisibility(landmarks, indices) {
+            for (let idx of indices) {
+                if (landmarks[idx].visibility < 0.5) return false;
+            }
+            return true;
+        }
+
+        // RELAXED stability check (allow 50° jumps)
+        function isStable(currentAngle, prevAngle) {
+            const diff = Math.abs(currentAngle - prevAngle);
+            return diff < 50;
+        }
+
+        // ==================== MEDIAPIPE SETUP ====================
         const pose = new Pose({locateFile: (file) => {
             return `https://cdn.jsdelivr.net/npm/@mediapipe/pose/${file}`;
         }});
-        
+
         pose.setOptions({
             modelComplexity: 1,
             smoothLandmarks: true,
@@ -343,14 +537,13 @@
             minDetectionConfidence: 0.5,
             minTrackingConfidence: 0.5
         });
-        
+
         pose.onResults(onResults);
-        
-        // Camera setup
+
         const videoElement = document.getElementById('webcam');
         const canvasElement = document.getElementById('canvas');
         const canvasCtx = canvasElement.getContext('2d');
-        
+
         const camera = new Camera(videoElement, {
             onFrame: async () => {
                 await pose.send({image: videoElement});
@@ -358,136 +551,132 @@
             width: 640,
             height: 480
         });
-        
-        // Results handler
+
+        // ==================== RESULTS HANDLER (SIMPLIFIED) ====================
         function onResults(results) {
-            // Hide loading overlay
             document.getElementById('loadingOverlay').classList.add('hidden');
-            cameraStatus.textContent = '● Live';
+            cameraStatus.innerHTML = '<span></span> Live';
             cameraStatus.classList.add('active');
-            
+
             canvasElement.width = videoElement.videoWidth;
             canvasElement.height = videoElement.videoHeight;
-            
+
             canvasCtx.save();
             canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
             canvasCtx.drawImage(results.image, 0, 0, canvasElement.width, canvasElement.height);
-            
+
             if (results.poseLandmarks) {
-                // Draw pose landmarks
                 drawConnectors(canvasCtx, results.poseLandmarks, POSE_CONNECTIONS,
                     {color: '#764ba2', lineWidth: 2});
                 drawLandmarks(canvasCtx, results.poseLandmarks,
                     {color: '#ffffff', lineWidth: 1, radius: 3});
-                
+
                 const landmarks = results.poseLandmarks;
-                
-                // Get relevant landmarks for push-up
+
+                // Key landmarks for push-up
                 const leftShoulder = landmarks[11];
-                const leftElbow = landmarks[13];
-                const leftWrist = landmarks[15];
                 const rightShoulder = landmarks[12];
+                const leftElbow = landmarks[13];
                 const rightElbow = landmarks[14];
+                const leftWrist = landmarks[15];
                 const rightWrist = landmarks[16];
-                const leftHip = landmarks[23];
-                const rightHip = landmarks[24];
-                
-                // Check visibility
-                const isVisible = leftShoulder.visibility > 0.5 && leftElbow.visibility > 0.5 && leftWrist.visibility > 0.5;
-                
+
+                // RELAXED visibility check (0.5 threshold)
+                const isVisible = checkVisibility(landmarks, [11, 12, 13, 14, 15, 16]);
+
                 if (isVisible) {
-                    // Calculate elbow angles for both arms
-                    const leftAngle = calculateAngle(leftShoulder, leftElbow, leftWrist);
-                    const rightAngle = calculateAngle(rightShoulder, rightElbow, rightWrist);
-                    const avgAngle = (leftAngle + rightAngle) / 2;
-                    
-                    // Calculate body angle (shoulders to hips) to ensure proper form
-                    const bodyAngle = calculateAngle(
-                        {x: leftShoulder.x, y: leftShoulder.y},
-                        {x: leftHip.x, y: leftHip.y},
-                        {x: leftWrist.x, y: leftWrist.y}
-                    );
-                    
+                    // Calculate elbow angles (primary metric)
+                    const leftElbowAngle = calculateAngle(leftShoulder, leftElbow, leftWrist);
+                    const rightElbowAngle = calculateAngle(rightShoulder, rightElbow, rightWrist);
+                    const avgElbowAngle = (leftElbowAngle + rightElbowAngle) / 2;
+
+                    // Relaxed stability check
+                    if (!isStable(avgElbowAngle, lastElbowAngle)) {
+                        canvasCtx.restore();
+                        return;
+                    }
+                    lastElbowAngle = avgElbowAngle;
+
+                    // Smooth elbow angle
+                    const smoothedElbowAngle = smoothAngle(avgElbowAngle, elbowAngleWindow);
+
+                    // === SIMPLIFIED REP COUNTING LOGIC ===
+                    if (smoothedElbowAngle > UP_THRESHOLD) {
+                        stage = 'up';
+                        stageDisplay.textContent = 'Body Up';
+                        updateFeedback('good', 'Lower your body');
+                    } else if (smoothedElbowAngle < DOWN_THRESHOLD && stage === 'up') {
+                        // SIMPLIFIED: Count rep on way down
+                        const now = Date.now();
+                        if (now - lastRepTime > REP_COOLDOWN) {
+                            repCount++;
+                            repCountDisplay.textContent = repCount;
+                            stage = 'down';
+                            lastRepTime = now;
+                            stageDisplay.textContent = 'Body Down ✓';
+                            updateFeedback('good', 'Good rep! Push up');
+                            speak(repCount);
+                        }
+                    } else if (smoothedElbowAngle < UP_THRESHOLD && smoothedElbowAngle > DOWN_THRESHOLD) {
+                        stageDisplay.textContent = 'Moving...';
+                    }
+
                     // Draw arm lines
                     canvasCtx.beginPath();
                     canvasCtx.moveTo(leftShoulder.x * canvasElement.width, leftShoulder.y * canvasElement.height);
                     canvasCtx.lineTo(leftElbow.x * canvasElement.width, leftElbow.y * canvasElement.height);
                     canvasCtx.lineTo(leftWrist.x * canvasElement.width, leftWrist.y * canvasElement.height);
-                    canvasCtx.strokeStyle = '#28a745';
-                    canvasCtx.lineWidth = 4;
+                    canvasCtx.strokeStyle = smoothedElbowAngle < DOWN_THRESHOLD ? '#28a745' : '#764ba2';
+                    canvasCtx.lineWidth = 5;
                     canvasCtx.stroke();
-                    
+
                     canvasCtx.beginPath();
                     canvasCtx.moveTo(rightShoulder.x * canvasElement.width, rightShoulder.y * canvasElement.height);
                     canvasCtx.lineTo(rightElbow.x * canvasElement.width, rightElbow.y * canvasElement.height);
                     canvasCtx.lineTo(rightWrist.x * canvasElement.width, rightWrist.y * canvasElement.height);
                     canvasCtx.stroke();
-                    
-                    // Update stage based on angle
-                    // When angle is near 180, arms are extended (top position)
-                    // When angle is near 90 or less, arms are bent (bottom position)
-                    if (avgAngle > 160) {
-                        stage = 'up';
-                        stageDisplay.textContent = 'Arms Extended';
-                        updateFeedback('good', 'Lower your body');
-                    } else if (avgAngle < 70 && stage === 'up') {
-                    // Check if body is in proper position (not too angled)
-                        if (bodyAngle > 120 && bodyAngle < 160) {
-                            stage = 'down';
-                            repCount++;
-                            repCountDisplay.textContent = repCount;
-                            stageDisplay.textContent = 'Push Up! ✓';
-                            updateFeedback('good', 'Good rep! Push up');
-                            // Voice feedback for rep count
-                            speak(repCount);
-                        } else {
-                            updateFeedback('warning', 'Keep body straight');
-                        }
-                    } else if (avgAngle < 160 && avgAngle > 70) {
-                        stageDisplay.textContent = 'Moving...';
-                    }
-                    
+
                     // Draw angle text
-                    canvasCtx.font = 'bold 24px Arial';
+                    canvasCtx.font = 'bold 24px Inter, sans-serif';
                     canvasCtx.fillStyle = 'white';
-                    canvasCtx.fillText(`${Math.round(avgAngle)}°`, canvasElement.width / 2, 50);
+                    canvasCtx.fillText(`${Math.round(smoothedElbowAngle)}°`, canvasElement.width / 2 - 30, 50);
+
                 } else {
                     updateFeedback('warning', 'Move into frame');
                     stageDisplay.textContent = 'Not Detected';
                 }
             }
-            
+
             canvasCtx.restore();
         }
-        
-        // Update feedback display
+
+        // ==================== FEEDBACK ====================
         function updateFeedback(type, message) {
             feedbackDiv.className = 'feedback';
             if (type !== 'good') {
                 feedbackDiv.classList.add(type);
             }
-            feedbackDiv.innerHTML = `<h4>${getFeedbackTitle(type)}</h4><p>${message}</p>`;
-        }
-        
-        function getFeedbackTitle(type) {
             const titles = {
                 'good': '✓ Good Form',
                 'warning': '⚠️ Attention',
                 'error': '❌ Error'
             };
-            return titles[type] || '';
+            feedbackDiv.innerHTML = `<h4>${titles[type]}</h4><p>${message}</p>`;
         }
-        
-        // Start camera
+
+        // ==================== START ====================
         camera.start();
-        
-        // Keyboard control
+        let workoutStartTime = Date.now();
+
         document.addEventListener('keydown', (e) => {
             if (e.key === 'q' || e.key === 'Q') {
+                const duration = Math.floor((Date.now() - workoutStartTime) / 1000);
+                sessionStorage.setItem('lastWorkoutReps', repCount);
+                sessionStorage.setItem('lastWorkoutDuration', duration);
+                sessionStorage.setItem('lastWorkoutExercise', 'Push-up');
                 window.location.href = '/index2.html';
             }
         });
     </script>
 </body>
 </html>
-

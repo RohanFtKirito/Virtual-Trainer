@@ -1,547 +1,857 @@
-<!doctype html>
-<html class="no-js" lang="zxx">
+<!DOCTYPE html>
+<html lang="en">
 <head>
-    <meta charset="utf-8">
-    <meta http-equiv="x-ua-compatible" content="ie=edge">
-    <title>Virtual Trainer</title>
-    <meta name="description" content="">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="shortcut icon" type="image/x-icon" href="assets/img/favicon.ico">
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Blog - Virtual Trainer</title>
+	<!-- Google Fonts -->
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+	<!-- Font Awesome -->
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-    <!-- CSS here -->
-    <link rel="stylesheet" href="assets/css/bootstrap.min.css">
-    <link rel="stylesheet" href="assets/css/owl.carousel.min.css">
-    <link rel="stylesheet" href="assets/css/slicknav.css">
-    <link rel="stylesheet" href="assets/css/animate.min.css">
-    <link rel="stylesheet" href="assets/css/magnific-popup.css">
-    <link rel="stylesheet" href="assets/css/fontawesome-all.min.css">
-    <link rel="stylesheet" href="assets/css/themify-icons.css">
-    <link rel="stylesheet" href="assets/css/themify-icons.css">
-    <link rel="stylesheet" href="assets/css/slick.css">
-    <link rel="stylesheet" href="assets/css/nice-select.css">
-    <link rel="stylesheet" href="assets/css/style.css">
-    <link rel="stylesheet" href="assets/css/responsive.css">
+	<style>
+		/* ==================== Reset & Base Styles ==================== */
+		* {
+			margin: 0;
+			padding: 0;
+			box-sizing: border-box;
+		}
+
+		body {
+			font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+			background: linear-gradient(135deg, #0f0f23 0%, #1a1a3e 50%, #0d0d1f 100%);
+			min-height: 100vh;
+			color: #ffffff;
+			line-height: 1.6;
+			position: relative;
+			overflow-x: hidden;
+		}
+
+		body::before {
+			content: '';
+			position: fixed;
+			top: 0;
+			left: 0;
+			width: 100%;
+			height: 100%;
+			background-image: url('/assets/img/index2/collage.png');
+			background-size: cover;
+			background-position: center;
+			opacity: 0.08;
+			z-index: 0;
+			pointer-events: none;
+		}
+
+		/* ==================== Navigation ==================== */
+		.navbar {
+			position: fixed;
+			top: 0;
+			left: 0;
+			width: 100%;
+			z-index: 1000;
+			background: rgba(15, 15, 35, 0.8);
+			backdrop-filter: blur(20px);
+			border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+			padding: 16px 0;
+			transition: all 0.3s ease;
+		}
+
+		.navbar.scrolled {
+			background: rgba(15, 15, 35, 0.95);
+			box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+		}
+
+		.nav-container {
+			max-width: 1400px;
+			margin: 0 auto;
+			padding: 0 24px;
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+		}
+
+		.nav-logo {
+			font-size: 24px;
+			font-weight: 900;
+			background: linear-gradient(135deg, #ff6b6b 0%, #ffa502 100%);
+			-webkit-background-clip: text;
+			-webkit-text-fill-color: transparent;
+			background-clip: text;
+			text-decoration: none;
+			display: flex;
+			align-items: center;
+			gap: 10px;
+		}
+
+		.nav-menu {
+			display: flex;
+			gap: 8px;
+			list-style: none;
+		}
+
+		.nav-link {
+			display: inline-flex;
+			align-items: center;
+			gap: 6px;
+			padding: 10px 18px;
+			color: #b0b0cc;
+			text-decoration: none;
+			border-radius: 8px;
+			font-size: 14px;
+			font-weight: 500;
+			transition: all 0.3s ease;
+			position: relative;
+		}
+
+		.nav-link:hover {
+			color: #ffffff;
+			background: rgba(255, 107, 107, 0.1);
+		}
+
+		.nav-link.active {
+			color: #ff6b6b;
+			background: rgba(255, 107, 107, 0.15);
+		}
+
+		.nav-link.active::after {
+			content: '';
+			position: absolute;
+			bottom: 0;
+			left: 50%;
+			transform: translateX(-50%);
+			width: 20px;
+			height: 2px;
+			background: #ff6b6b;
+			border-radius: 2px;
+		}
+
+		/* ==================== Hero Section ==================== */
+		.hero {
+			position: relative;
+			min-height: 50vh;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			text-align: center;
+			padding: 120px 24px 60px;
+		}
+
+		.hero-content {
+			position: relative;
+			z-index: 2;
+			max-width: 900px;
+			animation: fadeInUp 1s ease;
+		}
+
+		@keyframes fadeInUp {
+			from {
+				opacity: 0;
+				transform: translateY(30px);
+			}
+			to {
+				opacity: 1;
+				transform: translateY(0);
+			}
+		}
+
+		.hero-badge {
+			display: inline-flex;
+			align-items: center;
+			gap: 8px;
+			padding: 10px 20px;
+			background: rgba(255, 107, 107, 0.15);
+			border: 1px solid rgba(255, 107, 107, 0.3);
+			border-radius: 25px;
+			font-size: 13px;
+			font-weight: 700;
+			color: #ff6b6b;
+			margin-bottom: 24px;
+			text-transform: uppercase;
+			letter-spacing: 1px;
+		}
+
+		.hero h1 {
+			font-size: clamp(42px, 8vw, 64px);
+			font-weight: 900;
+			background: linear-gradient(135deg, #ff6b6b 0%, #ffa502 100%);
+			-webkit-background-clip: text;
+			-webkit-text-fill-color: transparent;
+			background-clip: text;
+			margin-bottom: 24px;
+			line-height: 1.1;
+		}
+
+		.hero p {
+			font-size: 20px;
+			color: #8a8aa8;
+			max-width: 700px;
+			margin: 0 auto;
+			line-height: 1.8;
+		}
+
+		/* ==================== Blog Section ==================== */
+		.blog-section {
+			padding: 80px 24px;
+		}
+
+		.container {
+			max-width: 1400px;
+			margin: 0 auto;
+		}
+
+		.blog-grid {
+			display: grid;
+			grid-template-columns: 1fr 350px;
+			gap: 40px;
+		}
+
+		/* Blog Cards */
+		.blog-cards {
+			display: grid;
+			gap: 32px;
+		}
+
+		.blog-card {
+			background: rgba(255, 255, 255, 0.03);
+			border: 1px solid rgba(255, 255, 255, 0.08);
+			border-radius: 20px;
+			overflow: hidden;
+			transition: all 0.4s ease;
+			display: grid;
+			grid-template-columns: 300px 1fr;
+			gap: 0;
+		}
+
+		.blog-card:hover {
+			transform: translateY(-4px);
+			border-color: rgba(255, 107, 107, 0.3);
+			box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+		}
+
+		.blog-image {
+			position: relative;
+			height: 100%;
+			min-height: 250px;
+			overflow: hidden;
+		}
+
+		.blog-image img {
+			width: 100%;
+			height: 100%;
+			object-fit: cover;
+			transition: transform 0.6s ease;
+		}
+
+		.blog-card:hover .blog-image img {
+			transform: scale(1.1);
+		}
+
+		.blog-content {
+			padding: 32px;
+			display: flex;
+			flex-direction: column;
+		}
+
+		.blog-meta {
+			display: flex;
+			gap: 16px;
+			margin-bottom: 16px;
+		}
+
+		.meta-item {
+			display: flex;
+			align-items: center;
+			gap: 6px;
+			font-size: 12px;
+			color: #8a8aa8;
+		}
+
+		.meta-item i {
+			color: #ff6b6b;
+			font-size: 14px;
+		}
+
+		.blog-title {
+			font-size: 24px;
+			font-weight: 700;
+			color: #ffffff;
+			margin-bottom: 12px;
+			line-height: 1.3;
+		}
+
+		.blog-description {
+			font-size: 15px;
+			color: #8a8aa8;
+			margin-bottom: 20px;
+			line-height: 1.7;
+			flex-grow: 1;
+		}
+
+		.read-more {
+			display: inline-flex;
+			align-items: center;
+			gap: 8px;
+			color: #ff6b6b;
+			text-decoration: none;
+			font-weight: 600;
+			font-size: 14px;
+			transition: all 0.3s ease;
+		}
+
+		.read-more:hover {
+			color: #ff8787;
+			gap: 12px;
+		}
+
+		/* Sidebar */
+		.sidebar {
+			display: flex;
+			flex-direction: column;
+			gap: 32px;
+		}
+
+		.sidebar-widget {
+			background: rgba(255, 255, 255, 0.03);
+			border: 1px solid rgba(255, 255, 255, 0.08);
+			border-radius: 20px;
+			padding: 32px;
+		}
+
+		.sidebar-widget h3 {
+			font-size: 18px;
+			font-weight: 700;
+			color: #ffffff;
+			margin-bottom: 20px;
+			padding-bottom: 16px;
+			border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+		}
+
+		/* Search Widget */
+		.search-form {
+			display: flex;
+			gap: 8px;
+		}
+
+		.search-input {
+			flex: 1;
+			padding: 12px 16px;
+			background: rgba(255, 255, 255, 0.05);
+			border: 1px solid rgba(255, 255, 255, 0.1);
+			border-radius: 10px;
+			color: #ffffff;
+			font-size: 14px;
+			transition: all 0.3s ease;
+			outline: none;
+		}
+
+		.search-input:focus {
+			background: rgba(255, 255, 255, 0.08);
+			border-color: #ff6b6b;
+		}
+
+		.search-btn {
+			padding: 12px 16px;
+			background: linear-gradient(135deg, #ff6b6b 0%, #ee5a5a 100%);
+			border: none;
+			border-radius: 10px;
+			color: #ffffff;
+			cursor: pointer;
+			transition: all 0.3s ease;
+		}
+
+		.search-btn:hover {
+			background: linear-gradient(135deg, #ff8787 0%, #ff6b6b 100%);
+		}
+
+		/* Categories Widget */
+		.categories-list {
+			list-style: none;
+		}
+
+		.categories-list li {
+			margin-bottom: 12px;
+		}
+
+		.categories-list a {
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+			color: #b0b0cc;
+			text-decoration: none;
+			font-size: 14px;
+			padding: 10px 14px;
+			background: rgba(255, 255, 255, 0.03);
+			border-radius: 8px;
+			transition: all 0.3s ease;
+		}
+
+		.categories-list a:hover {
+			background: rgba(255, 107, 107, 0.1);
+			color: #ff6b6b;
+		}
+
+		.category-count {
+			background: rgba(255, 107, 107, 0.2);
+			color: #ff6b6b;
+			padding: 4px 10px;
+			border-radius: 6px;
+			font-size: 12px;
+			font-weight: 600;
+		}
+
+		/* Recent Posts Widget */
+		.recent-posts {
+			list-style: none;
+		}
+
+		.recent-posts li {
+			margin-bottom: 16px;
+			padding-bottom: 16px;
+			border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+		}
+
+		.recent-posts li:last-child {
+			margin-bottom: 0;
+			padding-bottom: 0;
+			border-bottom: none;
+		}
+
+		.recent-posts a {
+			display: block;
+			text-decoration: none;
+		}
+
+		.recent-post-title {
+			color: #ffffff;
+			font-size: 14px;
+			font-weight: 600;
+			margin-bottom: 6px;
+			transition: color 0.3s ease;
+		}
+
+		.recent-posts a:hover .recent-post-title {
+			color: #ff6b6b;
+		}
+
+		.recent-post-date {
+			font-size: 12px;
+			color: #8a8aa8;
+		}
+
+		/* ==================== Footer ==================== */
+		.footer {
+			background: rgba(0, 0, 0, 0.3);
+			border-top: 1px solid rgba(255, 255, 255, 0.05);
+			padding: 60px 24px 30px;
+		}
+
+		.footer-container {
+			max-width: 1200px;
+			margin: 0 auto;
+		}
+
+		.footer-content {
+			display: grid;
+			grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+			gap: 40px;
+			margin-bottom: 40px;
+		}
+
+		.footer-brand h3 {
+			font-size: 24px;
+			font-weight: 800;
+			background: linear-gradient(135deg, #ff6b6b 0%, #ffa502 100%);
+			-webkit-background-clip: text;
+			-webkit-text-fill-color: transparent;
+			background-clip: text;
+			margin-bottom: 16px;
+		}
+
+		.footer-brand p {
+			font-size: 14px;
+			color: #8a8aa8;
+			line-height: 1.7;
+		}
+
+		.footer-section h4 {
+			font-size: 16px;
+			font-weight: 700;
+			color: #ffffff;
+			margin-bottom: 20px;
+		}
+
+		.footer-links {
+			list-style: none;
+		}
+
+		.footer-links li {
+			margin-bottom: 12px;
+		}
+
+		.footer-links a {
+			color: #8a8aa8;
+			text-decoration: none;
+			font-size: 14px;
+			transition: color 0.3s ease;
+		}
+
+		.footer-links a:hover {
+			color: #ff6b6b;
+		}
+
+		.social-links {
+			display: flex;
+			gap: 12px;
+		}
+
+		.social-links a {
+			width: 44px;
+			height: 44px;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			background: rgba(255, 255, 255, 0.05);
+			border: 1px solid rgba(255, 255, 255, 0.1);
+			border-radius: 10px;
+			color: #b0b0cc;
+			font-size: 18px;
+			transition: all 0.3s ease;
+		}
+
+		.social-links a:hover {
+			background: rgba(255, 107, 107, 0.15);
+			border-color: rgba(255, 107, 107, 0.3);
+			color: #ff6b6b;
+		}
+
+		.footer-bottom {
+			text-align: center;
+			padding-top: 30px;
+			border-top: 1px solid rgba(255, 255, 255, 0.05);
+		}
+
+		.footer-bottom p {
+			font-size: 13px;
+			color: #6a6a7a;
+		}
+
+		/* ==================== Responsive Design ==================== */
+		@media (max-width: 1024px) {
+			.blog-grid {
+				grid-template-columns: 1fr;
+			}
+
+			.sidebar {
+				order: 2;
+			}
+		}
+
+		@media (max-width: 768px) {
+			.nav-menu {
+				display: none;
+			}
+
+			.hero {
+				padding: 100px 16px 40px;
+			}
+
+			.hero h1 {
+				font-size: 36px;
+			}
+
+			.blog-section {
+				padding: 60px 16px;
+			}
+
+			.blog-card {
+				grid-template-columns: 1fr;
+			}
+
+			.blog-image {
+				min-height: 200px;
+			}
+		}
+
+		@media (max-width: 480px) {
+			.hero h1 {
+				font-size: 28px;
+			}
+
+			.blog-content {
+				padding: 24px;
+			}
+
+			.blog-title {
+				font-size: 20px;
+			}
+
+			.sidebar-widget {
+				padding: 24px;
+			}
+		}
+	</style>
 </head>
 <body>
-    <!--? Preloader Start -->
-    <div id="preloader-active">
-        <div class="preloader d-flex align-items-center justify-content-center">
-            <div class="preloader-inner position-relative">
-                <div class="preloader-circle"></div>
-                <!-- <div class="preloader-img pere-text">
-                    <img src="assets/img/logo/loder.png" alt="">
-                </div> -->
-            </div>
-        </div>
-    </div>
-    <!-- Preloader Start -->
-    <header>
-        <!-- Header Start -->
-        <div class="header-area header-transparent">
-            <div class="main-header header-sticky">
-                <div class="container-fluid">
-                    <div class="menu-wrapper d-flex align-items-center justify-content-between">
-                        <!-- Logo -->
-                        <!-- <div class="logo">
-                            <a href="index.html"><img src="assets/img/logo/logo.png" alt=""></a>
-                        </div> -->
-                        <!-- Main-menu -->
-                        <div class="main-menu f-right d-none d-lg-block">
-                            <nav>
-                                <ul id="navigation">
-                                    <li><a href="index.html">Home</a></li>
-                                    <li><a href="about.html">About</a></li>
-                                    <li><a href="courses.html">Courses</a></li>
-                                    <!-- <li><a href="pricing.html">Pricing</a></li> -->
-                                    <li><a href="blog.html">Blog</a>
-                                        <ul class="submenu">
-                                            <li><a href="blog.html">Blog</a></li>
-                                            <li><a href="blog_details.html">Blog Details</a></li>
-                                            <li><a href="elements.html">Elements</a></li>
-                                        </ul>
-                                    </li>
-                                    <li><a href="contact.html">Contact</a></li>
-                                </ul>
-                            </nav>
-                        </div>          
-                        <!-- Header-btn -->
-                        <div class="header-btns d-none d-lg-block f-right">
-                           <a href="contact.html" class="btn">Contact me</a>
-                       </div>
-                       <!-- Mobile Menu -->
-                       <div class="col-12">
-                        <div class="mobile_menu d-block d-lg-none"></div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <!-- Header End -->
-</header>
-<main>
-    <!--? Hero Start -->
-    <div class="slider-area2">
-        <div class="slider-height2 d-flex align-items-center">
-            <div class="container">
-                <div class="row">
-                    <div class="col-xl-12">
-                        <div class="hero-cap hero-cap2 pt-70">
-                            <h2>Blog</h2>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <!-- Hero End -->
-    <!--? Blog Area Start-->
-    <section class="blog_area section-padding">
-        <div class="container">
-            <div class="row">
-                <div class="col-lg-8 mb-5 mb-lg-0">
-                    <div class="blog_left_sidebar">
-                        <article class="blog_item">
-                            <div class="blog_item_img">
-                                <img class="card-img rounded-0" src="assets/img/blog/single_blog_1.png" alt="">
-                                <a href="#" class="blog_item_date">
-                                    <h3>15</h3>
-                                    <p>Jan</p>
-                                </a>
-                            </div>
-                            <div class="blog_details">
-                                <a class="d-inline-block" href="blog_details.html">
-                                    <h2 class="blog-head" style="color: #2d2d2d;">Google inks pact for new 35-storey office</h2>
-                                </a>
-                                <p>That dominion stars lights dominion divide years for fourth have don't stars is that
-                                he earth it first without heaven in place seed it second morning saying.</p>
-                                <ul class="blog-info-link">
-                                    <li><a href="#"><i class="fa fa-user"></i> Travel, Lifestyle</a></li>
-                                    <li><a href="#"><i class="fa fa-comments"></i> 03 Comments</a></li>
-                                </ul>
-                            </div>
-                        </article>
-                        <article class="blog_item">
-                            <div class="blog_item_img">
-                                <img class="card-img rounded-0" src="assets/img/blog/single_blog_2.png" alt="">
-                                <a href="#" class="blog_item_date">
-                                    <h3>15</h3>
-                                    <p>Jan</p>
-                                </a>
-                            </div>
-                            <div class="blog_details">
-                                <a class="d-inline-block" href="blog_details.html">
-                                    <h2 class="blog-head" style="color: #2d2d2d;">Google inks pact for new 35-storey office</h2>
-                                </a>
-                                <p>That dominion stars lights dominion divide years for fourth have don't stars is that
-                                he earth it first without heaven in place seed it second morning saying.</p>
-                                <ul class="blog-info-link">
-                                    <li><a href="#"><i class="fa fa-user"></i> Travel, Lifestyle</a></li>
-                                    <li><a href="#"><i class="fa fa-comments"></i> 03 Comments</a></li>
-                                </ul>
-                            </div>
-                        </article>
-                        <article class="blog_item">
-                            <div class="blog_item_img">
-                                <img class="card-img rounded-0" src="assets/img/blog/single_blog_3.png" alt="">
-                                <a href="#" class="blog_item_date">
-                                    <h3>15</h3>
-                                    <p>Jan</p>
-                                </a>
-                            </div>
-                            <div class="blog_details">
-                                <a class="d-inline-block" href="blog_details.html">
-                                    <h2 class="blog-head" style="color: #2d2d2d;">Google inks pact for new 35-storey office</h2>
-                                </a>
-                                <p>That dominion stars lights dominion divide years for fourth have don't stars is that
-                                he earth it first without heaven in place seed it second morning saying.</p>
-                                <ul class="blog-info-link">
-                                    <li><a href="#"><i class="fa fa-user"></i> Travel, Lifestyle</a></li>
-                                    <li><a href="#"><i class="fa fa-comments"></i> 03 Comments</a></li>
-                                </ul>
-                            </div>
-                        </article>
-                        <article class="blog_item">
-                            <div class="blog_item_img">
-                                <img class="card-img rounded-0" src="assets/img/blog/single_blog_4.png" alt="">
-                                <a href="#" class="blog_item_date">
-                                    <h3>15</h3>
-                                    <p>Jan</p>
-                                </a>
-                            </div>
-                            <div class="blog_details">
-                                <a class="d-inline-block" href="blog_details.html">
-                                    <h2 class="blog-head" style="color: #2d2d2d;">Google inks pact for new 35-storey office</h2>
-                                </a>
-                                <p>That dominion stars lights dominion divide years for fourth have don't stars is that
-                                he earth it first without heaven in place seed it second morning saying.</p>
-                                <ul class="blog-info-link">
-                                    <li><a href="#"><i class="fa fa-user"></i> Travel, Lifestyle</a></li>
-                                    <li><a href="#"><i class="fa fa-comments"></i> 03 Comments</a></li>
-                                </ul>
-                            </div>
-                        </article>
-                        <article class="blog_item">
-                            <div class="blog_item_img">
-                                <img class="card-img rounded-0" src="assets/img/blog/single_blog_5.png" alt="">
-                                <a href="#" class="blog_item_date">
-                                    <h3>15</h3>
-                                    <p>Jan</p>
-                                </a>
-                            </div>
-                            <div class="blog_details">
-                                <a class="d-inline-block" href="blog_details.html">
-                                    <h2 class="blog-head" style="color: #2d2d2d;">Google inks pact for new 35-storey office</h2>
-                                </a>
-                                <p>That dominion stars lights dominion divide years for fourth have don't stars is that
-                                he earth it first without heaven in place seed it second morning saying.</p>
-                                <ul class="blog-info-link">
-                                    <li><a href="#"><i class="fa fa-user"></i> Travel, Lifestyle</a></li>
-                                    <li><a href="#"><i class="fa fa-comments"></i> 03 Comments</a></li>
-                                </ul>
-                            </div>
-                        </article>
-                        <nav class="blog-pagination justify-content-center d-flex">
-                            <ul class="pagination">
-                                <li class="page-item">
-                                    <a href="#" class="page-link" aria-label="Previous">
-                                        <i class="ti-angle-left"></i>
-                                    </a>
-                                </li>
-                                <li class="page-item">
-                                    <a href="#" class="page-link">1</a>
-                                </li>
-                                <li class="page-item active">
-                                    <a href="#" class="page-link">2</a>
-                                </li>
-                                <li class="page-item">
-                                    <a href="#" class="page-link" aria-label="Next">
-                                        <i class="ti-angle-right"></i>
-                                    </a>
-                                </li>
-                            </ul>
-                        </nav>
-                    </div>
-                </div>
-                <div class="col-lg-4">
-                    <div class="blog_right_sidebar">
-                        <aside class="single_sidebar_widget search_widget">
-                            <form action="#">
-                                <div class="form-group">
-                                    <div class="input-group mb-3">
-                                        <input type="text" class="form-control" placeholder='Search Keyword'
-                                        onfocus="this.placeholder = ''"
-                                        onblur="this.placeholder = 'Search Keyword'">
-                                        <div class="input-group-append">
-                                            <button class="btns" type="button"><i class="ti-search"></i></button>
-                                        </div>
-                                    </div>
-                                </div>
-                                <button class="button rounded-0 primary-bg text-white w-100 btn_1 boxed-btn"
-                                type="submit">Search</button>
-                            </form>
-                        </aside>
-                        <aside class="single_sidebar_widget post_category_widget">
-                            <h4 class="widget_title" style="color: #2d2d2d;">Category</h4>
-                            <ul class="list cat-list">
-                                <li>
-                                    <a href="#" class="d-flex">
-                                        <p>Resaurant food</p>
-                                        <p>(37)</p>
-                                    </a>
-                                </li>
-                                <li>
-                                    <a href="#" class="d-flex">
-                                        <p>Travel news</p>
-                                        <p>(10)</p>
-                                    </a>
-                                </li>
-                                <li>
-                                    <a href="#" class="d-flex">
-                                        <p>Modern technology</p>
-                                        <p>(03)</p>
-                                    </a>
-                                </li>
-                                <li>
-                                    <a href="#" class="d-flex">
-                                        <p>Product</p>
-                                        <p>(11)</p>
-                                    </a>
-                                </li>
-                                <li>
-                                    <a href="#" class="d-flex">
-                                        <p>Inspiration</p>
-                                        <p>21</p>
-                                    </a>
-                                </li>
-                                <li>
-                                    <a href="#" class="d-flex">
-                                        <p>Health Care (21)</p>
-                                        <p>09</p>
-                                    </a>
-                                </li>
-                            </ul>
-                        </aside>
-                        <aside class="single_sidebar_widget popular_post_widget">
-                            <h3 class="widget_title" style="color: #2d2d2d;">Recent Post</h3>
-                            <div class="media post_item">
-                                <img src="assets/img/post/post_1.png" alt="post">
-                                <div class="media-body">
-                                    <a href="blog_details.html">
-                                        <h3 style="color: #2d2d2d;">From life was you fish...</h3>
-                                    </a>
-                                    <p>January 12, 2019</p>
-                                </div>
-                            </div>
-                            <div class="media post_item">
-                                <img src="assets/img/post/post_2.png" alt="post">
-                                <div class="media-body">
-                                    <a href="blog_details.html">
-                                        <h3 style="color: #2d2d2d;">The Amazing Hubble</h3>
-                                    </a>
-                                    <p>02 Hours ago</p>
-                                </div>
-                            </div>
-                            <div class="media post_item">
-                                <img src="assets/img/post/post_3.png" alt="post">
-                                <div class="media-body">
-                                    <a href="blog_details.html">
-                                        <h3 style="color: #2d2d2d;">Astronomy Or Astrology</h3>
-                                    </a>
-                                    <p>03 Hours ago</p>
-                                </div>
-                            </div>
-                            <div class="media post_item">
-                                <img src="assets/img/post/post_4.png" alt="post">
-                                <div class="media-body">
-                                    <a href="blog_details.html">
-                                        <h3 style="color: #2d2d2d;">Asteroids telescope</h3>
-                                    </a>
-                                    <p>01 Hours ago</p>
-                                </div>
-                            </div>
-                        </aside>
-                        <aside class="single_sidebar_widget tag_cloud_widget">
-                            <h4 class="widget_title" style="color: #2d2d2d;">Tag Clouds</h4>
-                            <ul class="list">
-                                <li>
-                                    <a href="#">project</a>
-                                </li>
-                                <li>
-                                    <a href="#">love</a>
-                                </li>
-                                <li>
-                                    <a href="#">technology</a>
-                                </li>
-                                <li>
-                                    <a href="#">travel</a>
-                                </li>
-                                <li>
-                                    <a href="#">restaurant</a>
-                                </li>
-                                <li>
-                                    <a href="#">life style</a>
-                                </li>
-                                <li>
-                                    <a href="#">design</a>
-                                </li>
-                                <li>
-                                    <a href="#">illustration</a>
-                                </li>
-                            </ul>
-                        </aside>
+	<!-- Navigation -->
+	<nav class="navbar" id="navbar">
+		<div class="nav-container">
+			<a href="/" class="nav-logo">
+				<i class="fas fa-dumbbell"></i>
+				Virtual Trainer
+			</a>
+			<ul class="nav-menu">
+				<li><a href="/" class="nav-link"><i class="fas fa-home"></i> Home</a></li>
+				<li><a href="/about.html" class="nav-link"><i class="fas fa-user"></i> About</a></li>
+				<li><a href="/courses.html" class="nav-link"><i class="fas fa-graduation-cap"></i> Courses</a></li>
+				<li><a href="/blog.html" class="nav-link active"><i class="fas fa-newspaper"></i> Blog</a></li>
+				<li><a href="/contact.html" class="nav-link"><i class="fas fa-envelope"></i> Contact</a></li>
+			</ul>
+		</div>
+	</nav>
 
-                        <aside class="single_sidebar_widget instagram_feeds">
-                            <h4 class="widget_title" style="color: #2d2d2d;">Instagram Feeds</h4>
-                            <ul class="instagram_row flex-wrap">
-                                <li>
-                                    <a href="#">
-                                        <img class="img-fluid" src="assets/img/post/post_5.png" alt="">
-                                    </a>
-                                </li>
-                                <li>
-                                    <a href="#">
-                                        <img class="img-fluid" src="assets/img/post/post_6.png" alt="">
-                                    </a>
-                                </li>
-                                <li>
-                                    <a href="#">
-                                        <img class="img-fluid" src="assets/img/post/post_7.png" alt="">
-                                    </a>
-                                </li>
-                                <li>
-                                    <a href="#">
-                                        <img class="img-fluid" src="assets/img/post/post_8.png" alt="">
-                                    </a>
-                                </li>
-                                <li>
-                                    <a href="#">
-                                        <img class="img-fluid" src="assets/img/post/post_9.png" alt="">
-                                    </a>
-                                </li>
-                                <li>
-                                    <a href="#">
-                                        <img class="img-fluid" src="assets/img/post/post_10.png" alt="">
-                                    </a>
-                                </li>
-                            </ul>
-                        </aside>
-                        <aside class="single_sidebar_widget newsletter_widget">
-                            <h4 class="widget_title" style="color: #2d2d2d;">Newsletter</h4>
-                            <form action="#">
-                                <div class="form-group">
-                                    <input type="email" class="form-control" onfocus="this.placeholder = ''"
-                                    onblur="this.placeholder = 'Enter email'" placeholder='Enter email' required>
-                                </div>
-                                <button class="button rounded-0 primary-bg text-white w-100 btn_1 boxed-btn"
-                                type="submit">Subscribe</button>
-                            </form>
-                        </aside>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-    <!-- Blog Area End -->
-    <!-- ? services-area -->
-    <section class="services-area">
-        <div class="container">
-            <div class="row justify-content-between">
-                <div class="col-xl-4 col-lg-4 col-md-6 col-sm-8">
-                    <div class="single-services mb-40">
-                        <div class="features-icon">
-                            <img src="assets/img/icon/icon1.svg" alt="">
-                        </div>
-                        <div class="features-caption">
-                            <h3>Location</h3>
-                            <p>You’ll look at graphs and charts in Task One, how to approach </p>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-xl-3 col-lg-4 col-md-6 col-sm-8">
-                    <div class="single-services mb-40">
-                        <div class="features-icon">
-                            <img src="assets/img/icon/icon2.svg" alt="">
-                        </div>
-                        <div class="features-caption">
-                            <h3>Phone</h3>
-                            <p>(90) 111 222 333</p>
-                            <p>  (78) 444 555 666</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-xl-3 col-lg-4 col-md-6 col-sm-8">
-                    <div class="single-services mb-40">
-                        <div class="features-icon">
-                            <img src="assets/img/icon/icon3.svg" alt="">
-                        </div>
-                        <div class="features-caption">
-<h3>Email</h3>
-                            <p>vtrainer007@gmail.com</p>
-                            <p>contact123@abc.com</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-</main>
-<footer>
-    <!--? Footer Start-->
-    <div class="footer-area black-bg">
-        <div class="container">
-            <div class="footer-top footer-padding">
-                <!-- Footer Menu -->
-                <div class="row">
-                    <div class="col-xl-12">
-                        <div class="single-footer-caption mb-50 text-center">
-                            <!-- logo -->
-                            <!-- <div class="footer-logo wow fadeInUp" data-wow-duration="1s" data-wow-delay=".2s">
-                                <a href="index.html"><img src="assets/img/logo/logo2_footer.png" alt=""></a>
-                            </div> -->
-                            <!-- Menu -->
-                            <!-- Header Start -->
-                            <div class="header-area main-header2 wow fadeInUp" data-wow-duration="2s" data-wow-delay=".4s">
-                                <div class="main-header main-header2">
-                                    <div class="menu-wrapper menu-wrapper2">
-                                        <!-- Main-menu -->
-                                        <div class="main-menu main-menu2 text-center">
-                                            <nav>
-                                                <ul>
-                                                    <li><a href="index.html">Home</a></li>
-                                                    <li><a href="about.html">About</a></li>
-                                                    <li><a href="courses.html">Courses</a></li>
-                                                    <!-- <li><a href="pricing.html">Pricing</a></li> -->
-                                                    <li><a href="contact.html">Contact</a></li>
-                                                </ul>
-                                            </nav>
-                                        </div>   
-                                    </div>
-                                </div>
-                            </div>
-                            <!-- Header End -->
-                            <!-- social -->
-                            <div class="footer-social mt-30 wow fadeInUp" data-wow-duration="3s" data-wow-delay=".8s">
-                                <a href="#"><i class="fab fa-twitter"></i></a>
-                                <a href="https://bit.ly/sai4ull"><i class="fab fa-facebook-f"></i></a>
-                                <a href="#"><i class="fab fa-pinterest-p"></i></a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <!-- Footer Bottom -->
-            <div class="footer-bottom">
-                <div class="row d-flex align-items-center">
-                    <div class="col-lg-12">
-                        <!-- <div class="footer-copy-right text-center"> -->
-                            <!-- <p>Link back to Colorlib can't be removed. Template is licensed under CC BY 3.0. -->
-                              <!-- Copyright &copy;<script>document.write(new Date().getFullYear());</script> All rights reserved | This template is made with <i class="fa fa-heart" aria-hidden="true"></i> by <a href="https://colorlib.com" target="_blank">Colorlib</a> -->
-                              <!-- Link back to Colorlib can't be removed. Template is licensed under CC BY 3.0. --></p>
-                          <!-- </div> -->
-                      </div>
-                  </div>
-              </div>
-          </div>
-      </div>
-      <!-- Footer End-->
-  </footer>
-  <!-- Scroll Up -->
-  <div id="back-top" >
-    <a title="Go to Top" href="#"> <i class="fas fa-level-up-alt"></i></a>
-</div>
+	<!-- Hero Section -->
+	<section class="hero">
+		<div class="hero-content">
+			<div class="hero-badge">
+				<i class="fas fa-newspaper"></i>
+				<span>Latest Articles</span>
+			</div>
+			<h1>Fitness & Health Articles</h1>
+			<p>Expert health and fitness articles from trusted sources to help you achieve your goals</p>
+		</div>
+	</section>
 
-<!-- JS here -->
+	<!-- Blog Section -->
+	<section class="blog-section">
+		<div class="container">
+			<div class="blog-grid">
+				<!-- Blog Cards -->
+				<div class="blog-cards">
+					<!-- Blog Post 1 -->
+					<article class="blog-card">
+						<div class="blog-image">
+							<img src="https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=600&h=400&fit=crop" alt="Blog Post">
+						</div>
+						<div class="blog-content">
+							<div class="blog-meta">
+								<span class="meta-item"><i class="fas fa-tag"></i> Weight Loss</span>
+								<span class="meta-item"><i class="fas fa-clock"></i> 8 min read</span>
+							</div>
+							<h2 class="blog-title">Top 10 Exercises for Weight Loss</h2>
+							<p class="blog-description">Discover the most effective exercises to burn calories, boost metabolism, and achieve your weight loss goals faster.</p>
+							<a href="https://www.healthline.com/health/fitness/best-exercises-for-weight-loss" target="_blank" class="read-more">
+								Read More <i class="fas fa-external-link-alt"></i>
+							</a>
+						</div>
+					</article>
 
-<script src="./assets/js/vendor/modernizr-3.5.0.min.js"></script>
-<!-- Jquery, Popper, Bootstrap -->
-<script src="./assets/js/vendor/jquery-1.12.4.min.js"></script>
-<script src="./assets/js/popper.min.js"></script>
-<script src="./assets/js/bootstrap.min.js"></script>
-<!-- Jquery Mobile Menu -->
-<script src="./assets/js/jquery.slicknav.min.js"></script>
+					<!-- Blog Post 2 -->
+					<article class="blog-card">
+						<div class="blog-image">
+							<img src="https://images.unsplash.com/photo-1490645935967-10de6ba17061?w=600&h=400&fit=crop" alt="Blog Post">
+						</div>
+						<div class="blog-content">
+							<div class="blog-meta">
+								<span class="meta-item"><i class="fas fa-tag"></i> Nutrition</span>
+								<span class="meta-item"><i class="fas fa-clock"></i> 6 min read</span>
+							</div>
+							<h2 class="blog-title">High Protein Indian Diet Guide</h2>
+							<p class="blog-description">Learn about the best protein-rich Indian foods for muscle building, weight management, and overall health.</p>
+							<a href="https://www.healthline.com/nutrition/indian-diet-protein" target="_blank" class="read-more">
+								Read More <i class="fas fa-external-link-alt"></i>
+							</a>
+						</div>
+					</article>
 
-<!-- Jquery Slick , Owl-Carousel Plugins -->
-<script src="./assets/js/owl.carousel.min.js"></script>
-<script src="./assets/js/slick.min.js"></script>
-<!-- One Page, Animated-HeadLin -->
-<script src="./assets/js/wow.min.js"></script>
-<script src="./assets/js/animated.headline.js"></script>
+					<!-- Blog Post 3 -->
+					<article class="blog-card">
+						<div class="blog-image">
+							<img src="https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=600&h=400&fit=crop" alt="Blog Post">
+						</div>
+						<div class="blog-content">
+							<div class="blog-meta">
+								<span class="meta-item"><i class="fas fa-tag"></i> Muscle Building</span>
+								<span class="meta-item"><i class="fas fa-clock"></i> 7 min read</span>
+							</div>
+							<h2 class="blog-title">How to Build Muscle at Home</h2>
+							<p class="blog-description">Effective home workouts and bodyweight exercises to build muscle without any gym equipment.</p>
+							<a href="https://www.menshealth.com/uk/building-muscle/a754357/how-to-build-muscle-at-home/" target="_blank" class="read-more">
+								Read More <i class="fas fa-external-link-alt"></i>
+							</a>
+						</div>
+					</article>
 
-<!-- Nice-select, sticky -->
-<script src="./assets/js/jquery.nice-select.min.js"></script>
-<script src="./assets/js/jquery.sticky.js"></script>
-<script src="./assets/js/jquery.magnific-popup.js"></script>
+					<!-- Blog Post 4 -->
+					<article class="blog-card">
+						<div class="blog-image">
+							<img src="https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=600&h=400&fit=crop" alt="Blog Post">
+						</div>
+						<div class="blog-content">
+							<div class="blog-meta">
+								<span class="meta-item"><i class="fas fa-tag"></i> Nutrition</span>
+								<span class="meta-item"><i class="fas fa-clock"></i> 5 min read</span>
+							</div>
+							<h2 class="blog-title">Complete Guide to Macros for Beginners</h2>
+							<p class="blog-description">Understand proteins, carbs, and fats - and how to balance them for optimal health and performance.</p>
+							<a href="https://www.healthline.com/nutrition/what-are-macros" target="_blank" class="read-more">
+								Read More <i class="fas fa-external-link-alt"></i>
+							</a>
+						</div>
+					</article>
 
-<!-- contact js -->
-<script src="./assets/js/contact.js"></script>
-<script src="./assets/js/jquery.form.js"></script>
-<script src="./assets/js/jquery.validate.min.js"></script>
-<script src="./assets/js/mail-script.js"></script>
-<script src="./assets/js/jquery.ajaxchimp.min.js"></script>
+					<!-- Blog Post 5 -->
+					<article class="blog-card">
+						<div class="blog-image">
+							<img src="https://images.unsplash.com/photo-1599058945522-28d584b6f0ff?w=600&h=400&fit=crop" alt="Blog Post">
+						</div>
+						<div class="blog-content">
+							<div class="blog-meta">
+								<span class="meta-item"><i class="fas fa-tag"></i> Workouts</span>
+								<span class="meta-item"><i class="fas fa-clock"></i> 6 min read</span>
+							</div>
+							<h2 class="blog-title">HIIT vs Cardio: Which is Better?</h2>
+							<p class="blog-description">Compare high-intensity interval training with steady-state cardio to find what works best for your goals.</p>
+							<a href="https://www.healthline.com/health/fitness-exercise/hiit-vs-steady-state-cardio" target="_blank" class="read-more">
+								Read More <i class="fas fa-external-link-alt"></i>
+							</a>
+						</div>
+					</article>
 
-<!-- Jquery Plugins, main Jquery -->	
-<script src="./assets/js/plugins.js"></script>
-<script src="./assets/js/main.js"></script>
+					<!-- Blog Post 6 -->
+					<article class="blog-card">
+						<div class="blog-image">
+							<img src="https://images.unsplash.com/photo-1574680096145-d05b474e2155?w=600&h=400&fit=crop" alt="Blog Post">
+						</div>
+						<div class="blog-content">
+							<div class="blog-meta">
+								<span class="meta-item"><i class="fas fa-tag"></i> Nutrition</span>
+								<span class="meta-item"><i class="fas fa-clock"></i> 5 min read</span>
+							</div>
+							<h2 class="blog-title">Best Post-Workout Nutrition</h2>
+							<p class="blog-description">What to eat after your workout to maximize recovery, muscle growth, and energy replenishment.</p>
+							<a href="https://www.healthline.com/nutrition/what-to-eat-after-workout" target="_blank" class="read-more">
+								Read More <i class="fas fa-external-link-alt"></i>
+							</a>
+						</div>
+					</article>
+				</div>
 
+				<!-- Sidebar -->
+				<aside class="sidebar">
+					<!-- Search Widget -->
+					<div class="sidebar-widget">
+						<h3>Search</h3>
+						<form class="search-form" action="/blog/search" method="GET">
+							<input type="text" class="search-input" placeholder="Search articles..." name="q">
+							<button type="submit" class="search-btn">
+								<i class="fas fa-search"></i>
+							</button>
+						</form>
+					</div>
+
+					<!-- Categories Widget -->
+					<div class="sidebar-widget">
+						<h3>Categories</h3>
+						<ul class="categories-list">
+							<li><a href="https://www.healthline.com/fitness" target="_blank"><span>Workouts</span> <span class="category-count">15+</span></a></li>
+							<li><a href="https://www.healthline.com/nutrition" target="_blank"><span>Nutrition</span> <span class="category-count">20+</span></a></li>
+							<li><a href="https://www.healthline.com/health/weight-loss" target="_blank"><span>Weight Loss</span> <span class="category-count">12+</span></a></li>
+							<li><a href="https://www.menshealth.com/build-muscle" target="_blank"><span>Muscle Building</span> <span class="category-count">10+</span></a></li>
+							<li><a href="https://www.healthline.com/health/fitness-exercise/yoga-benefits" target="_blank"><span>Yoga & Flexibility</span> <span class="category-count">8+</span></a></li>
+							<li><a href="https://www.healthline.com/health/food-nutrition/supplements" target="_blank"><span>Supplements</span> <span class="category-count">6+</span></a></li>
+						</ul>
+					</div>
+
+					<!-- Recent Posts Widget -->
+					<div class="sidebar-widget">
+						<h3>Featured Articles</h3>
+						<ul class="recent-posts">
+							<li>
+								<a href="https://www.healthline.com/health/fitness/how-to-lose-weight" target="_blank">
+									<div class="recent-post-title">How to Lose Weight Fast: 3 Simple Steps</div>
+									<div class="recent-post-date">Healthline</div>
+								</a>
+							</li>
+							<li>
+								<a href="https://www.healthline.com/health/food-nutrition/best-foods-for-energy" target="_blank">
+									<div class="recent-post-title">27 Foods That Boost Energy Levels</div>
+									<div class="recent-post-date">Healthline</div>
+								</a>
+							</li>
+							<li>
+								<a href="https://www.menshealth.com/uk/training/a753772/best-exercises-for-back-fat/" target="_blank">
+									<div class="recent-post-title">Best Exercises to Lose Back Fat</div>
+									<div class="recent-post-date">Men's Health</div>
+								</a>
+							</li>
+							<li>
+								<a href="https://www.healthline.com/health/fitness-exercise/benefits-of-yoga" target="_blank">
+									<div class="recent-post-title">13 Benefits of Yoga That Are Supported by Science</div>
+									<div class="recent-post-date">Healthline</div>
+								</a>
+							</li>
+						</ul>
+					</div>
+				</aside>
+			</div>
+		</div>
+	</section>
+
+	<!-- Footer -->
+	<footer class="footer">
+		<div class="footer-container">
+			<div class="footer-content">
+				<div class="footer-brand">
+					<h3><i class="fas fa-dumbbell"></i> Virtual Trainer</h3>
+					<p>Your AI-powered fitness companion for achieving your health goals.</p>
+				</div>
+				<div class="footer-section">
+					<h4>Quick Links</h4>
+					<ul class="footer-links">
+						<li><a href="/"><i class="fas fa-chevron-right"></i> Home</a></li>
+						<li><a href="/about.html"><i class="fas fa-chevron-right"></i> About</a></li>
+						<li><a href="/courses.html"><i class="fas fa-chevron-right"></i> Courses</a></li>
+						<li><a href="/blog.html"><i class="fas fa-chevron-right"></i> Blog</a></li>
+						<li><a href="/contact.html"><i class="fas fa-chevron-right"></i> Contact</a></li>
+					</ul>
+				</div>
+				<div class="footer-section">
+					<h4>Programs</h4>
+					<ul class="footer-links">
+						<li><a href="/weight-gain"><i class="fas fa-chevron-right"></i> Weight Gain</a></li>
+						<li><a href="/weight-loss"><i class="fas fa-chevron-right"></i> Weight Loss</a></li>
+						<li><a href="/diet"><i class="fas fa-chevron-right"></i> Diet Plans</a></li>
+						<li><a href="/index2.html"><i class="fas fa-chevron-right"></i> AI Training</a></li>
+					</ul>
+				</div>
+				<div class="footer-section">
+					<h4>Connect With Us</h4>
+					<div class="social-links">
+						<a href="#"><i class="fab fa-facebook-f"></i></a>
+						<a href="#"><i class="fab fa-twitter"></i></a>
+						<a href="#"><i class="fab fa-instagram"></i></a>
+						<a href="#"><i class="fab fa-youtube"></i></a>
+					</div>
+				</div>
+			</div>
+			<div class="footer-bottom">
+				<p>&copy; 2024 Virtual Trainer. All rights reserved.</p>
+			</div>
+		</div>
+	</footer>
+
+	<script>
+		// Navbar scroll effect
+		window.addEventListener('scroll', function() {
+			const navbar = document.getElementById('navbar');
+			if (window.scrollY > 50) {
+				navbar.classList.add('scrolled');
+			} else {
+				navbar.classList.remove('scrolled');
+			}
+		});
+	</script>
 </body>
 </html>

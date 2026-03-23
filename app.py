@@ -299,6 +299,225 @@ def exercise_downwarddog():
     return render_template('exercise-downwarddog.html')
 
 
+# ==================== Unified Exercise Detail Routes ====================
+
+# Exercise data structure
+EXERCISES = {
+    'bicepcurl': {
+        'title': 'Bicep Curl',
+        'category': 'weight-gain',
+        'category_title': 'Weight Gain',
+        'description': 'Isolate and build your biceps with this fundamental arm exercise. Great for beginners starting strength training.',
+        'youtube_id': 'ykJmrZ5v0Oo',
+        'difficulty': 'Beginner',
+        'duration': '10 min',
+        'has_ai': True,
+        'ai_type': 'bicepcurl',
+        'stat_label': 'Rep Count',
+        'stat_unit': 'reps',
+        'instructions': [
+            'Stand with feet shoulder-width apart',
+            'Hold weights in both hands',
+            'Curl arms up, bending at elbows',
+            'Lower back down slowly',
+            'Keep your back straight',
+            'Press Q to stop camera'
+        ]
+    },
+    'pushup': {
+        'title': 'Push-Up',
+        'category': 'weight-gain',
+        'category_title': 'Weight Gain',
+        'description': 'Classic bodyweight exercise that targets chest, shoulders, and triceps. Build upper body strength without equipment.',
+        'youtube_id': 'IODxDxX7oi4',
+        'difficulty': 'Beginner',
+        'duration': '15 min',
+        'has_ai': True,
+        'ai_type': 'pushup',
+        'stat_label': 'Rep Count',
+        'stat_unit': 'reps',
+        'instructions': [
+            'Start in plank position',
+            'Place hands shoulder-width apart',
+            'Lower chest to ground',
+            'Push back up to starting',
+            'Keep core engaged',
+            'Press Q to stop camera'
+        ]
+    },
+    'plank': {
+        'title': 'Plank',
+        'category': 'weight-loss',
+        'category_title': 'Weight Loss',
+        'description': 'Isometric core exercise that strengthens abs, back, and shoulders. Build stability and burn calories effectively.',
+        'youtube_id': 'ASdvN_XEl_c',
+        'difficulty': 'Beginner',
+        'duration': '30-60 sec',
+        'has_ai': True,
+        'ai_type': 'plank',
+        'stat_label': 'Hold Duration',
+        'stat_unit': 'time',
+        'instructions': [
+            'Start face down on floor',
+            'Rest on forearms and toes',
+            'Keep body in straight line',
+            'Engage your core muscles',
+            'Hold position, don\'t sag hips',
+            'Press Q to stop camera'
+        ]
+    },
+    'squats': {
+        'title': 'Squats',
+        'category': 'weight-gain',
+        'category_title': 'Weight Gain',
+        'description': 'King of leg exercises! Build powerful quads, glutes, and hamstrings. Essential for lower body development.',
+        'youtube_id': 'ultWZbUMPL8',
+        'difficulty': 'Beginner',
+        'duration': '15 min',
+        'has_ai': False,
+        'instructions': [
+            'Stand with feet shoulder-width apart',
+            'Keep chest up and core engaged',
+            'Lower down by bending knees',
+            'Push through heels to stand up',
+            'Keep knees in line with toes',
+            'Start with bodyweight, add weight as needed'
+        ]
+    },
+    'benchpress': {
+        'title': 'Bench Press',
+        'category': 'weight-gain',
+        'category_title': 'Weight Gain',
+        'description': 'Compound movement for building chest mass and strength. The ultimate upper body pushing exercise.',
+        'youtube_id': 'gRVjAtPip0Y',
+        'difficulty': 'Intermediate',
+        'duration': '20 min',
+        'has_ai': False,
+        'instructions': [
+            'Lie flat on bench with feet on floor',
+            'Grip bar slightly wider than shoulders',
+            'Lower bar to chest with control',
+            'Press up until arms are extended',
+            'Keep shoulder blades retracted',
+            'Use a spotter for heavy weights'
+        ]
+    },
+    'deadlift': {
+        'title': 'Deadlift',
+        'category': 'weight-gain',
+        'category_title': 'Weight Gain',
+        'description': 'The ultimate strength builder! Works your entire posterior chain. Builds serious muscle and total body power.',
+        'youtube_id': 'op9kVnSso6Q',
+        'difficulty': 'Advanced',
+        'duration': '25 min',
+        'has_ai': False,
+        'instructions': [
+            'Stand with feet hip-width apart',
+            'Grip bar with hands just outside legs',
+            'Keep back straight, bend at hips',
+            'Drive through heels to stand up',
+            'Pull shoulder blades together at top',
+            'Lower with control, maintain form'
+        ]
+    },
+    'jumpingjacks': {
+        'title': 'Jumping Jacks',
+        'category': 'weight-loss',
+        'category_title': 'Weight Loss',
+        'description': 'Classic full-body cardio exercise that elevates heart rate and burns calories. Perfect warm-up or HIIT component.',
+        'youtube_id': 'dmMwK4OoUjM',
+        'difficulty': 'Beginner',
+        'duration': '10 min',
+        'has_ai': False,
+        'instructions': [
+            'Stand with feet together, arms at sides',
+            'Jump while spreading legs and raising arms',
+            'Jump again to return to start',
+            'Maintain steady rhythm',
+            'Land softly on balls of feet',
+            'Breathe rhythmically throughout'
+        ]
+    },
+    'burpees': {
+        'title': 'Burpees',
+        'category': 'weight-loss',
+        'category_title': 'Weight Loss',
+        'description': 'The ultimate fat-burning exercise! Combines squat, push-up, and jump for maximum calorie burn in minimal time.',
+        'youtube_id': 'TU8DffXiTME',
+        'difficulty': 'Intermediate',
+        'duration': '15 min',
+        'has_ai': False,
+        'instructions': [
+            'Start in standing position',
+            'Drop into squat position',
+            'Place hands on floor and jump feet back',
+            'Do a push-up',
+            'Jump feet back to hands',
+            'Explode up with arms overhead'
+        ]
+    },
+    'mountainclimbers': {
+        'title': 'Mountain Climbers',
+        'category': 'weight-loss',
+        'category_title': 'Weight Loss',
+        'description': 'Dynamic core exercise that also provides cardio benefits. Engages multiple muscle groups while burning fat.',
+        'youtube_id': 'nmwgirgXLYM',
+        'difficulty': 'Intermediate',
+        'duration': '15 min',
+        'has_ai': False,
+        'instructions': [
+            'Start in high plank position',
+            'Drive one knee toward chest',
+            'Quickly switch legs while maintaining plank',
+            'Keep core tight throughout',
+            'Move as quickly as possible',
+            'Maintain steady breathing'
+        ]
+    },
+    'highknees': {
+        'title': 'High Knees',
+        'category': 'weight-loss',
+        'category_title': 'Weight Loss',
+        'description': 'High-intensity cardio move that elevates heart rate quickly. Great for burning calories and improving leg endurance.',
+        'youtube_id': 'A5vhbOcJLyA',
+        'difficulty': 'Beginner',
+        'duration': '10 min',
+        'has_ai': False,
+        'instructions': [
+            'Stand with feet hip-width apart',
+            'Lift one knee toward chest',
+            'Quickly switch to other knee',
+            'Move as quickly as possible',
+            'Land on balls of feet',
+            'Pump arms while driving knees'
+        ]
+    }
+}
+
+
+@app.route('/exercise/<exercise_name>')
+def exercise_detail(exercise_name):
+    """Unified exercise detail page with AI training and tutorial"""
+    exercise_key = exercise_name.lower().replace('-', '').replace(' ', '')
+
+    if exercise_key not in EXERCISES:
+        return redirect(url_for('courses'))
+
+    exercise = EXERCISES[exercise_key]
+
+    # Load appropriate AI script if needed
+    if exercise['has_ai']:
+        # Load AI-specific script
+        ai_scripts = {
+            'bicepcurl': open(os.path.join(BASE_DIR, 'ai_scripts', 'bicepcurl.js')).read() if os.path.exists(os.path.join(BASE_DIR, 'ai_scripts', 'bicepcurl.js')) else '',
+            'pushup': open(os.path.join(BASE_DIR, 'ai_scripts', 'pushup.js')).read() if os.path.exists(os.path.join(BASE_DIR, 'ai_scripts', 'pushup.js')) else '',
+            'plank': open(os.path.join(BASE_DIR, 'ai_scripts', 'plank.js')).read() if os.path.exists(os.path.join(BASE_DIR, 'ai_scripts', 'plank.js')) else ''
+        }
+        exercise['ai_script'] = ai_scripts.get(exercise['ai_type'], '')
+
+    return render_template('exercise-detail.html', exercise=exercise)
+
+
 # ==================== Pose Detection Routes ====================
 
 @app.route('/execute/<pose>')
@@ -341,101 +560,270 @@ def diet_home():
 
 @app.route('/diet', methods=['POST'])
 def diet_predict():
-    """Predict diet category based on macros"""
-    if model is None:
-        return render_template('diet-mainpage.html', result='Error: Model not loaded')
-    
+    """Predict diet category based on macros using rule-based logic with Indian diet context"""
     try:
-        input_1 = float(request.form['input_1'])  # Calories
-        input_2 = float(request.form['input_2'])  # Protein
-        input_3 = float(request.form['input_3'])  # Fibre
-        
-        inputs = [[input_1, input_2, input_3]]
-        prediction = model.predict(inputs)
-        
-        if prediction[0] == 'Muscle_Gain':
-            result = 'Muscle Gain'
-        elif prediction[0] == 'Weight_Gain':
-            result = 'Weight Gain'
-        elif prediction[0] == 'Weight_Loss':
+        calories = float(request.form['input_1'])  # Calories
+        protein = float(request.form['input_2'])  # Protein (g)
+
+        # Rule-based recommendation logic
+        # Calculate protein per 100 calories
+        protein_per_100cal = (protein / calories) * 100 if calories > 0 else 0
+
+        # Classification rules
+        if calories < 150 and protein_per_100cal > 8:
             result = 'Weight Loss'
+        elif calories > 250 or (calories > 180 and protein_per_100cal > 6):
+            result = 'Weight Gain'
+        elif protein_per_100cal > 7:
+            result = 'Weight Gain'  # High protein foods good for gaining
+        elif calories < 200 and protein_per_100cal < 5:
+            result = 'Weight Loss'  # Lower calorie, moderate protein
         else:
-            result = 'General food'
-        
+            result = 'Weight Loss'  # Default to weight loss for general health
+
         return render_template('diet-mainpage.html', result=result)
     except Exception as e:
         return render_template('diet-mainpage.html', result=f'Error: {str(e)}')
 
 
-@app.route('/diet/musclegain', methods=['POST'])
-def musclegain():
-    """Filter muscle gain foods"""
-    if food_data is None:
-        return render_template('diet-mainpage.html', musclegainfoods='Error: Data not loaded')
-    
+@app.route('/diet/analyze', methods=['POST'])
+def diet_analyze():
+    """Goal-based intelligent diet analysis system with scoring"""
     try:
-        vegetarian = request.form.getlist('vegetarian')
-        iron = request.form.getlist('iron')
-        calcium = request.form.getlist('calcium')
-        anyfoods = request.form.getlist('anyfoods')
-        
-        muscle_gain_data = food_data[food_data['category'] == 'Muscle_Gain']
-        
-        if 'iron' in iron:
-            muscle_gain_data = muscle_gain_data[muscle_gain_data['Iron_mg'] > 6]
-        if 'calcium' in calcium:
-            muscle_gain_data = muscle_gain_data[muscle_gain_data['Calcium_mg'] > 150]
-        if 'vegetarian' in vegetarian:
-            exclude_keywords = ['Egg', 'Fish', 'meat', 'beef', 'Chicken', 'Beef', 'Deer', 
-                               'lamb', 'crab', 'pork', 'Frog legs', 'Pork', 'Turkey', 
-                               'flesh', 'Ostrich', 'Emu', 'cuttelfish', 'Seaweed', 
-                               'crayfish', 'shrimp', 'Octopus']
-            pattern = '|'.join(exclude_keywords)
-            muscle_gain_data = muscle_gain_data[~muscle_gain_data['Descrip'].str.contains(pattern, case=False, na=False)]
-        if 'anyfoods' in anyfoods or (not iron and not calcium and not vegetarian):
-            muscle_gain_data = food_data[food_data['category'] == 'Muscle_Gain']
-        
-        if len(muscle_gain_data) > 0:
-            musclegainfoods = muscle_gain_data['Descrip'].sample(n=min(5, len(muscle_gain_data))).to_string(index=False)
+        calories = float(request.form['input_1'])  # Calories
+        protein = float(request.form['input_2'])  # Protein (g)
+        fat = float(request.form['input_3'])  # Fat (g)
+        goal = request.form['goal']  # weight_gain, weight_loss, maintenance
+
+        # Calculate macro ratios
+        protein_calories = protein * 4
+        fat_calories = fat * 9
+        total_calories = calories if calories > 0 else 1
+
+        protein_ratio = (protein_calories / total_calories) * 100
+        fat_ratio = (fat_calories / total_calories) * 100
+
+        # Initialize score and analysis
+        score = 50  # Base score
+        analysis = []
+        suggestions = []
+        quick_fix = ""
+
+        # Goal-based analysis logic
+        if goal == 'weight_gain':
+            # WEIGHT GAIN: Prioritize high protein, adequate calories, moderate fat
+            if protein_ratio >= 25:
+                score += 20
+                analysis.append("Protein: Excellent ✅")
+            elif protein_ratio >= 20:
+                score += 10
+                analysis.append("Protein: Good ✅")
+            else:
+                score -= 10
+                analysis.append("Protein: Low ❌")
+                suggestions.append("Increase protein intake with eggs, paneer, chicken")
+                quick_fix = "Add 2 eggs or 100g paneer to your meal today"
+
+            if calories >= 300:
+                score += 15
+                analysis.append("Calories: Excellent ✅")
+            elif calories >= 200:
+                score += 10
+                analysis.append("Calories: Good ✅")
+            else:
+                score -= 15
+                analysis.append("Calories: Too Low ❌")
+                suggestions.append("Add calorie-dense foods like nuts, ghee, bananas")
+                if not quick_fix:
+                    quick_fix = "Add 2 bananas with peanut butter to breakfast"
+
+            if fat_ratio >= 20 and fat_ratio <= 35:
+                score += 10
+                analysis.append("Fat: Optimal ✅")
+            elif fat_ratio > 35:
+                score -= 5
+                analysis.append("Fat: High ⚠️")
+                suggestions.append("Reduce excessive fried foods and oils")
+            else:
+                analysis.append("Fat: Low ⚠️")
+                suggestions.append("Add healthy fats like ghee, olive oil, nuts")
+
+            if not quick_fix:
+                quick_fix = "Increase portion sizes by 25% for better weight gain"
+
+        elif goal == 'weight_loss':
+            # WEIGHT LOSS: Prioritize low calories, high protein, low fat
+            if protein_ratio >= 30:
+                score += 20
+                analysis.append("Protein: Excellent ✅")
+            elif protein_ratio >= 25:
+                score += 15
+                analysis.append("Protein: Good ✅")
+            elif protein_ratio >= 20:
+                score += 5
+                analysis.append("Protein: Moderate ⚠️")
+            else:
+                score -= 10
+                analysis.append("Protein: Low ❌")
+                suggestions.append("Increase lean protein like dal, paneer, chicken breast")
+                quick_fix = "Replace one carb serving with protein-rich food"
+
+            if calories <= 150:
+                score += 20
+                analysis.append("Calories: Excellent ✅")
+            elif calories <= 200:
+                score += 10
+                analysis.append("Calories: Good ✅")
+            elif calories <= 250:
+                score += 5
+                analysis.append("Calories: Moderate ⚠️")
+            else:
+                score -= 20
+                analysis.append("Calories: Too High ❌")
+                suggestions.append("Reduce portion sizes and avoid calorie-dense foods")
+                if not quick_fix:
+                    quick_fix = "Replace rice/chapati with extra vegetables and protein"
+
+            if fat_ratio <= 15:
+                score += 15
+                analysis.append("Fat: Excellent ✅")
+            elif fat_ratio <= 20:
+                score += 10
+                analysis.append("Fat: Good ✅")
+            elif fat_ratio <= 25:
+                score -= 5
+                analysis.append("Fat: Moderate ⚠️")
+            else:
+                score -= 15
+                analysis.append("Fat: High ❌")
+                suggestions.append("Cut down on fried foods, ghee, and oily curries")
+                if not quick_fix:
+                    quick_fix = "Use 1 tsp less oil/ghee in cooking today"
+
+            if not quick_fix:
+                quick_fix = "Fill half your plate with vegetables to stay full longer"
+
+        else:  # maintenance
+            # MAINTENANCE: Balanced macros
+            if protein_ratio >= 20 and protein_ratio <= 30:
+                score += 20
+                analysis.append("Protein: Balanced ✅")
+            elif protein_ratio >= 15:
+                score += 10
+                analysis.append("Protein: Adequate ⚠️")
+            else:
+                score -= 10
+                analysis.append("Protein: Low ❌")
+                suggestions.append("Aim for 20-30% calories from protein")
+                quick_fix = "Include protein in every meal (dal, paneer, eggs)"
+
+            if calories >= 200 and calories <= 300:
+                score += 20
+                analysis.append("Calories: Balanced ✅")
+            elif calories >= 150:
+                score += 10
+                analysis.append("Calories: Adequate ⚠️")
+            else:
+                score -= 10
+                analysis.append("Calories: Unbalanced ❌")
+
+            if fat_ratio >= 20 and fat_ratio <= 30:
+                score += 15
+                analysis.append("Fat: Balanced ✅")
+            elif fat_ratio >= 15 and fat_ratio <= 35:
+                score += 5
+                analysis.append("Fat: Adequate ⚠️")
+            else:
+                score -= 10
+                analysis.append("Fat: Unbalanced ❌")
+                suggestions.append("Aim for 20-30% calories from healthy fats")
+
+            if not quick_fix:
+                quick_fix = "Follow the plate rule: 1/2 veggies, 1/4 protein, 1/4 carbs"
+
+        # Add default suggestions if none
+        if not suggestions:
+            suggestions = [
+                "Continue with your current balanced approach",
+                "Stay hydrated and eat regular meals"
+            ]
+
+        # Ensure score is within 0-100 range
+        score = max(0, min(100, score))
+
+        # Generate score message
+        if score >= 80:
+            score_message = "Excellent! Your diet is well-aligned with your goal."
+        elif score >= 60:
+            score_message = "Good! Some improvements can optimize your diet."
+        elif score >= 40:
+            score_message = "Fair. Your diet needs some adjustments."
         else:
-            musclegainfoods = 'No foods match your criteria'
-        
-        return render_template('diet-mainpage.html', musclegainfoods=musclegainfoods)
+            score_message = "Poor. Significant changes needed to reach your goal."
+
+        analysis_result = {
+            'score': score,
+            'score_message': score_message,
+            'analysis': analysis,
+            'suggestions': suggestions,
+            'quick_fix': quick_fix
+        }
+
+        return render_template('diet-mainpage.html', analysis_result=analysis_result)
+
     except Exception as e:
-        return render_template('diet-mainpage.html', musclegainfoods=f'Error: {str(e)}')
+        return render_template('diet-mainpage.html', analysis_result={
+            'score': 0,
+            'score_message': f"Error: {str(e)}",
+            'analysis': ["Error in analysis"],
+            'suggestions': ["Please check your inputs"],
+            'quick_fix': "Try again with valid values"
+        })
 
 
 @app.route('/diet/weightgain', methods=['POST'])
 def weightgain():
-    """Filter weight gain foods"""
-    if food_data is None:
-        return render_template('diet-mainpage.html', weightgainfoods='Error: Data not loaded')
-    
+    """Filter weight gain foods with Indian diet recommendations"""
+    # Indian diet recommendations for weight gain
+    indian_weight_gain = [
+        "Rice (Brown/White) - High calorie staple",
+        "Banana - Energy-rich fruit",
+        "Peanut Butter - Calorie-dense healthy fat",
+        "Paneer (Cottage Cheese) - High protein vegetarian option",
+        "Milk (Full Cream) - Protein and calories",
+        "Chicken Breast - Lean protein source",
+        "Potato - High carb, calorie-dense",
+        "Dry Fruits (Almonds, Cashews) - Healthy calorie boost",
+        "Ghee (Clarified Butter) - Healthy fats for weight gain",
+        "Eggs - Complete protein source"
+    ]
+
+    vegetarian_foods = [
+        "Rice (Brown/White) - High calorie staple",
+        "Banana - Energy-rich fruit",
+        "Peanut Butter - Calorie-dense healthy fat",
+        "Paneer (Cottage Cheese) - High protein vegetarian option",
+        "Milk (Full Cream) - Protein and calories",
+        "Potato - High carb, calorie-dense",
+        "Dry Fruits (Almonds, Cashews) - Healthy calorie boost",
+        "Ghee (Clarified Butter) - Healthy fats for weight gain",
+        "Dal (Lentils) - Protein-rich Indian staple",
+        "Cheese - High calorie protein source"
+    ]
+
     try:
         vegetarian = request.form.getlist('vegetarian')
-        iron = request.form.getlist('iron')
-        calcium = request.form.getlist('calcium')
-        anyfoods = request.form.getlist('anyfoods')
-        
-        weight_gain_data = food_data[food_data['category'] == 'Weight_Gain']
-        
-        if 'iron' in iron:
-            weight_gain_data = weight_gain_data[weight_gain_data['Iron_mg'] > 6]
-        if 'calcium' in calcium:
-            weight_gain_data = weight_gain_data[weight_gain_data['Calcium_mg'] > 150]
+
         if 'vegetarian' in vegetarian:
-            exclude_keywords = ['Egg', 'Fish', 'meat', 'beef', 'Chicken', 'Beef', 'Deer', 
-                               'lamb', 'crab', 'pork', 'turkey', 'flesh']
-            pattern = '|'.join(exclude_keywords)
-            weight_gain_data = weight_gain_data[~weight_gain_data['Descrip'].str.contains(pattern, case=False, na=False)]
-        if 'anyfoods' in anyfoods or (not iron and not calcium and not vegetarian):
-            weight_gain_data = food_data[food_data['category'] == 'Weight_Gain']
-        
-        if len(weight_gain_data) > 0:
-            weightgainfoods = weight_gain_data['Descrip'].sample(n=min(5, len(weight_gain_data))).to_string(index=False)
+            selected_foods = vegetarian_foods
         else:
-            weightgainfoods = 'No foods match your criteria'
-        
+            selected_foods = indian_weight_gain
+
+        # Return 5 random recommendations
+        import random
+        recommendations = random.sample(selected_foods, min(5, len(selected_foods)))
+        weightgainfoods = '\n'.join(recommendations)
+
         return render_template('diet-mainpage.html', weightgainfoods=weightgainfoods)
     except Exception as e:
         return render_template('diet-mainpage.html', weightgainfoods=f'Error: {str(e)}')
@@ -443,35 +831,47 @@ def weightgain():
 
 @app.route('/diet/weightloss', methods=['POST'])
 def weightloss():
-    """Filter weight loss foods"""
-    if food_data is None:
-        return render_template('diet-mainpage.html', weightlossfoods='Error: Data not loaded')
-    
+    """Filter weight loss foods with Indian diet recommendations"""
+    # Indian diet recommendations for weight loss
+    indian_weight_loss = [
+        "Oats - High fiber, keeps you full longer",
+        "Brown Rice - Low GI, complex carbs",
+        "Dal (Lentils) - High protein, fiber-rich",
+        "Paneer (Low Fat) - High protein, low calorie",
+        "Boiled Eggs - Protein-rich, low calorie",
+        "Chicken Breast - Lean protein for fat loss",
+        "Roti (Whole Wheat) - Controlled portion",
+        "Green Vegetables (Spinach, Broccoli) - Low calorie, nutrient-dense",
+        "Curd/Yogurt (Low Fat) - Probiotics + protein",
+        "Moong Dal - Easy to digest, high protein"
+    ]
+
+    vegetarian_foods = [
+        "Oats - High fiber, keeps you full longer",
+        "Brown Rice - Low GI, complex carbs",
+        "Dal (Lentils) - High protein, fiber-rich",
+        "Paneer (Low Fat) - High protein, low calorie",
+        "Roti (Whole Wheat) - Controlled portion",
+        "Green Vegetables (Spinach, Broccoli) - Low calorie, nutrient-dense",
+        "Curd/Yogurt (Low Fat) - Probiotics + protein",
+        "Moong Dal - Easy to digest, high protein",
+        "Sprouts (Moong, Chickpea) - High fiber, protein",
+        "Buttermilk - Low calorie, aids digestion"
+    ]
+
     try:
         vegetarian = request.form.getlist('vegetarian')
-        iron = request.form.getlist('iron')
-        calcium = request.form.getlist('calcium')
-        anyfoods = request.form.getlist('anyfoods')
-        
-        weight_loss_data = food_data[food_data['category'] == 'Weight_Loss']
-        
-        if 'iron' in iron:
-            weight_loss_data = weight_loss_data[weight_loss_data['Iron_mg'] > 6]
-        if 'calcium' in calcium:
-            weight_loss_data = weight_loss_data[weight_loss_data['Calcium_mg'] > 150]
+
         if 'vegetarian' in vegetarian:
-            exclude_keywords = ['Egg', 'Fish', 'meat', 'beef', 'Chicken', 'Beef', 'Deer', 
-                               'lamb', 'crab', 'pork', 'turkey', 'flesh']
-            pattern = '|'.join(exclude_keywords)
-            weight_loss_data = weight_loss_data[~weight_loss_data['Descrip'].str.contains(pattern, case=False, na=False)]
-        if 'anyfoods' in anyfoods or (not iron and not calcium and not vegetarian):
-            weight_loss_data = food_data[food_data['category'] == 'Weight_Loss']
-        
-        if len(weight_loss_data) > 0:
-            weightlossfoods = weight_loss_data['Descrip'].sample(n=min(5, len(weight_loss_data))).to_string(index=False)
+            selected_foods = vegetarian_foods
         else:
-            weightlossfoods = 'No foods match your criteria'
-        
+            selected_foods = indian_weight_loss
+
+        # Return 5 random recommendations
+        import random
+        recommendations = random.sample(selected_foods, min(5, len(selected_foods)))
+        weightlossfoods = '\n'.join(recommendations)
+
         return render_template('diet-mainpage.html', weightlossfoods=weightlossfoods)
     except Exception as e:
         return render_template('diet-mainpage.html', weightlossfoods=f'Error: {str(e)}')

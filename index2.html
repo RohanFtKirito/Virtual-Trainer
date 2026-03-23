@@ -1,221 +1,1490 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Virtual Trainer - Exercise Training</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"
-        integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
-        integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
-        crossorigin="anonymous"></script>
+    <title>AI Exercise Trainer - Virtual Trainer</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
     <style>
-        body {
+        /* ==================== Reset & Base Styles ==================== */
+        * {
             margin: 0;
             padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #0f0f23 0%, #1a1a3e 50%, #0d0d1f 100%);
+            min-height: 100vh;
+            color: #ffffff;
+            line-height: 1.6;
+            position: relative;
             overflow-x: hidden;
-            background-image: url(/assets/img/index2/collage.png);
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url('/assets/img/index2/collage.png');
             background-size: cover;
             background-position: center;
-            background-repeat: no-repeat;
-            min-height: 100vh;
+            opacity: 0.08;
+            z-index: 0;
+            pointer-events: none;
         }
 
-        .header-bar {
-            background: linear-gradient(135deg, #1a1a1a 0%, #333333 100%);
-            padding: 20px;
-            text-align: center;
-            margin-bottom: 30px;
-        }
-
-        .header-bar h1 {
-            color: #ff6b6b;
-            margin: 0;
-            font-size: 2.5rem;
-            font-weight: bold;
-        }
-
-        .header-bar p {
-            color: #fff;
-            margin: 10px 0 0 0;
-            font-size: 1.1rem;
-        }
-
-        .exercise-card {
-            background: radial-gradient(rgba(0,0,0,0.8), rgba(0,0,0,0.95));
-            border-radius: 15px;
-            overflow: hidden;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-            border: 2px solid transparent;
-        }
-
-        .exercise-card:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 20px 40px rgba(255, 107, 107, 0.3);
-            border-color: #ff6b6b;
-        }
-
-        .exercise-card img {
+        /* ==================== Navigation ==================== */
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
             width: 100%;
-            height: 200px;
-            object-fit: cover;
-        }
-
-        .exercise-card .card-body {
-            padding: 20px;
-            color: white;
-        }
-
-        .exercise-card .card-title {
-            color: #ff6b6b;
-            font-size: 1.5rem;
-            font-weight: bold;
-            margin-bottom: 10px;
-        }
-
-        .exercise-card .card-text {
-            color: #ddd;
-            font-size: 0.95rem;
-            line-height: 1.5;
-            margin-bottom: 15px;
-        }
-
-        .btn-tryit {
-            background: linear-gradient(45deg, #ff6b6b, #ee5a5a);
-            color: white;
-            border: none;
-            padding: 12px 30px;
-            font-size: 1.1rem;
-            font-weight: bold;
-            border-radius: 25px;
-            cursor: pointer;
+            z-index: 1000;
+            background: rgba(15, 15, 35, 0.8);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 16px 0;
             transition: all 0.3s ease;
-            width: 100%;
         }
 
-        .btn-tryit:hover {
-            background: linear-gradient(45deg, #ff8787, #ff6b6b);
-            transform: scale(1.05);
-            box-shadow: 0 10px 20px rgba(255, 107, 107, 0.4);
+        .navbar.scrolled {
+            background: rgba(15, 15, 35, 0.95);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
         }
 
-        .instructions-box {
-            background: rgba(0,0,0,0.8);
-            border-radius: 15px;
-            padding: 25px;
-            margin: 30px auto;
-            max-width: 800px;
-            color: white;
-            border-left: 4px solid #ff6b6b;
+        .nav-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
         }
 
-        .instructions-box h3 {
+        .nav-logo {
+            font-size: 24px;
+            font-weight: 900;
+            background: linear-gradient(135deg, #ff6b6b 0%, #ffa502 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .nav-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 24px;
+            background: linear-gradient(135deg, rgba(255, 107, 107, 0.15) 0%, rgba(255, 107, 107, 0.1) 100%);
+            border: 1px solid rgba(255, 107, 107, 0.3);
             color: #ff6b6b;
-            margin-bottom: 15px;
+            text-decoration: none;
+            border-radius: 25px;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(255, 107, 107, 0.2);
         }
 
-        .instructions-box ul {
-            list-style-type: none;
-            padding: 0;
+        .nav-link:hover {
+            background: linear-gradient(135deg, rgba(255, 107, 107, 0.25) 0%, rgba(255, 107, 107, 0.15) 100%);
+            border-color: rgba(255, 107, 107, 0.5);
+            transform: translateY(-2px) scale(1.02);
+            box-shadow: 0 6px 20px rgba(255, 107, 107, 0.3);
         }
 
-        .instructions-box li {
-            padding: 8px 0;
-            padding-left: 25px;
+        /* ==================== Hero Section ==================== */
+        .hero {
+            position: relative;
+            min-height: 50vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 120px 24px 60px;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 2;
+            max-width: 900px;
+            animation: fadeInUp 1s ease;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            background: rgba(255, 107, 107, 0.15);
+            border: 1px solid rgba(255, 107, 107, 0.3);
+            border-radius: 25px;
+            font-size: 13px;
+            font-weight: 700;
+            color: #ff6b6b;
+            margin-bottom: 24px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .hero h1 {
+            font-size: clamp(42px, 8vw, 64px);
+            font-weight: 900;
+            background: linear-gradient(135deg, #ff6b6b 0%, #ffa502 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 24px;
+            line-height: 1.1;
+        }
+
+        .hero p {
+            font-size: 20px;
+            color: #8a8aa8;
+            max-width: 700px;
+            margin: 0 auto;
+            line-height: 1.8;
+        }
+
+        /* ==================== Progress Dashboard ==================== */
+        .progress-dashboard {
+            padding: 40px 24px;
             position: relative;
         }
 
-        .instructions-box li:before {
-            content: "✓";
+        .dashboard-header {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 32px;
+        }
+
+        .dashboard-title {
+            font-size: 28px;
+            font-weight: 800;
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .reset-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            background: rgba(220, 53, 69, 0.15);
+            border: 1px solid rgba(220, 53, 69, 0.3);
+            color: #dc3545;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .reset-btn:hover {
+            background: rgba(220, 53, 69, 0.25);
+            border-color: rgba(220, 53, 69, 0.5);
+            transform: translateY(-2px);
+        }
+
+        .stats-grid {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 24px;
+            margin-bottom: 40px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, rgba(255, 107, 107, 0.1) 0%, rgba(255, 165, 2, 0.05) 100%);
+            border: 2px solid rgba(255, 107, 107, 0.2);
+            border-radius: 20px;
+            padding: 32px;
+            text-align: center;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
             position: absolute;
-            left: 0;
+            top: -50%;
+            right: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255, 107, 107, 0.1) 0%, transparent 70%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-4px);
+            border-color: rgba(255, 107, 107, 0.4);
+            box-shadow: 0 20px 40px rgba(255, 107, 107, 0.2);
+        }
+
+        .stat-card:hover::before {
+            opacity: 1;
+        }
+
+        .stat-icon {
+            width: 64px;
+            height: 64px;
+            margin: 0 auto 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, rgba(255, 107, 107, 0.2) 0%, rgba(255, 165, 2, 0.2) 100%);
+            border-radius: 16px;
+            font-size: 28px;
+            color: #ff6b6b;
+            position: relative;
+            z-index: 2;
+        }
+
+        .stat-value {
+            font-size: 48px;
+            font-weight: 900;
+            background: linear-gradient(135deg, #ff6b6b 0%, #ffa502 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 8px;
+            position: relative;
+            z-index: 2;
+            line-height: 1;
+        }
+
+        .stat-label {
+            font-size: 14px;
+            font-weight: 600;
+            color: #8a8aa8;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .streak-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            background: linear-gradient(135deg, rgba(255, 107, 107, 0.2) 0%, rgba(255, 165, 2, 0.15) 100%);
+            border: 1px solid rgba(255, 107, 107, 0.3);
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 700;
+            color: #ff6b6b;
+            margin-bottom: 32px;
+        }
+
+        /* ==================== Recent Activity ==================== */
+        .recent-activity {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
+            padding: 32px;
+        }
+
+        .activity-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 24px;
+        }
+
+        .activity-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .activity-list {
+            display: grid;
+            gap: 16px;
+        }
+
+        .activity-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .activity-item:hover {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: rgba(255, 107, 107, 0.2);
+        }
+
+        .activity-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .activity-icon {
+            width: 48px;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, rgba(255, 107, 107, 0.15) 0%, rgba(255, 165, 2, 0.1) 100%);
+            border-radius: 12px;
+            font-size: 20px;
             color: #ff6b6b;
         }
 
-        .back-link {
-            display: inline-block;
+        .activity-info h4 {
+            font-size: 16px;
+            font-weight: 700;
+            color: #ffffff;
+            margin-bottom: 4px;
+        }
+
+        .activity-info p {
+            font-size: 13px;
+            color: #8a8aa8;
+        }
+
+        .activity-stats {
+            display: flex;
+            gap: 24px;
+            text-align: right;
+        }
+
+        .activity-stat {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+        }
+
+        .activity-stat-value {
+            font-size: 20px;
+            font-weight: 800;
             color: #ff6b6b;
+        }
+
+        .activity-stat-label {
+            font-size: 11px;
+            color: #8a8aa8;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .no-activity {
+            text-align: center;
+            padding: 40px;
+            color: #8a8aa8;
+            font-size: 15px;
+        }
+
+        .no-activity i {
+            font-size: 48px;
+            margin-bottom: 16px;
+            opacity: 0.5;
+        }
+
+        /* ==================== AI Assistant Panel ==================== */
+        .ai-assistant-section {
+            padding: 40px 24px;
+            position: relative;
+        }
+
+        .ai-assistant-panel {
+            max-width: 900px;
+            margin: 0 auto;
+            background: linear-gradient(135deg, rgba(255, 107, 107, 0.1) 0%, rgba(255, 165, 2, 0.05) 100%);
+            border: 2px solid rgba(255, 107, 107, 0.3);
+            border-radius: 24px;
+            padding: 40px;
+            text-align: center;
+        }
+
+        .ai-assistant-panel h2 {
+            font-size: 28px;
+            font-weight: 700;
+            color: #ffffff;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+        }
+
+        .ai-assistant-panel p {
+            font-size: 16px;
+            color: #8a8aa8;
+            margin-bottom: 32px;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .ai-buttons {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .ai-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 16px 32px;
+            border: 2px solid;
+            border-radius: 16px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .ai-button.weight-loss {
+            background: linear-gradient(135deg, rgba(56, 239, 125, 0.2) 0%, rgba(56, 239, 125, 0.1) 100%);
+            border-color: rgba(56, 239, 125, 0.5);
+            color: #38ef7d;
+        }
+
+        .ai-button.weight-loss:hover {
+            background: linear-gradient(135deg, rgba(56, 239, 125, 0.3) 0%, rgba(56, 239, 125, 0.2) 100%);
+            border-color: rgba(56, 239, 125, 0.7);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(56, 239, 125, 0.3);
+        }
+
+        .ai-button.weight-gain {
+            background: linear-gradient(135deg, rgba(255, 107, 107, 0.2) 0%, rgba(255, 107, 107, 0.1) 100%);
+            border-color: rgba(255, 107, 107, 0.5);
+            color: #ff6b6b;
+        }
+
+        .ai-button.weight-gain:hover {
+            background: linear-gradient(135deg, rgba(255, 107, 107, 0.3) 0%, rgba(255, 107, 107, 0.2) 100%);
+            border-color: rgba(255, 107, 107, 0.7);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(255, 107, 107, 0.3);
+        }
+
+        .ai-button.active {
+            transform: scale(1.05);
+            box-shadow: 0 0 30px currentColor;
+        }
+
+        /* ==================== Exercise Cards ==================== */
+        .exercises-section {
+            padding: 80px 24px;
+            position: relative;
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 32px;
+            font-weight: 800;
+            color: #ffffff;
+            margin-bottom: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+
+        .exercises-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 32px;
+        }
+
+        .exercise-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 24px;
+            overflow: hidden;
+            transition: all 0.4s ease;
+            cursor: pointer;
             text-decoration: none;
-            margin: 20px;
-            font-size: 1.1rem;
+            color: inherit;
+            display: block;
         }
 
-        .back-link:hover {
-            color: #fff;
+        .exercise-card:hover {
+            transform: translateY(-8px);
+            border-color: rgba(255, 107, 107, 0.3);
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.4);
+        }
+
+        .card-image {
+            position: relative;
+            height: 240px;
+            overflow: hidden;
+        }
+
+        .card-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.6s ease;
+        }
+
+        .exercise-card:hover .card-image img {
+            transform: scale(1.1);
+        }
+
+        .card-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(180deg, rgba(15, 15, 35, 0.3) 0%, rgba(15, 15, 35, 0.8) 100%);
+            z-index: 1;
+        }
+
+        .card-icon {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 56px;
+            height: 56px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255, 107, 107, 0.9);
+            border-radius: 14px;
+            font-size: 24px;
+            color: #ffffff;
+            z-index: 2;
+            box-shadow: 0 8px 20px rgba(255, 107, 107, 0.4);
+        }
+
+        .card-content {
+            padding: 32px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .card-title {
+            font-size: 26px;
+            font-weight: 800;
+            color: #ffffff;
+            margin-bottom: 12px;
+        }
+
+        .card-description {
+            font-size: 15px;
+            color: #8a8aa8;
+            margin-bottom: 24px;
+            line-height: 1.7;
+            min-height: 60px;
+        }
+
+        .card-button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            width: 100%;
+            padding: 16px 24px;
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a5a 100%);
+            border: none;
+            border-radius: 12px;
+            color: #ffffff;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
+            text-decoration: none;
+        }
+
+        .card-button:hover {
+            background: linear-gradient(135deg, #ff8787 0%, #ff6b6b 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 107, 107, 0.4);
+        }
+
+        .button-group {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .card-button.tutorial {
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid rgba(255, 107, 107, 0.4);
+            color: #ff6b6b;
+        }
+
+        .card-button.tutorial:hover {
+            background: rgba(255, 107, 107, 0.15);
+            border-color: rgba(255, 107, 107, 0.6);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 107, 107, 0.2);
+        }
+
+        .exercise-card.highlighted {
+            border-color: rgba(255, 107, 107, 0.6);
+            box-shadow: 0 0 40px rgba(255, 107, 107, 0.3);
+            transform: scale(1.02);
+        }
+
+        .exercise-card.dimmed {
+            opacity: 0.3;
+            filter: grayscale(50%);
+        }
+
+        /* ==================== Instructions ==================== */
+        .instructions-section {
+            padding: 60px 24px;
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .instructions-card {
+            max-width: 900px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 24px;
+            padding: 40px;
+        }
+
+        .instructions-card h2 {
+            font-size: 28px;
+            font-weight: 700;
+            color: #ffffff;
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .instructions-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .instructions-list li {
+            padding: 16px 20px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            margin-bottom: 12px;
+            color: #b0b0cc;
+            font-size: 15px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .instructions-list li:hover {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: rgba(255, 107, 107, 0.2);
+        }
+
+        .instructions-list li::before {
+            content: '\f00c';
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+            color: #28a745;
+            font-size: 16px;
+        }
+
+        /* ==================== Tutorial Modal ==================== */
+        .tutorial-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            z-index: 10000;
+            justify-content: center;
+            align-items: center;
+            padding: 24px;
+        }
+
+        .tutorial-modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            max-width: 1000px;
+            width: 100%;
+            background: rgba(15, 15, 35, 0.95);
+            border: 2px solid rgba(255, 107, 107, 0.3);
+            border-radius: 24px;
+            overflow: hidden;
+        }
+
+        .modal-header {
+            padding: 24px 32px;
+            background: rgba(255, 107, 107, 0.1);
+            border-bottom: 1px solid rgba(255, 107, 107, 0.2);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h3 {
+            font-size: 24px;
+            font-weight: 700;
+            color: #ffffff;
+            margin: 0;
+        }
+
+        .modal-close {
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            color: #ffffff;
+            font-size: 24px;
+            cursor: pointer;
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .modal-close:hover {
+            background: rgba(255, 107, 107, 0.3);
+            transform: rotate(90deg);
+        }
+
+        .modal-body {
+            padding: 0;
+            position: relative;
+        }
+
+        .video-wrapper {
+            position: relative;
+            padding-bottom: 56.25%;
+            height: 0;
+            background: #000;
+        }
+
+        .video-wrapper iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        /* ==================== Responsive ==================== */
+        @media (max-width: 768px) {
+            .hero {
+                padding: 100px 16px 40px;
+            }
+
+            .hero h1 {
+                font-size: 36px;
+            }
+
+            .exercises-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .card-image {
+                height: 200px;
+            }
+
+            .instructions-card {
+                padding: 24px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero h1 {
+                font-size: 28px;
+            }
+
+            .card-content {
+                padding: 24px;
+            }
+
+            .card-title {
+                font-size: 22px;
+            }
         }
     </style>
 </head>
 
 <body>
-    <a href="index.html" class="back-link">← Back to Home</a>
+    <!-- Navigation -->
+    <nav class="navbar" id="navbar">
+        <div class="nav-container">
+            <a href="/" class="nav-logo">
+                <i class="fas fa-dumbbell"></i>
+                Virtual Trainer
+            </a>
+            <a href="/" class="nav-link">
+                <i class="fas fa-home"></i>
+                <span>Back to Home</span>
+            </a>
+        </div>
+    </nav>
 
-    <div class="header-bar">
-        <h1>Virtual Trainer</h1>
-        <p>Live Exercise Tracking with AI-Powered Rep Counting</p>
-    </div>
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-content">
+            <div class="hero-badge">
+                <i class="fas fa-robot"></i>
+                <span>AI-Powered Training</span>
+            </div>
+            <h1>AI Exercise Trainer</h1>
+            <p>Choose an exercise and get real-time feedback using advanced AI pose detection technology</p>
+        </div>
+    </section>
 
-    <div class="container">
-        <div class="instructions-box">
-            <h3>How to Use</h3>
-            <ul>
-                <li>Click "Start Camera" on any exercise below</li>
-                <li>Camera will open directly in your browser</li>
-                <li>Position yourself so your upper body is visible</li>
-                <li>Perform the exercise - motion will be detected automatically</li>
-                <li>Watch your rep counter/timer on screen!</li>
-                <li>Press 'Q' to stop the camera and return</li>
-            </ul>
+    <!-- Progress Dashboard Section -->
+    <section class="progress-dashboard">
+        <div class="dashboard-header">
+            <h2 class="dashboard-title"><i class="fas fa-chart-line"></i> Your Progress</h2>
+            <button class="reset-btn" onclick="resetProgress()">
+                <i class="fas fa-redo"></i>
+                Reset Progress
+            </button>
         </div>
 
-        <div class="row g-4 justify-content-center">
-            <div class="col-md-6 col-lg-3">
-                <div class="exercise-card">
-                    <img src="assets/img/index2/bicep.webp" alt="Bicep Curls">
-                    <div class="card-body">
-                        <h5 class="card-title">Bicep Curls</h5>
-                        <p class="card-text">Isolated arm exercise lifting weights, flexing elbow joint, targeting bicep muscles for strength and definition.</p>
-                        <button class="btn-tryit" onclick="executePose('BicepCurl')">Start Camera 📷</button>
+        <!-- Streak Badge -->
+        <div style="text-align: center; margin-bottom: 32px;">
+            <div class="streak-badge" id="streakBadge" style="display: none;">
+                <i class="fas fa-fire"></i>
+                <span id="streakText">3-day streak!</span>
+            </div>
+        </div>
+
+        <!-- Stats Grid -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-dumbbell"></i>
+                </div>
+                <div class="stat-value" id="totalWorkouts">0</div>
+                <div class="stat-label">Total Workouts</div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-repeat"></i>
+                </div>
+                <div class="stat-value" id="totalReps">0</div>
+                <div class="stat-label">Total Reps</div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-clock"></i>
+                </div>
+                <div class="stat-value" id="totalTime">0:00</div>
+                <div class="stat-label">Total Time</div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-trophy"></i>
+                </div>
+                <div class="stat-value" id="exercisesCompleted">0</div>
+                <div class="stat-label">Exercises Done</div>
+            </div>
+        </div>
+
+        <!-- Recent Activity -->
+        <div class="recent-activity">
+            <div class="activity-header">
+                <h3 class="activity-title"><i class="fas fa-history"></i> Recent Activity</h3>
+            </div>
+            <div class="activity-list" id="activityList">
+                <div class="no-activity">
+                    <i class="fas fa-running"></i>
+                    <p>No workouts yet. Start your first exercise to track your progress!</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- AI Assistant Section -->
+    <section class="ai-assistant-section">
+        <div class="ai-assistant-panel">
+            <h2><i class="fas fa-brain"></i> AI Assistant</h2>
+            <p>Tell me your fitness goal and I'll recommend the best exercises for you!</p>
+            <div class="ai-buttons">
+                <button class="ai-button weight-loss" onclick="filterExercises('weight-loss')">
+                    <i class="fas fa-fire"></i>
+                    Weight Loss
+                </button>
+                <button class="ai-button weight-gain" onclick="filterExercises('weight-gain')">
+                    <i class="fas fa-dumbbell"></i>
+                    Weight Gain
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Exercise Cards Section -->
+    <section class="exercises-section">
+        <div class="container">
+            <h2 class="section-title"><i class="fas fa-robot"></i> AI-Powered Exercises</h2>
+            <div class="exercises-grid">
+                <!-- Bicep Curl -->
+                <div class="exercise-card" data-exercise="bicepcurl" data-categories="weight-gain,muscle" onclick="handleCardClick(event, 'BicepCurl')">
+                    <div class="card-image">
+                        <img src="assets/img/index2/bicep.webp" alt="Bicep Curls">
+                        <div class="card-overlay"></div>
+                        <div class="card-icon">
+                            <i class="fas fa-dumbbell"></i>
+                        </div>
+                    </div>
+                    <div class="card-content">
+                        <h3 class="card-title">Bicep Curls</h3>
+                        <p class="card-description">Isolated arm exercise lifting weights, flexing elbow joint, targeting bicep muscles for strength and definition.</p>
+                        <div class="button-group">
+                            <button class="card-button" onclick="event.stopPropagation(); executePose('BicepCurl')">
+                                <i class="fas fa-camera"></i>
+                                Start Camera
+                            </button>
+                            <button class="card-button tutorial" onclick="event.stopPropagation(); openTutorial('Bicep Curl', 'ykJmrZ5v0Oo')">
+                                <i class="fab fa-youtube"></i>
+                                Watch Tutorial
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Plank -->
+                <div class="exercise-card" data-exercise="plank" data-categories="weight-loss,core" onclick="handleCardClick(event, 'Plank')">
+                    <div class="card-image">
+                        <img src="assets/img/index2/plank.jpg" alt="Plank">
+                        <div class="card-overlay"></div>
+                        <div class="card-icon">
+                            <i class="fas fa-stopwatch"></i>
+                        </div>
+                    </div>
+                    <div class="card-content">
+                        <h3 class="card-title">Plank</h3>
+                        <p class="card-description">Isometric core exercise holding a push-up position, engaging abdominal muscles for strength and stability.</p>
+                        <div class="button-group">
+                            <button class="card-button" onclick="event.stopPropagation(); executePose('Plank')">
+                                <i class="fas fa-camera"></i>
+                                Start Camera
+                            </button>
+                            <button class="card-button tutorial" onclick="event.stopPropagation(); openTutorial('Plank', 'ASdvN_XEl_c')">
+                                <i class="fab fa-youtube"></i>
+                                Watch Tutorial
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- PushUp -->
+                <div class="exercise-card" data-exercise="pushup" data-categories="weight-gain,muscle" onclick="handleCardClick(event, 'PushUp')">
+                    <div class="card-image">
+                        <img src="assets/img/index2/pushup.jpg" alt="PushUp">
+                        <div class="card-overlay"></div>
+                        <div class="card-icon">
+                            <i class="fas fa-hand-rock"></i>
+                        </div>
+                    </div>
+                    <div class="card-content">
+                        <h3 class="card-title">PushUp</h3>
+                        <p class="card-description">Bodyweight exercise involving lowering and raising the body using arms, building chest and tricep strength.</p>
+                        <div class="button-group">
+                            <button class="card-button" onclick="event.stopPropagation(); executePose('PushUp')">
+                                <i class="fas fa-camera"></i>
+                                Start Camera
+                            </button>
+                            <button class="card-button tutorial" onclick="event.stopPropagation(); openTutorial('Push-Up', 'IODxDxX7oi4')">
+                                <i class="fab fa-youtube"></i>
+                                Watch Tutorial
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Downward Dog -->
+                <div class="exercise-card" data-exercise="downwarddog" data-categories="flexibility,yoga" onclick="handleCardClick(event, 'DownwardFacingDog')">
+                    <div class="card-image">
+                        <img src="assets/img/index2/dog.jpg" alt="Downward Facing Dog">
+                        <div class="card-overlay"></div>
+                        <div class="card-icon">
+                            <i class="fas fa-spa"></i>
+                        </div>
+                    </div>
+                    <div class="card-content">
+                        <h3 class="card-title">Downward Dog</h3>
+                        <p class="card-description">Yoga pose stretching shoulders, hamstrings, and spine, promoting flexibility and balance.</p>
+                        <div class="button-group">
+                            <button class="card-button" onclick="event.stopPropagation(); executePose('DownwardFacingDog')">
+                                <i class="fas fa-camera"></i>
+                                Start Camera
+                            </button>
+                            <button class="card-button tutorial" onclick="event.stopPropagation(); openTutorial('Downward Dog', '6JgkTQZcVAk')">
+                                <i class="fab fa-youtube"></i>
+                                Watch Tutorial
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
-            <div class="col-md-6 col-lg-3">
-                <div class="exercise-card">
-                    <img src="assets/img/index2/plank.jpg" alt="Plank">
-                    <div class="card-body">
-                        <h5 class="card-title">Plank</h5>
-                        <p class="card-text">Isometric core exercise holding a push-up position, engaging abdominal muscles for strength and stability.</p>
-                        <button class="btn-tryit" onclick="executePose('Plank')">Start Camera 📷</button>
+        </div>
+    </section>
+
+    <!-- More Exercises Section (Tutorial Only) -->
+    <section class="exercises-section">
+        <div class="container">
+            <h2 class="section-title"><i class="fas fa-video"></i> More Exercises (Tutorial Only)</h2>
+            <div class="exercises-grid">
+                <!-- Squats -->
+                <div class="exercise-card" data-exercise="squats" data-categories="weight-gain,legs">
+                    <div class="card-image">
+                        <img src="https://images.unsplash.com/photo-1574680096145-d05b474e2155?w=400&h=300&fit=crop" alt="Squats">
+                        <div class="card-overlay"></div>
+                        <div class="card-icon">
+                            <i class="fas fa-arrow-down"></i>
+                        </div>
+                    </div>
+                    <div class="card-content">
+                        <h3 class="card-title">Squats</h3>
+                        <p class="card-description">King of leg exercises! Build powerful quads, glutes, and hamstrings with this fundamental movement.</p>
+                        <button class="card-button tutorial" onclick="openTutorial('Squats', 'ultWZbUMPL8')">
+                            <i class="fab fa-youtube"></i>
+                            Watch Tutorial
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Lunges -->
+                <div class="exercise-card" data-exercise="lunges" data-categories="weight-gain,legs">
+                    <div class="card-image">
+                        <img src="https://images.unsplash.com/photo-1434608519344-49d77a699ded?w=400&h=300&fit=crop" alt="Lunges">
+                        <div class="card-overlay"></div>
+                        <div class="card-icon">
+                            <i class="fas fa-walking"></i>
+                        </div>
+                    </div>
+                    <div class="card-content">
+                        <h3 class="card-title">Lunges</h3>
+                        <p class="card-description">Unilateral leg exercise that builds strength, improves balance, and targets glutes effectively.</p>
+                        <button class="card-button tutorial" onclick="openTutorial('Lunges', 'QOVaHwm-Q6U')">
+                            <i class="fab fa-youtube"></i>
+                            Watch Tutorial
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Jumping Jacks -->
+                <div class="exercise-card" data-exercise="jumpingjacks" data-categories="weight-loss,cardio">
+                    <div class="card-image">
+                        <img src="https://images.unsplash.com/photo-1599058945522-28d584b6f0ff?w=400&h=300&fit=crop" alt="Jumping Jacks">
+                        <div class="card-overlay"></div>
+                        <div class="card-icon">
+                            <i class="fas fa-bolt"></i>
+                        </div>
+                    </div>
+                    <div class="card-content">
+                        <h3 class="card-title">Jumping Jacks</h3>
+                        <p class="card-description">Classic full-body cardio exercise that elevates heart rate and burns calories effectively.</p>
+                        <button class="card-button tutorial" onclick="openTutorial('Jumping Jacks', 'dmMwK4OoUjM')">
+                            <i class="fab fa-youtube"></i>
+                            Watch Tutorial
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Burpees -->
+                <div class="exercise-card" data-exercise="burpees" data-categories="weight-loss,cardio">
+                    <div class="card-image">
+                        <img src="https://images.unsplash.com/photo-1598971639058-211a7a9a4c93?w=400&h=300&fit=crop" alt="Burpees">
+                        <div class="card-overlay"></div>
+                        <div class="card-icon">
+                            <i class="fas fa-fire"></i>
+                        </div>
+                    </div>
+                    <div class="card-content">
+                        <h3 class="card-title">Burpees</h3>
+                        <p class="card-description">The ultimate fat-burning exercise! Combines squat, push-up, and jump for maximum calorie burn.</p>
+                        <button class="card-button tutorial" onclick="openTutorial('Burpees', 'TU8DffXiTME')">
+                            <i class="fab fa-youtube"></i>
+                            Watch Tutorial
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Mountain Climbers -->
+                <div class="exercise-card" data-exercise="mountainclimbers" data-categories="weight-loss,core">
+                    <div class="card-image">
+                        <img src="https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=400&h=300&fit=crop" alt="Mountain Climbers">
+                        <div class="card-overlay"></div>
+                        <div class="card-icon">
+                            <i class="fas fa-mountain"></i>
+                        </div>
+                    </div>
+                    <div class="card-content">
+                        <h3 class="card-title">Mountain Climbers</h3>
+                        <p class="card-description">Dynamic core exercise that provides cardio benefits while engaging multiple muscle groups.</p>
+                        <button class="card-button tutorial" onclick="openTutorial('Mountain Climbers', 'nmwgirgXLYM')">
+                            <i class="fab fa-youtube"></i>
+                            Watch Tutorial
+                        </button>
+                    </div>
+                </div>
+
+                <!-- High Knees -->
+                <div class="exercise-card" data-exercise="highknees" data-categories="weight-loss,cardio">
+                    <div class="card-image">
+                        <img src="https://images.unsplash.com/photo-1552674605-db6ffd4facb5?w=400&h=300&fit=crop" alt="High Knees">
+                        <div class="card-overlay"></div>
+                        <div class="card-icon">
+                            <i class="fas fa-running"></i>
+                        </div>
+                    </div>
+                    <div class="card-content">
+                        <h3 class="card-title">High Knees</h3>
+                        <p class="card-description">High-intensity cardio move that elevates heart rate quickly and improves leg endurance.</p>
+                        <button class="card-button tutorial" onclick="openTutorial('High Knees', 'A5vhbOcJLyA')">
+                            <i class="fab fa-youtube"></i>
+                            Watch Tutorial
+                        </button>
                     </div>
                 </div>
             </div>
-            <div class="col-md-6 col-lg-3">
-                <div class="exercise-card">
-                    <img src="assets/img/index2/pushup.jpg" alt="PushUp">
-                    <div class="card-body">
-                        <h5 class="card-title">PushUp</h5>
-                        <p class="card-text">Bodyweight exercise involving lowering and raising the body using arms, building chest and tricep strength.</p>
-                        <button class="btn-tryit" onclick="executePose('PushUp')">Start Camera 📷</button>
-                    </div>
-                </div>
+        </div>
+    </section>
+
+    <!-- Instructions Section -->
+    <section class="instructions-section">
+        <div class="container">
+            <div class="instructions-card">
+                <h2><i class="fas fa-info-circle"></i> How to Use</h2>
+                <ul class="instructions-list">
+                    <li>Click "Start Camera" on any exercise above</li>
+                    <li>Camera will open directly in your browser</li>
+                    <li>Position yourself so your full body is visible</li>
+                    <li>Perform the exercise - motion will be detected automatically</li>
+                    <li>Watch your rep counter/timer update in real-time!</li>
+                    <li>Press 'Q' to stop the camera and return</li>
+                </ul>
             </div>
-            <div class="col-md-6 col-lg-3">
-                <div class="exercise-card">
-                    <img src="assets/img/index2/dog.jpg" alt="Downward Facing Dog">
-                    <div class="card-body">
-                        <h5 class="card-title">Downward Dog</h5>
-                        <p class="card-text">Yoga pose stretching shoulders, hamstrings, and spine, promoting flexibility and balance.</p>
-                        <button class="btn-tryit" onclick="executePose('DownwardFacingDog')">Start Camera 📷</button>
-                    </div>
+        </div>
+    </section>
+
+    <!-- Tutorial Modal -->
+    <div class="tutorial-modal" id="tutorialModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modalTitle">Exercise Tutorial</h3>
+                <button class="modal-close" onclick="closeTutorial()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="video-wrapper">
+                    <iframe id="tutorialFrame" src="" allowfullscreen></iframe>
                 </div>
             </div>
         </div>
     </div>
 
     <script>
+        // ==================== Progress Tracking System ====================
+
+        // Progress data structure
+        const PROGRESS_KEY = 'fitness_progress';
+
+        // Initialize progress on page load
+        function initProgress() {
+            loadProgress();
+            updateUI();
+            checkStreak();
+        }
+
+        // Load progress from localStorage
+        function loadProgress() {
+            const saved = localStorage.getItem(PROGRESS_KEY);
+            if (saved) {
+                return JSON.parse(saved);
+            }
+            return {
+                totalWorkouts: 0,
+                totalReps: 0,
+                totalTime: 0, // in seconds
+                exercisesCompleted: 0,
+                history: [],
+                lastWorkoutDate: null
+            };
+        }
+
+        // Save progress to localStorage
+        function saveProgress(progress) {
+            localStorage.setItem(PROGRESS_KEY, JSON.stringify(progress));
+        }
+
+        // Update UI with current progress
+        function updateUI() {
+            const progress = loadProgress();
+
+            // Animate numbers
+            animateValue('totalWorkouts', 0, progress.totalWorkouts, 1000);
+            animateValue('totalReps', 0, progress.totalReps, 1000);
+            animateValue('exercisesCompleted', 0, progress.exercisesCompleted, 1000);
+
+            // Format time as MM:SS
+            const minutes = Math.floor(progress.totalTime / 60);
+            const seconds = progress.totalTime % 60;
+            document.getElementById('totalTime').textContent =
+                `${minutes}:${seconds.toString().padStart(2, '0')}`;
+
+            // Update recent activity
+            updateRecentActivity(progress.history);
+        }
+
+        // Animate number counting
+        function animateValue(elementId, start, end, duration) {
+            const element = document.getElementById(elementId);
+            const range = end - start;
+            const increment = range / (duration / 16);
+            let current = start;
+
+            const timer = setInterval(() => {
+                current += increment;
+                if (current >= end) {
+                    element.textContent = end;
+                    clearInterval(timer);
+                } else {
+                    element.textContent = Math.floor(current);
+                }
+            }, 16);
+        }
+
+        // Update recent activity list
+        function updateRecentActivity(history) {
+            const activityList = document.getElementById('activityList');
+
+            if (!history || history.length === 0) {
+                activityList.innerHTML = `
+                    <div class="no-activity">
+                        <i class="fas fa-running"></i>
+                        <p>No workouts yet. Start your first exercise to track your progress!</p>
+                    </div>
+                `;
+                return;
+            }
+
+            // Get last 5 activities (most recent first)
+            const recentHistory = history.slice(-5).reverse();
+
+            activityList.innerHTML = recentHistory.map(activity => {
+                const date = new Date(activity.date);
+                const formattedDate = date.toLocaleDateString('en-US', {
+                    month: 'short',
+                    day: 'numeric'
+                });
+                const formattedTime = formatDuration(activity.time);
+
+                return `
+                    <div class="activity-item">
+                        <div class="activity-left">
+                            <div class="activity-icon">
+                                <i class="fas fa-${getExerciseIcon(activity.exercise)}"></i>
+                            </div>
+                            <div class="activity-info">
+                                <h4>${activity.exercise}</h4>
+                                <p>${formattedDate}</p>
+                            </div>
+                        </div>
+                        <div class="activity-stats">
+                            <div class="activity-stat">
+                                <span class="activity-stat-value">${activity.reps}</span>
+                                <span class="activity-stat-label">Reps</span>
+                            </div>
+                            <div class="activity-stat">
+                                <span class="activity-stat-value">${formattedTime}</span>
+                                <span class="activity-stat-label">Time</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Get exercise icon based on name
+        function getExerciseIcon(exerciseName) {
+            const icons = {
+                'Bicep Curl': 'dumbbell',
+                'BicepCurl': 'dumbbell',
+                'Push-up': 'hand-rock',
+                'PushUp': 'hand-rock',
+                'Plank': 'stopwatch',
+                'Downward Dog': 'spa',
+                'DownwardFacingDog': 'spa'
+            };
+            return icons[exerciseName] || 'dumbbell';
+        }
+
+        // Format duration
+        function formatDuration(seconds) {
+            const minutes = Math.floor(seconds / 60);
+            const secs = seconds % 60;
+            if (minutes > 0) {
+                return `${minutes}m ${secs}s`;
+            }
+            return `${secs}s`;
+        }
+
+        // Check and update streak
+        function checkStreak() {
+            const progress = loadProgress();
+            const streakBadge = document.getElementById('streakBadge');
+            const streakText = document.getElementById('streakText');
+
+            if (!progress.lastWorkoutDate) {
+                streakBadge.style.display = 'none';
+                return;
+            }
+
+            const lastWorkout = new Date(progress.lastWorkoutDate);
+            const today = new Date();
+            const diffDays = Math.floor((today - lastWorkout) / (1000 * 60 * 60 * 24));
+
+            if (diffDays <= 1) {
+                // Active streak (worked out today or yesterday)
+                streakBadge.style.display = 'inline-flex';
+                streakText.textContent = `${diffDays === 0 ? 'Keep it up!' : 'Keep going!'}`;
+            } else {
+                streakBadge.style.display = 'none';
+            }
+        }
+
+        // Record workout completion
+        function recordWorkout(exerciseName, reps, duration) {
+            const progress = loadProgress();
+
+            // Update totals
+            progress.totalWorkouts += 1;
+            progress.totalReps += reps;
+            progress.totalTime += duration;
+            progress.exercisesCompleted += 1;
+
+            // Add to history
+            progress.history.push({
+                exercise: exerciseName,
+                reps: reps,
+                time: duration,
+                date: new Date().toISOString()
+            });
+
+            // Keep only last 50 workouts
+            if (progress.history.length > 50) {
+                progress.history = progress.history.slice(-50);
+            }
+
+            // Update last workout date
+            progress.lastWorkoutDate = new Date().toISOString();
+
+            // Save and update UI
+            saveProgress(progress);
+            updateUI();
+            checkStreak();
+
+            console.log('Workout recorded:', { exerciseName, reps, duration });
+        }
+
+        // Reset progress
+        function resetProgress() {
+            if (confirm('Are you sure you want to reset all your progress? This cannot be undone.')) {
+                localStorage.removeItem(PROGRESS_KEY);
+                initProgress();
+                console.log('Progress reset');
+            }
+        }
+
+        // ==================== Navbar & Exercise Functions ====================
+
+        // Navbar scroll effect
+        window.addEventListener('scroll', function() {
+            const navbar = document.getElementById('navbar');
+            if (window.scrollY > 50) {
+                navbar.classList.add('scrolled');
+            } else {
+                navbar.classList.remove('scrolled');
+            }
+        });
+
+        // Handle card click - if clicked directly on card (not buttons), start camera
+        function handleCardClick(event, pose) {
+            // Only execute if clicking on the card itself, not on buttons
+            if (event.target.closest('.button-group')) {
+                return;
+            }
+            executePose(pose);
+        }
+
+        // Execute pose function - navigate to exercise page
         function executePose(pose) {
             console.log('Starting ' + pose + '...');
-            // Open camera directly in the webapp
+
+            // Store workout start time
+            sessionStorage.setItem('currentWorkoutStart', Date.now());
+            sessionStorage.setItem('currentExercise', pose);
+
             const exercisePages = {
                 'BicepCurl': '/exercise-bicepcurl.html',
                 'Plank': '/exercise-plank.html',
@@ -226,7 +1495,165 @@
                 window.location.href = exercisePages[pose];
             }
         }
+
+        // Check for returning from workout and record it
+        function checkReturningFromWorkout() {
+            // Check if exercise page saved actual workout data
+            const lastReps = sessionStorage.getItem('lastWorkoutReps');
+            const lastDuration = sessionStorage.getItem('lastWorkoutDuration');
+            const lastExercise = sessionStorage.getItem('lastWorkoutExercise');
+
+            if (lastReps && lastDuration && lastExercise) {
+                // Use actual data from exercise page
+                recordWorkout(
+                    lastExercise,
+                    parseInt(lastReps),
+                    parseInt(lastDuration)
+                );
+
+                // Clear session storage
+                sessionStorage.removeItem('lastWorkoutReps');
+                sessionStorage.removeItem('lastWorkoutDuration');
+                sessionStorage.removeItem('lastWorkoutExercise');
+                return;
+            }
+
+            // Fallback: Check if user started a workout (old method)
+            const workoutStart = sessionStorage.getItem('currentWorkoutStart');
+            const exerciseName = sessionStorage.getItem('currentExercise');
+
+            if (workoutStart && exerciseName) {
+                const duration = Math.floor((Date.now() - parseInt(workoutStart)) / 1000);
+
+                // Only record if workout was at least 10 seconds
+                if (duration >= 10) {
+                    // Estimate reps based on exercise type and duration
+                    const estimatedReps = estimateReps(exerciseName, duration);
+                    recordWorkout(exerciseName, estimatedReps, duration);
+                }
+
+                // Clear session storage
+                sessionStorage.removeItem('currentWorkoutStart');
+                sessionStorage.removeItem('currentExercise');
+            }
+        }
+
+        // Estimate reps based on exercise and duration
+        function estimateReps(exerciseName, duration) {
+            // Average reps per minute for different exercises
+            const repsPerMinute = {
+                'BicepCurl': 15,
+                'Plank': 1, // Plank is time-based, not rep-based
+                'PushUp': 10,
+                'DownwardFacingDog': 1 // Yoga pose, not rep-based
+            };
+
+            const rpm = repsPerMinute[exerciseName] || 10;
+            return Math.max(1, Math.floor((duration / 60) * rpm));
+        }
+
+        // Open tutorial modal
+        function openTutorial(title, videoId) {
+            const modal = document.getElementById('tutorialModal');
+            const iframe = document.getElementById('tutorialFrame');
+            const modalTitle = document.getElementById('modalTitle');
+
+            modalTitle.textContent = title + ' Tutorial';
+            iframe.src = `https://www.youtube.com/embed/${videoId}?autoplay=1`;
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        // Close tutorial modal
+        function closeTutorial() {
+            const modal = document.getElementById('tutorialModal');
+            const iframe = document.getElementById('tutorialFrame');
+
+            modal.classList.remove('active');
+            iframe.src = '';
+            document.body.style.overflow = '';
+        }
+
+        // Close modal on escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeTutorial();
+            }
+        });
+
+        // Close modal on backdrop click
+        document.getElementById('tutorialModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeTutorial();
+            }
+        });
+
+        // Filter exercises based on goal
+        function filterExercises(goal) {
+            const allCards = document.querySelectorAll('.exercise-card');
+            const buttons = document.querySelectorAll('.ai-button');
+
+            // Remove active class from all buttons
+            buttons.forEach(btn => btn.classList.remove('active'));
+
+            // Add active class to clicked button
+            event.target.closest('.ai-button').classList.add('active');
+
+            // Filter exercises
+            allCards.forEach(card => {
+                const categories = card.dataset.categories || '';
+
+                if (goal === 'weight-loss') {
+                    // Highlight weight-loss exercises
+                    if (categories.includes('weight-loss') || categories.includes('core') || categories.includes('cardio')) {
+                        card.classList.add('highlighted');
+                        card.classList.remove('dimmed');
+                        card.style.display = '';
+                    } else {
+                        card.classList.remove('highlighted');
+                        card.classList.add('dimmed');
+                    }
+                } else if (goal === 'weight-gain') {
+                    // Highlight weight-gain exercises
+                    if (categories.includes('weight-gain') || categories.includes('muscle')) {
+                        card.classList.add('highlighted');
+                        card.classList.remove('dimmed');
+                        card.style.display = '';
+                    } else {
+                        card.classList.remove('highlighted');
+                        card.classList.add('dimmed');
+                    }
+                }
+            });
+
+            // Scroll to exercises section
+            document.querySelector('.exercises-section').scrollIntoView({
+                behavior: 'smooth',
+                block: 'start'
+            });
+        }
+
+        // Reset filters when clicking on AI buttons again
+        function resetFilters() {
+            const allCards = document.querySelectorAll('.exercise-card');
+            const buttons = document.querySelectorAll('.ai-button');
+
+            buttons.forEach(btn => btn.classList.remove('active'));
+
+            allCards.forEach(card => {
+                card.classList.remove('highlighted', 'dimmed');
+                card.style.display = '';
+            });
+        }
+
+        // ==================== Initialize on Page Load ====================
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize progress tracking
+            initProgress();
+
+            // Check if user is returning from a workout
+            checkReturningFromWorkout();
+        });
     </script>
 </body>
-
 </html>
