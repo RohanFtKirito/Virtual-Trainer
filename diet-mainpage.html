@@ -1420,7 +1420,7 @@
 						'Content-Type': 'application/json'
 					},
 					body: JSON.stringify({
-						vegetarian: vegetarian ? 'vegetarian' : ''
+						vegetarian: !!vegetarian
 					})
 				});
 
@@ -1428,8 +1428,13 @@
 					throw new Error('Failed to get recommendations');
 				}
 
-				const text = await response.text();
-				const weightgainfoods = text;
+				const data = await response.json();
+
+				if (data.error) {
+					throw new Error(data.error);
+				}
+
+				const foods = data.foods || [];
 
 				// Remove existing result if any
 				const existingResult = this.parentElement.querySelector('.food-list');
@@ -1441,22 +1446,20 @@
 				foodListDiv.innerHTML = '<p>✓ Recommended Indian foods for healthy weight gain:</p><ul></ul>';
 				const ul = foodListDiv.querySelector('ul');
 
-				weightgainfoods.split('\n').forEach(item => {
-					if (item.trim()) {
-						const li = document.createElement('li');
-						const parts = item.split(' - ');
-						li.innerHTML = `
-							<div class="food-item-content">
-								<div class="food-name">${parts[0]}</div>
-								${parts[1] ? `<div class="food-description">${parts[1]}</div>` : ''}
-							</div>
-							<div class="food-tags">
-								<span class="food-tag high-energy">High Energy</span>
-								<span class="food-tag protein">Protein</span>
-							</div>
-						`;
-						ul.appendChild(li);
-					}
+				foods.forEach(item => {
+					const li = document.createElement('li');
+					const parts = item.split(' - ');
+					li.innerHTML = `
+						<div class="food-item-content">
+							<div class="food-name">${parts[0]}</div>
+							${parts[1] ? `<div class="food-description">${parts[1]}</div>` : ''}
+						</div>
+						<div class="food-tags">
+							<span class="food-tag high-energy">High Energy</span>
+							<span class="food-tag protein">Protein</span>
+						</div>
+					`;
+					ul.appendChild(li);
 				});
 
 				this.parentElement.appendChild(foodListDiv);
@@ -1489,7 +1492,7 @@
 						'Content-Type': 'application/json'
 					},
 					body: JSON.stringify({
-						vegetarian: vegetarian ? 'vegetarian' : ''
+						vegetarian: !!vegetarian
 					})
 				});
 
@@ -1497,8 +1500,13 @@
 					throw new Error('Failed to get recommendations');
 				}
 
-				const text = await response.text();
-				const weightlossfoods = text;
+				const data = await response.json();
+
+				if (data.error) {
+					throw new Error(data.error);
+				}
+
+				const foods = data.foods || [];
 
 				// Remove existing result if any
 				const existingResult = this.parentElement.querySelector('.food-list');
@@ -1510,22 +1518,20 @@
 				foodListDiv.innerHTML = '<p>✓ Recommended Indian foods for healthy weight loss:</p><ul></ul>';
 				const ul = foodListDiv.querySelector('ul');
 
-				weightlossfoods.split('\n').forEach(item => {
-					if (item.trim()) {
-						const li = document.createElement('li');
-						const parts = item.split(' - ');
-						li.innerHTML = `
-							<div class="food-item-content">
-								<div class="food-name">${parts[0]}</div>
-								${parts[1] ? `<div class="food-description">${parts[1]}</div>` : ''}
-							</div>
-							<div class="food-tags">
-								<span class="food-tag low-cal">Low Calorie</span>
-								<span class="food-tag protein">High Protein</span>
-							</div>
-						`;
-						ul.appendChild(li);
-					}
+				foods.forEach(item => {
+					const li = document.createElement('li');
+					const parts = item.split(' - ');
+					li.innerHTML = `
+						<div class="food-item-content">
+							<div class="food-name">${parts[0]}</div>
+							${parts[1] ? `<div class="food-description">${parts[1]}</div>` : ''}
+						</div>
+						<div class="food-tags">
+							<span class="food-tag low-cal">Low Calorie</span>
+							<span class="food-tag protein">High Protein</span>
+						</div>
+					`;
+					ul.appendChild(li);
 				});
 
 				this.parentElement.appendChild(foodListDiv);

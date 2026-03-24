@@ -822,11 +822,27 @@ def diet_predict():
 @app.route('/diet/analyze', methods=['POST'])
 def diet_analyze():
     """Goal-based intelligent diet analysis system with scoring"""
+    print("API HIT:", request.path)
+
     try:
-        calories = float(request.form['input_1'])  # Calories
-        protein = float(request.form['input_2'])  # Protein (g)
-        fat = float(request.form['input_3'])  # Fat (g)
-        goal = request.form['goal']  # weight_gain, weight_loss, maintenance
+        # Get JSON data from frontend
+        data = request.get_json()
+
+        if not data:
+            return jsonify({'error': 'No data provided'}), 400
+
+        # Parse inputs
+        calories = float(data.get('input_1', 0))  # Calories
+        protein = float(data.get('input_2', 0))  # Protein (g)
+        fat = float(data.get('input_3', 0))  # Fat (g)
+        goal = data.get('goal', 'maintenance')  # weight_gain, weight_loss, maintenance
+
+        # Input validation
+        if calories < 0 or protein < 0 or fat < 0:
+            return jsonify({'error': 'Invalid input. Calories, protein, and fat must be positive numbers.'}), 400
+
+        if goal not in ['weight_gain', 'weight_loss', 'maintenance']:
+            return jsonify({'error': 'Invalid goal. Must be weight_gain, weight_loss, or maintenance.'}), 400
 
         # Calculate macro ratios
         protein_calories = protein * 4
@@ -1002,21 +1018,33 @@ def diet_analyze():
             'quick_fix': quick_fix
         }
 
-        return render_template('diet-mainpage.html', analysis_result=analysis_result)
+        # Return JSON response
+        return jsonify(analysis_result), 200
 
+    except ValueError as e:
+        return jsonify({
+            'score': 0,
+            'score_message': f"Invalid input: {str(e)}",
+            'analysis': ["Error in analysis"],
+            'suggestions': ["Please check your inputs"],
+            'quick_fix': "Try again with valid values"
+        }), 400
     except Exception as e:
-        return render_template('diet-mainpage.html', analysis_result={
+        print(f"Diet Analysis Error: {str(e)}")
+        return jsonify({
             'score': 0,
             'score_message': f"Error: {str(e)}",
             'analysis': ["Error in analysis"],
             'suggestions': ["Please check your inputs"],
             'quick_fix': "Try again with valid values"
-        })
+        }), 500
 
 
 @app.route('/diet/weightgain', methods=['POST'])
 def weightgain():
     """Filter weight gain foods with Indian diet recommendations"""
+    print("API HIT:", request.path)
+
     # Indian diet recommendations for weight gain
     indian_weight_gain = [
         "Rice (Brown/White) - High calorie staple",
@@ -1045,9 +1073,11 @@ def weightgain():
     ]
 
     try:
-        vegetarian = request.form.getlist('vegetarian')
+        # Get JSON data from frontend
+        data = request.get_json() or {}
+        vegetarian = data.get('vegetarian', False)
 
-        if 'vegetarian' in vegetarian:
+        if vegetarian:
             selected_foods = vegetarian_foods
         else:
             selected_foods = indian_weight_gain
@@ -1055,16 +1085,20 @@ def weightgain():
         # Return 5 random recommendations
         import random
         recommendations = random.sample(selected_foods, min(5, len(selected_foods)))
-        weightgainfoods = '\n'.join(recommendations)
 
-        return render_template('diet-mainpage.html', weightgainfoods=weightgainfoods)
+        # Return JSON response
+        return jsonify({'foods': recommendations}), 200
+
     except Exception as e:
-        return render_template('diet-mainpage.html', weightgainfoods=f'Error: {str(e)}')
+        print(f"Weight Gain Foods Error: {str(e)}")
+        return jsonify({'error': f'Error: {str(e)}'}), 500
 
 
 @app.route('/diet/weightloss', methods=['POST'])
 def weightloss():
     """Filter weight loss foods with Indian diet recommendations"""
+    print("API HIT:", request.path)
+
     # Indian diet recommendations for weight loss
     indian_weight_loss = [
         "Oats - High fiber, keeps you full longer",
@@ -1093,9 +1127,11 @@ def weightloss():
     ]
 
     try:
-        vegetarian = request.form.getlist('vegetarian')
+        # Get JSON data from frontend
+        data = request.get_json() or {}
+        vegetarian = data.get('vegetarian', False)
 
-        if 'vegetarian' in vegetarian:
+        if vegetarian:
             selected_foods = vegetarian_foods
         else:
             selected_foods = indian_weight_loss
@@ -1103,11 +1139,13 @@ def weightloss():
         # Return 5 random recommendations
         import random
         recommendations = random.sample(selected_foods, min(5, len(selected_foods)))
-        weightlossfoods = '\n'.join(recommendations)
 
-        return render_template('diet-mainpage.html', weightlossfoods=weightlossfoods)
+        # Return JSON response
+        return jsonify({'foods': recommendations}), 200
+
     except Exception as e:
-        return render_template('diet-mainpage.html', weightlossfoods=f'Error: {str(e)}')
+        print(f"Weight Loss Foods Error: {str(e)}")
+        return jsonify({'error': f'Error: {str(e)}'}), 500
 
 
 @app.route('/diet/search', methods=['POST', 'GET'])
@@ -1126,29 +1164,44 @@ def diet_search():
 @app.route('/diet/calculate', methods=['POST'])
 def calculate_bmi_calories():
     """Calculate BMI, BMR, maintenance calories, and protein requirement"""
+    print("API HIT:", request.path)
+
     try:
-        # Get user inputs
-        height_cm = float(request.form['height'])
-        weight_kg = float(request.form['weight'])
-        age = int(request.form['age'])
-        gender = request.form['gender']
-        
+        # Get JSON data from frontend
+        data = request.get_json()
+
+        if not data:
+            return jsonify({'error': 'No data provided'}), 400
+
+        # Validate and parse inputs
+        height_cm = float(data.get('height', 0))
+        weight_kg = float(data.get('weight', 0))
+        age = int(data.get('age', 0))
+        gender = data.get('gender', '')
+
+        # Input validation
+        if height_cm <= 0 or weight_kg <= 0 or age <= 0:
+            return jsonify({'error': 'Invalid input values. Height, weight, and age must be positive numbers.'}), 400
+
+        if gender.lower() not in ['male', 'female']:
+            return jsonify({'error': 'Invalid gender. Must be male or female.'}), 400
+
         # Calculate BMI
         height_m = height_cm / 100  # Convert cm to meters
         bmi = weight_kg / (height_m ** 2)
-        
+
         # Calculate BMR using Mifflin-St Jeor Equation
         if gender.lower() == 'male':
             bmr = (10 * weight_kg) + (6.25 * height_cm) - (5 * age) + 5
         else:
             bmr = (10 * weight_kg) + (6.25 * height_cm) - (5 * age) - 161
-        
+
         # Calculate maintenance calories (moderate activity level)
         maintenance_calories = bmr * 1.55
-        
+
         # Calculate protein required (grams) = weight (kg) × 1.6
         protein_required = weight_kg * 1.6
-        
+
         # Determine BMI category
         if bmi < 18.5:
             bmi_category = 'Underweight'
@@ -1158,19 +1211,21 @@ def calculate_bmi_calories():
             bmi_category = 'Overweight'
         else:
             bmi_category = 'Obese'
-        
-        # Render results on same page
-        return render_template('diet-mainpage.html', 
-                               bmi_result=True,
-                               bmi_value=round(bmi, 2),
-                               bmi_category=bmi_category,
-                               maintenance_calories=round(maintenance_calories, 2),
-                               bmr_value=round(bmr, 2),
-                               protein_required=round(protein_required, 2))
+
+        # Return JSON response
+        return jsonify({
+            'bmi_value': round(bmi, 2),
+            'bmi_category': bmi_category,
+            'bmr_value': round(bmr, 2),
+            'maintenance_calories': round(maintenance_calories, 2),
+            'protein_required': round(protein_required, 2)
+        }), 200
+
+    except ValueError as e:
+        return jsonify({'error': f'Invalid input format: {str(e)}'}), 400
     except Exception as e:
-        return render_template('diet-mainpage.html', 
-                               bmi_result=True,
-                               error=f'Error calculating: {str(e)}')
+        print(f"BMI Calculator Error: {str(e)}")
+        return jsonify({'error': f'Error calculating BMI: {str(e)}'}), 500
 
 
 # ==================== REST API Endpoints ====================
