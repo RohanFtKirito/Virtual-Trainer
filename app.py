@@ -3,6 +3,13 @@ Unified Flask Application for Virtual Trainer
 Combines pose detection website and diet recommendation system
 Features: User authentication, database storage, REST API endpoints
 """
+
+# Force Python 3.11 on Render via runtime.txt - deployed March 24, 2026
+print("=" * 60)
+print("RENDER PYTHON FIX DEPLOYED - Using Python 3.11.9")
+print("This deployment forces Python 3.11 for pandas compatibility")
+print("=" * 60)
+
 from flask import Flask, render_template, request, redirect, url_for, flash, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_bcrypt import Bcrypt
