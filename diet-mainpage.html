@@ -855,6 +855,42 @@
 			<p>Personalized nutrition guidance based on your body metrics and fitness goals</p>
 		</header>
 
+		<!-- SECTION 0: AI Diet Intake Analyzer (NEW) -->
+		<div class="card">
+			<div class="card-header">
+				<div class="card-icon">
+					<i class="fas fa-robot"></i>
+				</div>
+				<div>
+					<h2 class="card-title">AI Diet Intake Analyzer</h2>
+					<p class="card-description">Enter your meals in natural language and get instant nutritional breakdown</p>
+				</div>
+			</div>
+
+			<div class="form-group">
+				<label for="nlp-diet-input">What did you eat today?</label>
+				<input
+					type="text"
+					id="nlp-diet-input"
+					placeholder="e.g., 2 roti, 100g paneer, 1 glass milk"
+					style="width: 100%; padding: 14px 16px; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 10px; color: #ffffff; font-size: 15px; font-weight: 500; outline: none;"
+				>
+			</div>
+
+			<button id="nlp-analyze-btn" class="btn btn-full" style="margin-top: 16px;">
+				<i class="fas fa-magic"></i>
+				Analyze My Meal
+			</button>
+
+			<span id="nlp-loading-msg" class="loading-text" style="display: none;">
+				<i class="fas fa-spinner fa-spin"></i>
+				Analyzing...
+			</span>
+
+			<!-- Results Section -->
+			<div id="nlp-results" style="display: none; margin-top: 24px;"></div>
+		</div>
+
 		<!-- SECTION 1: BMI & Calorie Calculator -->
 		<div class="card">
 			<div class="card-header">
@@ -1106,6 +1142,128 @@
 		function showError(message) {
 			alert('Error: ' + message);
 		}
+
+		// ==================== NLP Diet Intake Analyzer ====================
+		document.getElementById('nlp-analyze-btn').addEventListener('click', async function() {
+			const input = document.getElementById('nlp-diet-input').value.trim();
+			const btn = document.getElementById('nlp-analyze-btn');
+			const msg = document.getElementById('nlp-loading-msg');
+			const resultsDiv = document.getElementById('nlp-results');
+			const originalBtnText = '<i class="fas fa-magic"></i> Analyze My Meal';
+
+			// Validate input
+			if (!input) {
+				alert('Please enter what you ate. For example: "2 roti, 100g paneer, 1 glass milk"');
+				return;
+			}
+
+			// Show loading
+			showLoading(btn, msg);
+			resultsDiv.style.display = 'none';
+
+			try {
+				const response = await fetch(`${API_BASE}/api/diet-nlp`, {
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json'
+					},
+					body: JSON.stringify({
+						text: input
+					})
+				});
+
+				if (!response.ok) {
+					const errorData = await response.json();
+					throw new Error(errorData.error || 'Failed to analyze diet');
+				}
+
+				const result = await response.json();
+
+				// Build results HTML
+				let html = `
+					<div class="result-box" style="background: linear-gradient(135deg, rgba(255, 107, 107, 0.15) 0%, rgba(255, 165, 2, 0.15) 100%); border: 1px solid rgba(255, 107, 107, 0.3);">
+						<h3 style="color: #ff6b6b;"><i class="fas fa-utensils"></i> Meal Analysis</h3>
+						<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-top: 16px;">
+							<div style="background: rgba(255, 255, 255, 0.05); padding: 16px; border-radius: 10px;">
+								<div style="font-size: 14px; color: #8a8aa8; margin-bottom: 8px;">Total Calories</div>
+								<div style="font-size: 28px; font-weight: 800; color: #ff6b6b;">${result.total_calories} kcal</div>
+							</div>
+							<div style="background: rgba(255, 255, 255, 0.05); padding: 16px; border-radius: 10px;">
+								<div style="font-size: 14px; color: #8a8aa8; margin-bottom: 8px;">Total Protein</div>
+								<div style="font-size: 28px; font-weight: 800; color: #ffa502;">${result.total_protein} g</div>
+							</div>
+						</div>
+					</div>
+
+					<div style="margin-top: 24px;">
+						<h4 style="color: #ffffff; margin-bottom: 16px; display: flex; align-items: center; gap: 10px;">
+							<i class="fas fa-list"></i> Food Breakdown (${result.known_items}/${result.total_items} items)
+						</h4>
+						<ul class="food-list">
+				`;
+
+				// Add food items
+				result.items.forEach(item => {
+					if (item.known) {
+						html += `
+							<li style="border-color: rgba(40, 167, 69, 0.3); background: rgba(40, 167, 69, 0.05);">
+								<div class="food-item-content">
+									<div class="food-name">${item.name} (${item.quantity}${item.unit})</div>
+									<div style="font-size: 13px; color: #8a8aa8; margin-top: 4px;">
+										${item.calories} kcal | ${item.protein}g protein
+									</div>
+								</div>
+								<div class="food-tags">
+									<span class="food-tag protein">Tracked</span>
+								</div>
+							</li>
+						`;
+					}
+				});
+
+				html += `</ul></div>`;
+
+				// Show unknown items if any
+				if (result.unknown_items && result.unknown_items.length > 0) {
+					html += `
+						<div style="margin-top: 24px; padding: 20px; background: rgba(255, 193, 7, 0.1); border: 1px solid rgba(255, 193, 7, 0.3); border-radius: 12px;">
+							<h4 style="color: #ffc107; margin-bottom: 12px; display: flex; align-items: center; gap: 10px;">
+								<i class="fas fa-exclamation-triangle"></i> Unknown Items (${result.unknown_items.length})
+							</h4>
+							<p style="color: #c0c0d0; font-size: 14px; margin-bottom: 12px;">The following items couldn't be matched to our database:</p>
+							<ul style="list-style: none; display: grid; gap: 8px;">
+					`;
+
+					result.unknown_items.forEach(item => {
+						html += `
+								<li style="padding: 10px 14px; background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 193, 7, 0.2); border-radius: 8px; color: #e0e0e8; font-size: 14px;">
+									${item.name} (${item.quantity}${item.unit})
+								</li>
+						`;
+					});
+
+					html += `
+							</ul>
+							<p style="color: #8a8aa8; font-size: 13px; margin-top: 12px; font-style: italic;">
+								<i class="fas fa-info-circle"></i> Try using common Indian food names like: roti, dal, paneer, chicken, etc.
+							</p>
+						</div>
+					`;
+				}
+
+				html += `</div>`;
+
+				// Display results
+				resultsDiv.innerHTML = html;
+				resultsDiv.style.display = 'block';
+
+			} catch (error) {
+				console.error('NLP Diet Analyzer Error:', error);
+				showError(error.message);
+			} finally {
+				hideLoading(btn, msg, originalBtnText);
+			}
+		});
 
 		// BMI Calculator Form Handler
 		document.getElementById('bmi-calculator-form').addEventListener('submit', async function(e) {

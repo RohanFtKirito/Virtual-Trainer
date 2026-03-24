@@ -20,6 +20,8 @@ import pickle
 import pandas as pd
 import csv
 import os
+import re
+import difflib
 
 # ==================== Flask Configuration ====================
 app = Flask(__name__, template_folder='.', static_folder='assets')
@@ -121,6 +123,226 @@ class DietLog(db.Model):
     
     def __repr__(self):
         return f"DietLog('{self.food_name}', '{self.category}')"
+
+
+# ==================== NLP Diet Analyzer Database ====================
+
+# Food database with nutritional values (per unit)
+food_db = {
+    "rice": {"calories": 130, "protein": 2.5, "unit": "100g"},
+    "roti": {"calories": 120, "protein": 3, "unit": "piece"},
+    "paratha": {"calories": 260, "protein": 5, "unit": "piece"},
+    "poha": {"calories": 130, "protein": 2.5, "unit": "100g"},
+    "upma": {"calories": 150, "protein": 4, "unit": "100g"},
+    "idli": {"calories": 58, "protein": 2, "unit": "piece"},
+    "dosa": {"calories": 168, "protein": 3.7, "unit": "piece"},
+    "dal": {"calories": 116, "protein": 9, "unit": "100g"},
+    "chole": {"calories": 164, "protein": 9, "unit": "100g"},
+    "rajma": {"calories": 140, "protein": 9, "unit": "100g"},
+    "milk": {"calories": 42, "protein": 3.4, "unit": "100ml"},
+    "curd": {"calories": 98, "protein": 3.5, "unit": "100g"},
+    "paneer": {"calories": 265, "protein": 18, "unit": "100g"},
+    "egg": {"calories": 70, "protein": 6, "unit": "piece"},
+    "chicken": {"calories": 239, "protein": 27, "unit": "100g"},
+    "banana": {"calories": 89, "protein": 1.1, "unit": "100g"},
+    "apple": {"calories": 52, "protein": 0.3, "unit": "100g"},
+    "peanut": {"calories": 567, "protein": 25, "unit": "100g"},
+    "pizza": {"calories": 266, "protein": 11, "unit": "100g"},
+    "burger": {"calories": 295, "protein": 17, "unit": "100g"},
+    "biryani": {"calories": 180, "protein": 6, "unit": "100g"},
+    "tea": {"calories": 30, "protein": 1, "unit": "cup"}
+}
+
+# Alias mappings for common food name variations
+aliases = {
+    "chapati": "roti",
+    "phulka": "roti",
+    "anda": "egg",
+    "eggs": "egg",
+    "chai": "tea",
+    "milkshake": "milk",
+    "peanuts": "peanut",
+    "aloo paratha": "paratha",
+    "veg biryani": "biryani",
+    "chicken biryani": "biryani"
+}
+
+
+def parse_diet_input(text):
+    """
+    Parse natural language diet input using regex and fuzzy matching
+
+    Args:
+        text (str): Natural language input like "2 roti, 100g paneer"
+
+    Returns:
+        list: List of detected food items with quantities
+    """
+    items = []
+
+    # Pattern 1: "2 roti" or "100g paneer" or "1 glass milk"
+    pattern1 = r'(\d+)\s*(g|ml|glass|cup)?\s*(\w+(?:\s+\w+)*)'
+    matches = re.finditer(pattern1, text, re.IGNORECASE)
+
+    for match in matches:
+        quantity = int(match.group(1))
+        unit = match.group(2).lower() if match.group(2) else None
+        food_name = match.group(3).strip().lower()
+
+        # Apply alias mapping
+        if food_name in aliases:
+            food_name = aliases[food_name]
+
+        # Try exact match first
+        if food_name in food_db:
+            items.append({
+                "name": food_name,
+                "quantity": quantity,
+                "unit": unit if unit else food_db[food_name]["unit"],
+                "matched": True
+            })
+        else:
+            # Try fuzzy matching
+            matches_fuzzy = difflib.get_close_matches(food_name, food_db.keys(), n=1, cutoff=0.6)
+            if matches_fuzzy:
+                items.append({
+                    "name": matches_fuzzy[0],
+                    "quantity": quantity,
+                    "unit": unit if unit else food_db[matches_fuzzy[0]]["unit"],
+                    "matched": True,
+                    "original_input": food_name
+                })
+            else:
+                # Unknown food
+                items.append({
+                    "name": food_name,
+                    "quantity": quantity,
+                    "unit": unit if unit else "unknown",
+                    "matched": False
+                })
+
+    return items
+
+
+def calculate_nutrition(items):
+    """
+    Calculate total calories and protein from parsed food items
+
+    Args:
+        items (list): List of food items with quantities
+
+    Returns:
+        dict: Total calories, protein, and item breakdown
+    """
+    total_calories = 0
+    total_protein = 0
+    breakdown = []
+
+    for item in items:
+        if not item["matched"]:
+            breakdown.append({
+                "name": item["name"].title(),
+                "quantity": item["quantity"],
+                "unit": item["unit"],
+                "calories": 0,
+                "protein": 0,
+                "known": False
+            })
+            continue
+
+        food_name = item["name"]
+        quantity = item["quantity"]
+        food_info = food_db[food_name]
+
+        # Calculate based on unit type
+        if food_info["unit"] == "piece":
+            # Direct multiplication for piece-based items
+            calories = food_info["calories"] * quantity
+            protein = food_info["protein"] * quantity
+        elif food_info["unit"] in ["100g", "100ml"]:
+            # Scale accordingly
+            if item["unit"] in ["g", "ml"]:
+                # User specified grams/ml
+                scale_factor = quantity / 100
+            elif item["unit"] in ["glass", "cup"]:
+                # Assume standard sizes: glass=250ml, cup=150ml
+                if item["unit"] == "glass":
+                    scale_factor = (quantity * 250) / 100
+                else:  # cup
+                    scale_factor = (quantity * 150) / 100
+            else:
+                # Default to 100g/ml base
+                scale_factor = 1
+
+            calories = food_info["calories"] * scale_factor
+            protein = food_info["protein"] * scale_factor
+
+        total_calories += calories
+        total_protein += protein
+
+        breakdown.append({
+            "name": food_name.title(),
+            "quantity": quantity,
+            "unit": item["unit"],
+            "calories": round(calories, 1),
+            "protein": round(protein, 1),
+            "known": True
+        })
+
+    return {
+        "total_calories": round(total_calories, 1),
+        "total_protein": round(total_protein, 1),
+        "breakdown": breakdown
+    }
+
+
+# ==================== NLP Diet Analyzer API ====================
+
+@app.route('/api/diet-nlp', methods=['POST'])
+def api_diet_nlp_analyzer():
+    """
+    NLP-based diet intake analyzer
+    Parses natural language input and calculates nutritional values
+    """
+    print("API HIT:", request.path)
+
+    try:
+        data = request.get_json()
+        text_input = data.get('text', '')
+
+        if not text_input or not text_input.strip():
+            return jsonify({
+                'error': 'Please enter your diet intake'
+            }), 400
+
+        # Parse the input
+        items = parse_diet_input(text_input)
+
+        if not items:
+            return jsonify({
+                'error': 'Could not detect any food items. Please try format like "2 roti, 100g paneer"'
+            }), 400
+
+        # Calculate nutrition
+        nutrition = calculate_nutrition(items)
+
+        # Extract unknown items
+        unknown_items = [item for item in items if not item["matched"]]
+
+        return jsonify({
+            'items': nutrition['breakdown'],
+            'total_calories': nutrition['total_calories'],
+            'total_protein': nutrition['total_protein'],
+            'unknown_items': unknown_items,
+            'total_items': len(items),
+            'known_items': len(items) - len(unknown_items)
+        })
+
+    except Exception as e:
+        print(f"NLP Diet Analyzer Error: {str(e)}")
+        return jsonify({
+            'error': f'Error analyzing diet: {str(e)}'
+        }), 500
 
 
 # ==================== Authentication Routes ====================
