@@ -1026,7 +1026,7 @@
 					</div>
 				</div>
 
-				<form id="weightgain-form" method="POST">
+				<form id="weightgain-form" onsubmit="return false;">
 					<div class="filter-section">
 						<span class="filter-label">Filters</span>
 						<div class="filter-options">
@@ -1068,7 +1068,7 @@
 					</div>
 				</div>
 
-				<form id="weightloss-form" method="POST">
+				<form id="weightloss-form" onsubmit="return false;">
 					<div class="filter-section">
 						<span class="filter-label">Filters</span>
 						<div class="filter-options">
@@ -1414,6 +1414,8 @@
 			const vegetarian = formData.get('vegetarian');
 
 			try {
+				console.log('Fetching weight gain foods...');
+
 				const response = await fetch(`${API_BASE}/diet/weightgain`, {
 					method: 'POST',
 					headers: {
@@ -1424,17 +1426,24 @@
 					})
 				});
 
+				console.log('Response status:', response.status);
+
 				if (!response.ok) {
-					throw new Error('Failed to get recommendations');
+					throw new Error(`Failed to get recommendations (${response.status})`);
 				}
 
 				const data = await response.json();
+				console.log('Received data:', data);
 
 				if (data.error) {
 					throw new Error(data.error);
 				}
 
 				const foods = data.foods || [];
+
+				if (!Array.isArray(foods)) {
+					throw new Error('Invalid response format: foods is not an array');
+				}
 
 				// Remove existing result if any
 				const existingResult = this.parentElement.querySelector('.food-list');
@@ -1447,6 +1456,11 @@
 				const ul = foodListDiv.querySelector('ul');
 
 				foods.forEach(item => {
+					if (typeof item !== 'string') {
+						console.warn('Skipping non-string food item:', item);
+						return;
+					}
+
 					const li = document.createElement('li');
 					const parts = item.split(' - ');
 					li.innerHTML = `
@@ -1463,6 +1477,7 @@
 				});
 
 				this.parentElement.appendChild(foodListDiv);
+				console.log('Weight gain foods displayed successfully');
 
 			} catch (error) {
 				console.error('Weight Gain Error:', error);
@@ -1486,6 +1501,8 @@
 			const vegetarian = formData.get('vegetarian');
 
 			try {
+				console.log('Fetching weight loss foods...');
+
 				const response = await fetch(`${API_BASE}/diet/weightloss`, {
 					method: 'POST',
 					headers: {
@@ -1496,17 +1513,24 @@
 					})
 				});
 
+				console.log('Response status:', response.status);
+
 				if (!response.ok) {
-					throw new Error('Failed to get recommendations');
+					throw new Error(`Failed to get recommendations (${response.status})`);
 				}
 
 				const data = await response.json();
+				console.log('Received data:', data);
 
 				if (data.error) {
 					throw new Error(data.error);
 				}
 
 				const foods = data.foods || [];
+
+				if (!Array.isArray(foods)) {
+					throw new Error('Invalid response format: foods is not an array');
+				}
 
 				// Remove existing result if any
 				const existingResult = this.parentElement.querySelector('.food-list');
@@ -1519,6 +1543,11 @@
 				const ul = foodListDiv.querySelector('ul');
 
 				foods.forEach(item => {
+					if (typeof item !== 'string') {
+						console.warn('Skipping non-string food item:', item);
+						return;
+					}
+
 					const li = document.createElement('li');
 					const parts = item.split(' - ');
 					li.innerHTML = `
@@ -1535,6 +1564,7 @@
 				});
 
 				this.parentElement.appendChild(foodListDiv);
+				console.log('Weight loss foods displayed successfully');
 
 			} catch (error) {
 				console.error('Weight Loss Error:', error);
