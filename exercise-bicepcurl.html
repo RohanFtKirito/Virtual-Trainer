@@ -796,22 +796,25 @@
                     if (viewType === 'side') {
                         const angle = calculateAngle(dominantShoulder, dominantElbow, dominantWrist);
 
-                        // SIMPLIFIED: No stability check, no smoothing - direct counting
-                        // FIX: Separate conditions (NOT else if)
+                        // Debug logging
+                        console.log('Angle:', Math.round(angle), '° | Stage:', stage, '| Reps:', repCount);
+
+                        // CORRECTED: Extended arm = 'up', Curled arm = 'down'
                         if (angle > SIDE_EXTENDED) {
-                            stage = 'down';
-                            stageDisplay.textContent = 'SIDE - Down';
+                            stage = 'up';  // ✅ Fixed: Extended arm is 'up'
+                            stageDisplay.textContent = 'SIDE - Up (Curl down!)';
                         }
 
-                        if (angle < SIDE_CONTRACTED && stage === 'down') {
+                        if (angle < SIDE_CONTRACTED && stage === 'up') {
                             const now = Date.now();
                             if (now - lastRepTime > REP_COOLDOWN) {
                                 repCount++;
                                 repCountDisplay.textContent = repCount;
-                                stage = 'up';
+                                stage = 'down';  // ✅ Fixed: After curling, return to 'down'
                                 lastRepTime = now;
-                                stageDisplay.textContent = 'SIDE - Up ✓';
+                                stageDisplay.textContent = 'SIDE - Down ✓';
                                 speak(repCount);
+                                console.log('✅ Rep counted!', repCount);
                             }
                         }
 
@@ -836,8 +839,11 @@
                         if (wristY < minWristY) minWristY = wristY;   // Higher position
                         if (wristY > maxWristY) maxWristY = wristY;   // Lower position
 
-                        // Check elbow stability
+                        // Check elbow stability (WARNING ONLY - doesn't block)
                         const elbowStable = Math.abs(elbowY - initialElbowY) < ELBOW_MOVEMENT_THRESHOLD;
+                        if (!elbowStable) {
+                            console.log('⚠️ Elbow movement detected (not blocking rep)');
+                        }
 
                         // Direction-based counting with movement validation
                         if (diff > FRONT_DOWN_THRESHOLD) {
@@ -852,11 +858,10 @@
                         // 1. Arm is up position
                         // 2. Was in down stage
                         // 3. Enough vertical movement
-                        // 4. Elbow is stable
-                        // 5. Cooldown period passed
+                        // 4. Cooldown period passed
+                        // Elbow stability check REMOVED (doesn't block)
                         if (diff < FRONT_UP_THRESHOLD &&
                             stage === 'down' &&
-                            elbowStable &&
                             (maxWristY - minWristY) > MIN_MOVEMENT) {
 
                             const now = Date.now();
