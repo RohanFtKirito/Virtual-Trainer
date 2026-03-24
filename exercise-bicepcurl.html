@@ -647,21 +647,30 @@
         let viewType = 'side'; // 'side' or 'front' - auto-detected
 
         // Movement tracking (to avoid counting small movements)
+        // Front view tracking
         let minWristY = 1.0;           // Track lowest wrist position
         let maxWristY = 0.0;           // Track highest wrist position
         let initialElbowY = 0.0;       // Track elbow position for stability
         let elbowInitialized = false;  // Flag to initialize elbow position
 
-        // ==================== FIXED THRESHOLDS (BALANCED) ====================
-        const SIDE_EXTENDED = 125;  // Arm extended (side view)
-        const SIDE_CONTRACTED = 80;  // Arm curled (side view)
-        const FRONT_DOWN_THRESHOLD = 0.18;   // Arm down (front view) - stricter
-        const FRONT_UP_THRESHOLD = -0.08;    // Arm up (front view) - stricter
+        // Side view tracking - NEW
+        let angleBuffer = [];          // For angle smoothing (reduces noise)
+        let minAngle = 180;            // Track minimum angle (most curled)
+        let maxAngle = 0;              // Track maximum angle (most extended)
+        let angleTrackingInitialized = false;  // Flag for initialization
+
+        // ==================== STRICTER THRESHOLDS (REALISTIC) ====================
+        const SIDE_EXTENDED = 140;  // Arm extended (side view) - stricter!
+        const SIDE_CONTRACTED = 60; // Arm curled (side view) - stricter!
+        const FRONT_DOWN_THRESHOLD = 0.18;   // Arm down (front view)
+        const FRONT_UP_THRESHOLD = -0.08;    // Arm up (front view)
 
         // Movement validation
-        const MIN_MOVEMENT = 0.08;   // Minimum vertical wrist movement to count
+        const MIN_MOVEMENT = 0.08;   // Minimum vertical wrist movement to count (front view)
+        const MIN_ANGLE_CHANGE = 50; // Minimum angle change to count (side view) - NEW!
         const ELBOW_MOVEMENT_THRESHOLD = 0.05;  // Max allowed elbow movement
-        const REP_COOLDOWN = 500;    // Debounce time (ms)
+        const REP_COOLDOWN = 700;    // Debounce time (ms) - increased from 500ms!
+        const SMOOTHING_WINDOW = 3;  // Number of frames for angle smoothing - NEW!
 
         // ==================== SPEECH SYNTHESIS ====================
         const synth = window.speechSynthesis;
@@ -684,6 +693,20 @@
             let angle = Math.abs(radians * 180.0 / Math.PI);
             if (angle > 180.0) angle = 360 - angle;
             return angle;
+        }
+
+        // Angle smoothing function - reduces noise/jitter from MediaPipe
+        function smoothAngle(newAngle) {
+            angleBuffer.push(newAngle);
+
+            // Keep buffer at configured size
+            if (angleBuffer.length > SMOOTHING_WINDOW) {
+                angleBuffer.shift();
+            }
+
+            // Calculate rolling average
+            const sum = angleBuffer.reduce((a, b) => a + b, 0);
+            return sum / angleBuffer.length;
         }
 
         // Relaxed visibility check (0.5 threshold)
@@ -791,35 +814,68 @@
                     // =====================================================
 
                     // =====================================================
-                    // SIDE VIEW: Simplified angle logic with consistent debounce
+                    // SIDE VIEW: Strict angle logic with smoothing & movement validation
                     // =====================================================
                     if (viewType === 'side') {
-                        const angle = calculateAngle(dominantShoulder, dominantElbow, dominantWrist);
+                        const rawAngle = calculateAngle(dominantShoulder, dominantElbow, dominantWrist);
 
-                        // Debug logging
-                        console.log('Angle:', Math.round(angle), '° | Stage:', stage, '| Reps:', repCount);
+                        // Smooth the angle to reduce noise
+                        const angle = smoothAngle(rawAngle);
 
-                        // CORRECTED: Extended arm = 'up', Curled arm = 'down'
-                        if (angle > SIDE_EXTENDED) {
-                            stage = 'up';  // ✅ Fixed: Extended arm is 'up'
-                            stageDisplay.textContent = 'SIDE - Up (Curl down!)';
+                        // Initialize angle tracking on first frame
+                        if (!angleTrackingInitialized) {
+                            minAngle = angle;
+                            maxAngle = angle;
+                            angleTrackingInitialized = true;
                         }
 
-                        if (angle < SIDE_CONTRACTED && stage === 'up') {
-                            const now = Date.now();
-                            if (now - lastRepTime > REP_COOLDOWN) {
-                                repCount++;
-                                repCountDisplay.textContent = repCount;
-                                stage = 'down';  // ✅ Fixed: After curling, return to 'down'
-                                lastRepTime = now;
-                                stageDisplay.textContent = 'SIDE - Down ✓';
-                                speak(repCount);
-                                console.log('✅ Rep counted!', repCount);
+                        // Track angle range for movement validation
+                        if (angle < minAngle) minAngle = angle;  // Most curled position
+                        if (angle > maxAngle) maxAngle = angle;  // Most extended position
+
+                        // Calculate total movement range
+                        const angleRange = maxAngle - minAngle;
+
+                        // Debug logging
+                        console.log('Raw:', Math.round(rawAngle), '° | Smoothed:', Math.round(angle), '° | Stage:', stage, '| Range:', Math.round(angleRange), '° | Reps:', repCount);
+
+                        // Track previous stage for proper transition detection
+                        const previousStage = stage;
+
+                        // STATE MACHINE: Extended arm = 'up', Curled arm = 'down'
+                        if (angle > SIDE_EXTENDED) {
+                            stage = 'up';  // Arm is extended
+                            stageDisplay.textContent = 'SIDE - Extended (Now curl!)';
+                        } else if (angle < SIDE_CONTRACTED) {
+                            stage = 'down';  // Arm is curled
+                            stageDisplay.textContent = 'SIDE - Curled (Now extend!)';
+                        }
+
+                        // COUNT REP: Only when full cycle completed (up → down) with sufficient movement
+                        if (previousStage === 'up' && stage === 'down') {
+                            // Validate: Must have sufficient angle range (full movement)
+                            if (angleRange >= MIN_ANGLE_CHANGE) {
+                                const now = Date.now();
+                                if (now - lastRepTime > REP_COOLDOWN) {
+                                    repCount++;
+                                    repCountDisplay.textContent = repCount;
+                                    lastRepTime = now;
+                                    speak(repCount);
+                                    console.log('✅ Rep counted!', repCount, '| Range:', Math.round(angleRange), '°');
+
+                                    // Reset tracking after successful rep
+                                    minAngle = angle;
+                                    maxAngle = angle;
+                                } else {
+                                    console.log('⏸️ Cooldown active, waiting...');
+                                }
+                            } else {
+                                console.log('⚠️ Insufficient movement:', Math.round(angleRange), '° (need', MIN_ANGLE_CHANGE, '°)');
                             }
                         }
 
                     // =====================================================
-                    // FRONT VIEW: Improved with movement validation
+                    // FRONT VIEW: Improved with movement validation & better state machine
                     // =====================================================
                     } else {
                         const wristY = dominantWrist.y;
@@ -839,43 +895,50 @@
                         if (wristY < minWristY) minWristY = wristY;   // Higher position
                         if (wristY > maxWristY) maxWristY = wristY;   // Lower position
 
+                        // Calculate movement range
+                        const movementRange = maxWristY - minWristY;
+
                         // Check elbow stability (WARNING ONLY - doesn't block)
                         const elbowStable = Math.abs(elbowY - initialElbowY) < ELBOW_MOVEMENT_THRESHOLD;
                         if (!elbowStable) {
                             console.log('⚠️ Elbow movement detected (not blocking rep)');
                         }
 
+                        // Track previous stage for proper transition detection
+                        const previousStage = stage;
+
                         // Direction-based counting with movement validation
                         if (diff > FRONT_DOWN_THRESHOLD) {
-                            stage = 'down';
-                            stageDisplay.textContent = 'FRONT - Down';
-                            // Reset tracking when arm goes down
-                            minWristY = wristY;
-                            maxWristY = wristY;
+                            stage = 'down';  // Arm is down
+                            stageDisplay.textContent = 'FRONT - Down (Now raise!)';
+                        } else if (diff < FRONT_UP_THRESHOLD) {
+                            stage = 'up';  // Arm is up
+                            stageDisplay.textContent = 'FRONT - Up (Now lower!)';
                         }
 
-                        // Only count if:
-                        // 1. Arm is up position
-                        // 2. Was in down stage
-                        // 3. Enough vertical movement
-                        // 4. Cooldown period passed
-                        // Elbow stability check REMOVED (doesn't block)
-                        if (diff < FRONT_UP_THRESHOLD &&
-                            stage === 'down' &&
-                            (maxWristY - minWristY) > MIN_MOVEMENT) {
+                        // Debug logging
+                        console.log('Diff:', diff.toFixed(3), '| Stage:', stage, '| Movement:', movementRange.toFixed(3), '| Reps:', repCount);
 
-                            const now = Date.now();
-                            if (now - lastRepTime > REP_COOLDOWN) {
-                                repCount++;
-                                repCountDisplay.textContent = repCount;
-                                stage = 'up';
-                                lastRepTime = now;
-                                stageDisplay.textContent = 'FRONT - Up ✓';
-                                speak(repCount);
+                        // COUNT REP: Only when full cycle completed (down → up) with sufficient movement
+                        if (previousStage === 'down' && stage === 'up') {
+                            // Validate: Must have sufficient movement range
+                            if (movementRange >= MIN_MOVEMENT) {
+                                const now = Date.now();
+                                if (now - lastRepTime > REP_COOLDOWN) {
+                                    repCount++;
+                                    repCountDisplay.textContent = repCount;
+                                    lastRepTime = now;
+                                    speak(repCount);
+                                    console.log('✅ Rep counted!', repCount, '| Movement:', movementRange.toFixed(3));
 
-                                // Reset tracking after counting
-                                minWristY = wristY;
-                                maxWristY = wristY;
+                                    // Reset tracking after successful rep
+                                    minWristY = wristY;
+                                    maxWristY = wristY;
+                                } else {
+                                    console.log('⏸️ Cooldown active, waiting...');
+                                }
+                            } else {
+                                console.log('⚠️ Insufficient movement:', movementRange.toFixed(3), '(need', MIN_MOVEMENT, ')');
                             }
                         }
                     }
