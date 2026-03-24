@@ -1157,7 +1157,10 @@ if __name__ == '__main__':
     print("  GET  /api/diet            - Get diet logs")
     print("  POST /api/diet            - Log new diet entry")
     print("  GET  /api/progress        - Get progress summary")
-    print("\nStarting server on http://127.0.0.1:5000")
-    
-    app.run(debug=True, host='127.0.0.1', port=5000, threaded=True)
+    print("\nStarting server on http://0.0.0.0:10000")
+    print("Render deployment: Using PORT environment variable")
+
+    # Render deployment: Bind to 0.0.0.0 and use PORT from environment
+    port = int(os.environ.get("PORT", 10000))
+    app.run(host="0.0.0.0", port=port, threaded=True)
 
