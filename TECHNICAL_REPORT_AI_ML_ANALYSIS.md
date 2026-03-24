@@ -1,9 +1,9 @@
-# Virtual Trainer - Technical Analysis Report
+# Virtual Fitness Trainer - Technical Analysis Report
 ## AI/ML Components and System Architecture
 
 ---
 
-**Project Name:** Virtual Trainer
+**Project Name:** Virtual Fitness Trainer
 **Date:** March 24, 2026
 **Analysis Type:** AI/ML Component Evaluation
 **Purpose:** Viva and Project Evaluation
@@ -12,7 +12,7 @@
 
 ## 1. PROJECT OVERVIEW
 
-**Virtual Trainer** is a hybrid fitness and diet recommendation system that combines:
+**Virtual Fitness Trainer** is a hybrid fitness and diet recommendation system that combines:
 - AI-powered pose detection for exercise tracking
 - Machine learning-based diet recommendation
 - Rule-based exercise form validation
@@ -477,7 +477,7 @@ if (formScore >= 70 && !isInPlankPosition) {
 
 ### 6.1 System Classification
 
-**Virtual Trainer is a HYBRID AI SYSTEM**
+**Virtual Fitness Trainer is a HYBRID AI SYSTEM**
 
 #### Breakdown:
 - **AI Components:** 30% (MediaPipe BlazePose)
@@ -643,7 +643,7 @@ if (formScore >= 70 && !isInPlankPosition) {
 
 ### 10.1 2-Minute Explanation Script
 
-"Virtual Trainer is a **hybrid AI system** that combines computer vision with rule-based logic for fitness tracking and diet recommendations.
+"Virtual Fitness Trainer is a **hybrid AI system** that combines computer vision with rule-based logic for fitness tracking and diet recommendations.
 
 For exercise tracking, we use **MediaPipe BlazePose**, which is Google's pre-trained deep neural network for pose estimation. It runs in the browser and detects 33 body landmarks in real-time at 30-60 FPS. These landmarks are then processed using **rule-based logic** - we calculate joint angles, apply thresholds, and use state machines for rep counting and form validation.
 
@@ -751,7 +751,7 @@ A: "The hybrid architecture - using AI for perception where it excels, and rule-
 
 ## 12. CONCLUSION
 
-**Virtual Trainer is a HYBRID AI SYSTEM** that intelligently combines:
+**Virtual Fitness Trainer is a HYBRID AI SYSTEM** that intelligently combines:
 
 1. **AI Components (30%):**
    - MediaPipe BlazePose for pose estimation

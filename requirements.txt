@@ -1,4 +1,4 @@
-# Flask Backend for Virtual Trainer
+# Flask Backend for Virtual Fitness Trainer
 # Optimized for Render deployment (Python 3.14+ compatible)
 
 ## Core Framework

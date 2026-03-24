@@ -13,7 +13,7 @@
 
 **FINAL requirements.txt (Render-compatible):**
 ```txt
-# Flask Backend for Virtual Trainer
+# Flask Backend for Virtual Fitness Trainer
 # Optimized for Render deployment (Python 3.14+ compatible)
 
 ## Core Framework
@@ -139,7 +139,7 @@ if __name__ == '__main__':
     # Create database tables
     create_database()
 
-    print("Starting Virtual Trainer Application...")
+    print("Starting Virtual Fitness Trainer Application...")
     print(f"Base directory: {BASE_DIR}")
     print("\nAvailable routes:")
     print("  /               - Main landing page")

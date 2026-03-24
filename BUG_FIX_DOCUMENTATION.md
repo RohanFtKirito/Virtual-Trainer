@@ -1,4 +1,4 @@
-# Virtual Trainer - Bug Fix Documentation
+# Virtual Fitness Trainer - Bug Fix Documentation
 
 ## 📋 Overview
 

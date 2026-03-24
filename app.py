@@ -1,5 +1,5 @@
 """
-Unified Flask Application for Virtual Trainer
+Unified Flask Application for Virtual Fitness Trainer
 Combines pose detection website and diet recommendation system
 Features: User authentication, database storage, REST API endpoints
 """
@@ -1417,7 +1417,7 @@ if __name__ == '__main__':
     # Create database tables
     create_database()
     
-    print("Starting Virtual Trainer Application...")
+    print("Starting Virtual Fitness Trainer Application...")
     print(f"Base directory: {BASE_DIR}")
     print("\nAvailable routes:")
     print("  /               - Main landing page")

@@ -51,7 +51,7 @@
 | #630102 | #003366 |
 | #3d0302 | #001a33 |
 
-### ✅ Task 2 - Name Changed from ZACSON to "Virtual Trainer"
+### ✅ Task 2 - Name Changed from ZACSON to "Virtual Fitness Trainer"
 
 **Files Updated:** All HTML files in the root directory
 

@@ -1,4 +1,4 @@
-# Virtual Trainer - Design Update Summary
+# Virtual Fitness Trainer - Design Update Summary
 
 ## Overview
 All pages have been completely redesigned with a consistent, modern dark theme that matches professional fitness SaaS applications.

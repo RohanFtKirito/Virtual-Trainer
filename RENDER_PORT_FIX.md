@@ -285,7 +285,7 @@ curl https://virtual-trainer-backend-project.onrender.com/diet
 RENDER PYTHON FIX DEPLOYED - Using Python 3.11.9
 This deployment forces Python 3.11 for pandas compatibility
 ============================================================
-Starting Virtual Trainer Application...
+Starting Virtual Fitness Trainer Application...
 Base directory: /app
 Starting server on http://0.0.0.0:10000
 Render deployment: Using PORT environment variable

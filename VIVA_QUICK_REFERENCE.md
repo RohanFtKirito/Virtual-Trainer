@@ -1,18 +1,18 @@
-# Virtual Trainer - Viva Quick Reference
+# Virtual Fitness Trainer - Viva Quick Reference
 ## Fast Facts for Project Defense
 
 ---
 
 ## 🎯 ONE-LINER SUMMARY
 
-**"Virtual Trainer is a hybrid AI system combining MediaPipe BlazePose for real-time pose detection with rule-based logic for exercise tracking and diet recommendations."**
+**"Virtual Fitness Trainer is a hybrid AI system combining MediaPipe BlazePose for real-time pose detection with rule-based logic for exercise tracking and diet recommendations."**
 
 ---
 
 ## ✅ WHAT TO SAY IN VIVA
 
 ### When asked: "What is your project?"
-"Virtual Trainer is a hybrid AI fitness system that uses computer vision for real-time exercise tracking and machine learning for personalized diet recommendations."
+"Virtual Fitness Trainer is a hybrid AI fitness system that uses computer vision for real-time exercise tracking and machine learning for personalized diet recommendations."
 
 ### When asked: "Is it AI-based?"
 "Yes, it's a hybrid AI system. We use MediaPipe BlazePose (Google's deep neural network) for pose estimation, combined with rule-based logic for rep counting and form validation."
