@@ -46,6 +46,34 @@ login_manager.login_message_category = 'info'
 # Get the base directory
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
+
+# ==================== Health Check Routes for Render ====================
+
+@app.route('/health')
+def health():
+    """Health check endpoint for Render deployment"""
+    return jsonify({
+        'status': 'healthy',
+        'service': 'Virtual Fitness Trainer API',
+        'version': '1.0.0'
+    })
+
+
+@app.route('/ping')
+def ping():
+    """Simple ping endpoint to verify server is running"""
+    return 'Server Running'
+
+
+@app.route('/api/status')
+def status():
+    """API status endpoint"""
+    return jsonify({
+        'status': 'running',
+        'database': 'connected' if model is not None else 'no_model',
+        'timestamp': datetime.utcnow().isoformat()
+    })
+
 # Load diet recommendation model and data
 MODEL_PATH = os.path.join(BASE_DIR, 'diet-recommendation-system-main', 'food_model.pickle')
 DATA_PATH = os.path.join(BASE_DIR, 'diet-recommendation-system-main', 'done_food_data.csv')
@@ -54,13 +82,26 @@ DATA_PATH = os.path.join(BASE_DIR, 'diet-recommendation-system-main', 'done_food
 model = None
 food_data = None
 
+print("=" * 60)
+print("Loading diet recommendation model...")
+print(f"MODEL_PATH: {MODEL_PATH}")
+print(f"DATA_PATH: {DATA_PATH}")
+print("=" * 60)
+
 try:
     with open(MODEL_PATH, 'rb') as file:
         model = pickle.load(file)
     food_data = pd.read_csv(DATA_PATH)
-    print("Diet model and data loaded successfully!")
+    print("✅ Diet model and data loaded successfully!")
 except Exception as e:
-    print(f"Warning: Could not load diet model: {e}")
+    print(f"⚠️  Warning: Could not load diet model: {e}")
+    print("App will continue without diet recommendation features")
+    model = None
+    food_data = None
+
+print("=" * 60)
+print("Flask app initialized successfully!")
+print("=" * 60)
 
 
 def read_csv(file_path, sort_by='Descrip'):
@@ -443,7 +484,30 @@ def dashboard():
 @app.route('/')
 def index():
     """Main landing page"""
-    return render_template('index.html')
+    try:
+        return render_template('index.html')
+    except Exception as e:
+        # Fallback if template fails to load
+        return f"""
+        <html>
+        <head><title>Virtual Fitness Trainer</title></head>
+        <body>
+            <h1>Virtual Fitness Trainer - Server Running</h1>
+            <p>The Flask backend is running successfully!</p>
+            <p>Routes available:</p>
+            <ul>
+                <li><a href="/dashboard">Dashboard</a></li>
+                <li><a href="/login">Login</a></li>
+                <li><a href="/register">Register</a></li>
+                <li><a href="/index2.html">Exercises</a></li>
+                <li><a href="/diet">Diet Recommendations</a></li>
+                <li><a href="/health">Health Check</a></li>
+                <li><a href="/ping">Ping</a></li>
+            </ul>
+            <p><small>Template error: {str(e)}</small></p>
+        </body>
+        </html>
+        """
 
 
 @app.route('/index.html')
@@ -1414,30 +1478,73 @@ def create_database():
 # ==================== Run the App ====================
 
 if __name__ == '__main__':
+    print("=" * 80)
+    print("STARTING VIRTUAL FITNESS TRAINER APPLICATION")
+    print("=" * 80)
+
     # Create database tables
-    create_database()
-    
-    print("Starting Virtual Fitness Trainer Application...")
-    print(f"Base directory: {BASE_DIR}")
-    print("\nAvailable routes:")
-    print("  /               - Main landing page")
-    print("  /register       - User registration")
-    print("  /login          - User login")
-    print("  /dashboard      - User dashboard (requires login)")
-    print("  /index2.html    - Exercise training page")
-    print("  /diet           - Diet recommendation system")
-    print("\nAPI Endpoints:")
-    print("  GET  /api/users           - List all users")
-    print("  GET  /api/users/<id>      - Get user info")
-    print("  GET  /api/exercises       - Get exercise history")
-    print("  POST /api/exercises       - Log new exercise")
-    print("  GET  /api/diet            - Get diet logs")
-    print("  POST /api/diet            - Log new diet entry")
-    print("  GET  /api/progress        - Get progress summary")
-    print("\nStarting server on http://0.0.0.0:10000")
-    print("Render deployment: Using PORT environment variable")
+    print("\n[1/4] Creating database tables...")
+    try:
+        create_database()
+    except Exception as e:
+        print(f"⚠️  Database creation warning: {e}")
+
+    # Show environment info
+    print(f"\n[2/4] Environment Information:")
+    print(f"  Base directory: {BASE_DIR}")
+    print(f"  Python version: {os.sys.version}")
+    print(f"  PORT env var: {os.environ.get('PORT', 'not set (using default 10000)')}")
+
+    # Show available routes
+    print(f"\n[3/4] Available Routes:")
+    routes = [
+        ("GET", "/", "Main landing page"),
+        ("GET", "/health", "Health check endpoint"),
+        ("GET", "/ping", "Simple ping test"),
+        ("GET", "/api/status", "API status"),
+        ("GET/POST", "/register", "User registration"),
+        ("GET/POST", "/login", "User login"),
+        ("GET", "/dashboard", "User dashboard (requires login)"),
+        ("GET", "/index2.html", "Exercise training page"),
+        ("GET", "/diet", "Diet recommendation system"),
+        ("GET", "/exercise-bicepcurl.html", "Bicep curl exercise"),
+        ("GET", "/exercise-plank.html", "Plank exercise"),
+        ("GET", "/exercise-pushup.html", "Pushup exercise"),
+        ("GET", "/exercise-downwarddog.html", "Downward dog exercise"),
+    ]
+
+    for method, route, description in routes:
+        print(f"  {method:8} {route:35} - {description}")
+
+    # Start server
+    print(f"\n[4/4] Starting Flask server...")
+    print("=" * 80)
 
     # Render deployment: Bind to 0.0.0.0 and use PORT from environment
     port = int(os.environ.get("PORT", 10000))
-    app.run(host="0.0.0.0", port=port, threaded=True)
+    host = "0.0.0.0"
+
+    print(f"✅ Server starting on {host}:{port}")
+    print(f"✅ Ready to accept requests")
+    print("=" * 80)
+    print(f"\n🌐 Server will be accessible at: http://{host}:{port}")
+    print(f"🏥 Health check: http://{host}:{port}/health")
+    print(f"🏓 Ping test: http://{host}:{port}/ping")
+    print("\n" + "=" * 80)
+    print("Press CTRL+C to stop the server")
+    print("=" * 80 + "\n")
+
+    # Run the app
+    try:
+        # Use threaded=True for better concurrent request handling
+        # Use debug=False in production for better performance
+        app.run(host=host, port=port, threaded=True, debug=False)
+    except Exception as e:
+        print(f"\n❌ ERROR: Server failed to start: {e}")
+        import traceback
+        traceback.print_exc()
+    finally:
+        print("\n" + "=" * 80)
+        print("Server shutdown complete")
+        print("=" * 80)
 
