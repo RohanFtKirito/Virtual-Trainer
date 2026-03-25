@@ -652,38 +652,28 @@
         let initialElbowY = 0.0;       // Track elbow position for stability
         let elbowInitialized = false;  // Flag to initialize elbow position
 
-        // Side view tracking - IMPROVED
+        // Side view tracking - SIMPLIFIED
         let angleBuffer = [];          // For angle smoothing (reduces noise)
-        let minAngle = 180;            // Track minimum angle (most curled)
-        let maxAngle = 0;              // Track maximum angle (most extended)
         let angleTrackingInitialized = false;  // Flag for initialization
 
-        // NEW: State Machine Variables
-        let stableFrameCount = 0;      // Count consecutive stable frames
-        const STABILITY_FRAMES = 4;    // Require 4 stable frames before state change
-        let previousAngle = 0;         // Track previous angle for direction detection
-        let angleDirection = 0;        // -1 = decreasing (curling up), 1 = increasing (extending down), 0 = neutral
-        let directionFrameCount = 0;   // Count consecutive frames with same direction
-        const DIRECTION_FRAMES = 3;    // Require 3 frames with consistent direction
-        let cooldownFrames = 0;        // Frame counter for cooldown after rep
-        const COOLDOWN_FRAME_COUNT = 12; // 12 frames cooldown (~400ms at 30fps)
-        let repMinAngle = 180;         // Track max angle during rep (most extended)
-        let repMaxAngle = 0;           // Track min angle during rep (most curled)
-        let repInProgress = false;     // Flag to track if rep cycle has started
+        // Simple 2-state machine tracking
+        let minAngleInRep = 180;       // Track minimum angle in current rep
+        let maxAngleInRep = 0;         // Track maximum angle in current rep
+        let repStarted = false;        // Track if rep cycle has started
 
-        // ==================== UPDATED THRESHOLDS (USER SPECIFICATIONS) ====================
-        // Angle thresholds for side view (moderate, not too strict)
-        const SIDE_EXTENDED = 150;   // Arm extended (down position) - angle > 150°
-        const SIDE_CONTRACTED = 50;  // Arm curled (up position) - angle < 50°
-        const MIN_ANGLE_RANGE = 90;  // Minimum range for valid rep (> 90°)
+        // ==================== SIMPLIFIED THRESHOLDS (BALANCED) ====================
+        // Angle thresholds for side view - simple and clear
+        const SIDE_UP_THRESHOLD = 55;      // Arm curled (up position) - angle < 55°
+        const SIDE_DOWN_THRESHOLD = 150;   // Arm extended (down position) - angle > 150°
+        const MIN_ANGLE_RANGE = 70;        // Minimum range for valid rep (> 70°) - soft requirement
 
         // Front view thresholds
         const FRONT_DOWN_THRESHOLD = 0.18;   // Arm down (front view)
         const FRONT_UP_THRESHOLD = -0.08;    // Arm up (front view)
         const MIN_MOVEMENT = 0.08;           // Minimum vertical wrist movement to count (front view)
 
-        // Movement validation
-        const ELBOW_MOVEMENT_THRESHOLD = 0.08;  // Relaxed elbow tolerance (~15-20 pixels)
+        // Movement validation - RELAXED
+        const ELBOW_MOVEMENT_THRESHOLD = 0.15;  // Relaxed elbow tolerance (~25-40 pixels) - MUCH MORE RELAXED!
         const SMOOTHING_WINDOW = 3;             // Number of frames for angle smoothing
 
         // ==================== SPEECH SYNTHESIS ====================
@@ -828,151 +818,75 @@
                     // =====================================================
 
                     // =====================================================
-                    // SIDE VIEW: IMPROVED STATE MACHINE with stability & direction validation
+                    // SIDE VIEW: SIMPLE 2-STATE MACHINE (balanced & reliable)
                     // =====================================================
                     if (viewType === 'side') {
                         const rawAngle = calculateAngle(dominantShoulder, dominantElbow, dominantWrist);
 
-                        // Smooth the angle to reduce noise
+                        // Smooth the angle to reduce noise (simple moving average)
                         const angle = smoothAngle(rawAngle);
 
-                        // Initialize angle tracking on first frame
+                        // Initialize on first frame
                         if (!angleTrackingInitialized) {
-                            minAngle = angle;
-                            maxAngle = angle;
-                            previousAngle = angle;
                             angleTrackingInitialized = true;
                         }
 
-                        // Track angle during rep cycle
-                        if (repInProgress) {
-                            if (angle < repMinAngle) repMinAngle = angle;  // Most curled
-                            if (angle > repMaxAngle) repMaxAngle = angle;  // Most extended
+                        // Track angle range during rep
+                        if (repStarted) {
+                            if (angle < minAngleInRep) minAngleInRep = angle;
+                            if (angle > maxAngleInRep) maxAngleInRep = angle;
                         }
 
-                        // Calculate movement direction
-                        const angleDiff = angle - previousAngle;
-                        let currentDirection = 0;
-
-                        // Determine direction with small threshold to avoid noise
-                        if (angleDiff > 2) {
-                            currentDirection = 1;  // Angle increasing (extending/down)
-                        } else if (angleDiff < -2) {
-                            currentDirection = -1; // Angle decreasing (curling/up)
-                        }
-
-                        // Update direction frame counter
-                        if (currentDirection === angleDirection && currentDirection !== 0) {
-                            directionFrameCount++;
-                        } else if (currentDirection !== 0) {
-                            // Direction changed, reset counter
-                            angleDirection = currentDirection;
-                            directionFrameCount = 1;
-                        }
-
-                        // Debug logging with state info
+                        // Debug logging - clean and simple
                         console.log(
                             'Angle:', Math.round(angle), '° |',
-                            'State:', stage, '|',
-                            'Direction:', currentDirection === 1 ? 'DOWN↓' : currentDirection === -1 ? 'UP↑' : '—',
-                            '| Stable:', stableFrameCount,
-                            '| Cooldown:', cooldownFrames,
-                            '| Reps:', repCount
+                            'State:', stage.toUpperCase(), '|',
+                            'Reps:', repCount
                         );
 
                         // =====================================================
-                        // STATE MACHINE: 3 states (down, up, transition)
+                        // SIMPLE STATE MACHINE: Only 2 states (down, up)
                         // =====================================================
+                        // Transition from DOWN to UP (curling)
+                        if (stage === 'down' && angle < SIDE_UP_THRESHOLD) {
+                            stage = 'up';
+                            repStarted = true;
+                            minAngleInRep = angle;
+                            maxAngleInRep = angle;
+                            console.log('🔄 State: DOWN → UP');
+                        }
 
-                        // COOLDOWN: Skip processing if in cooldown
-                        if (cooldownFrames > 0) {
-                            cooldownFrames--;
-                            previousAngle = angle;
-                            stageDisplay.textContent = `COOLDOWN (${cooldownFrames})`;
-                        } else {
-                            // Determine which state we should transition to
-                            let targetState = stage;
+                        // Transition from UP to DOWN (extending) - COUNT REP HERE
+                        if (stage === 'up' && angle > SIDE_DOWN_THRESHOLD) {
+                            const angleRange = maxAngleInRep - minAngleInRep;
 
-                            if (angle > SIDE_EXTENDED) {
-                                targetState = 'down';  // Arm is extended
-                            } else if (angle < SIDE_CONTRACTED) {
-                                targetState = 'up';    // Arm is curled
+                            // Only count if we have sufficient range (prevents half reps)
+                            if (angleRange >= MIN_ANGLE_RANGE) {
+                                repCount++;
+                                repCountDisplay.textContent = repCount;
+                                speak(repCount);
+                                console.log(`✅ REP COUNTED! #${repCount} | Range: ${Math.round(angleRange)}°`);
                             } else {
-                                targetState = 'transition';  // Between positions
+                                console.log(`⚠️ Too small: ${Math.round(angleRange)}° (need ${MIN_ANGLE_RANGE}°)`);
                             }
 
-                            // =====================================================
-                            // STABILITY CHECK: Require consistent state for N frames
-                            // =====================================================
-                            if (targetState === stage) {
-                                // Still in same state, increment stability counter
-                                stableFrameCount++;
-                            } else {
-                                // State change requested, check stability
-                                if (stableFrameCount >= STABILITY_FRAMES) {
-                                    // Have been stable, check if direction is consistent
-                                    if (directionFrameCount >= DIRECTION_FRAMES) {
-                                        // Both stability and direction confirmed - change state
-                                        const previousState = stage;
-                                        stage = targetState;
-                                        stableFrameCount = 0;  // Reset for new state
-
-                                        console.log(`🔄 STATE: ${previousState} → ${stage} (dir: ${directionFrameCount} frames)`);
-
-                                        // =====================================================
-                                        // COUNT REP: Only on complete cycle (down → up → down)
-                                        // =====================================================
-                                        if (previousState === 'up' && stage === 'down' && repInProgress) {
-                                            const repRange = repMaxAngle - repMinAngle;
-
-                                            // Validate: Must have sufficient range (> 90°)
-                                            if (repRange >= MIN_ANGLE_RANGE) {
-                                                repCount++;
-                                                repCountDisplay.textContent = repCount;
-                                                cooldownFrames = COOLDOWN_FRAME_COUNT;  // Start cooldown
-                                                speak(repCount);
-                                                console.log(`✅ REP COUNTED! #${repCount} | Range: ${Math.round(repRange)}°`);
-                                            } else {
-                                                console.log(`⚠️ Partial rep: ${Math.round(repRange)}° (need ${MIN_ANGLE_RANGE}°)`);
-                                            }
-
-                                            // Reset rep tracking
-                                            repInProgress = false;
-                                            repMinAngle = 180;
-                                            repMaxAngle = 0;
-                                        }
-
-                                        // Start tracking rep when moving from down to transition/up
-                                        if (stage === 'down' || (stage === 'transition' && previousState === 'down')) {
-                                            repInProgress = true;
-                                            repMinAngle = angle;
-                                            repMaxAngle = angle;
-                                        }
-                                    } else {
-                                        console.log(`⏸️ Direction not stable yet (${directionFrameCount}/${DIRECTION_FRAMES})`);
-                                    }
-                                } else {
-                                    // Not stable enough, ignore transition
-                                    console.log(`⏸️ Not stable enough (${stableFrameCount}/${STABILITY_FRAMES})`);
-                                }
-                            }
-                            // If targetState != stage but not stable, we stay in current state
+                            // Reset tracking
+                            stage = 'down';
+                            repStarted = false;
+                            minAngleInRep = 180;
+                            maxAngleInRep = 0;
+                            console.log('🔄 State: UP → DOWN');
                         }
 
                         // Update display
                         if (stage === 'down') {
-                            stageDisplay.textContent = 'SIDE - DOWN (Now curl up!)';
-                        } else if (stage === 'up') {
-                            stageDisplay.textContent = 'SIDE - UP (Now extend down!)';
+                            stageDisplay.textContent = 'DOWN - Curl up!';
                         } else {
-                            stageDisplay.textContent = `SIDE - MOVING (${Math.round(angle)}°)`;
+                            stageDisplay.textContent = 'UP - Extend down!';
                         }
 
-                        // Store angle for next frame
-                        previousAngle = angle;
-
                     // =====================================================
-                    // FRONT VIEW: Improved with stability checks
+                    // FRONT VIEW: SIMPLE 2-STATE MACHINE
                     // =====================================================
                     } else {
                         const wristY = dominantWrist.y;
@@ -980,118 +894,68 @@
                         const elbowY = dominantElbow.y;
                         const diff = wristY - shoulderY;
 
-                        // Initialize elbow position on first frame
+                        // Initialize on first frame
                         if (!elbowInitialized) {
                             initialElbowY = elbowY;
                             elbowInitialized = true;
                             minWristY = wristY;
                             maxWristY = wristY;
-                            previousAngle = diff;  // Use for direction tracking
                         }
 
                         // Track wrist movement range
-                        if (wristY < minWristY) minWristY = wristY;   // Higher position
-                        if (wristY > maxWristY) maxWristY = wristY;   // Lower position
-
-                        // Calculate movement range
+                        if (wristY < minWristY) minWristY = wristY;
+                        if (wristY > maxWristY) maxWristY = wristY;
                         const movementRange = maxWristY - minWristY;
 
-                        // Calculate movement direction
-                        const positionDiff = diff - previousAngle;
-                        let currentDirection = 0;
-
-                        if (positionDiff > 0.01) {
-                            currentDirection = 1;  // Moving down
-                        } else if (positionDiff < -0.01) {
-                            currentDirection = -1; // Moving up
-                        }
-
-                        // Update direction frame counter
-                        if (currentDirection === angleDirection && currentDirection !== 0) {
-                            directionFrameCount++;
-                        } else if (currentDirection !== 0) {
-                            angleDirection = currentDirection;
-                            directionFrameCount = 1;
-                        }
-
-                        // Check elbow stability (RELAXED - warning only)
-                        const elbowStable = Math.abs(elbowY - initialElbowY) < ELBOW_MOVEMENT_THRESHOLD;
+                        // Calculate elbow movement (for feedback only - doesn't block)
+                        const elbowMovement = Math.abs(elbowY - initialElbowY);
 
                         // Debug logging
                         console.log(
                             'Pos:', diff.toFixed(3), '|',
-                            'State:', stage, '|',
-                            'Dir:', currentDirection === 1 ? 'DOWN↓' : currentDirection === -1 ? 'UP↑' : '—',
-                            '| Stable:', stableFrameCount,
-                            '| Reps:', repCount
+                            'State:', stage.toUpperCase(), '|',
+                            'Elbow:', (elbowMovement * 100).toFixed(1), 'px |',
+                            'Reps:', repCount
                         );
 
-                        // COOLDOWN: Skip processing if in cooldown
-                        if (cooldownFrames > 0) {
-                            cooldownFrames--;
-                            previousAngle = diff;
-                            stageDisplay.textContent = `COOLDOWN (${cooldownFrames})`;
-                        } else {
-                            // Determine which state we should transition to
-                            let targetState = stage;
+                        // =====================================================
+                        // SIMPLE STATE MACHINE: Only 2 states (down, up)
+                        // =====================================================
+                        // Transition from DOWN to UP (raising arm)
+                        if (stage === 'down' && diff < FRONT_UP_THRESHOLD) {
+                            stage = 'up';
+                            repStarted = true;
+                            minWristY = wristY;
+                            maxWristY = wristY;
+                            console.log('🔄 State: DOWN → UP');
+                        }
 
-                            if (diff > FRONT_DOWN_THRESHOLD) {
-                                targetState = 'down';  // Arm is down
-                            } else if (diff < FRONT_UP_THRESHOLD) {
-                                targetState = 'up';    // Arm is up
+                        // Transition from UP to DOWN (lowering arm) - COUNT REP HERE
+                        if (stage === 'up' && diff > FRONT_DOWN_THRESHOLD) {
+                            // Only count if we have sufficient movement
+                            if (movementRange >= MIN_MOVEMENT) {
+                                repCount++;
+                                repCountDisplay.textContent = repCount;
+                                speak(repCount);
+                                console.log(`✅ REP COUNTED! #${repCount} | Move: ${(movementRange * 100).toFixed(1)}`);
                             } else {
-                                targetState = 'transition';
+                                console.log(`⚠️ Too small: ${(movementRange * 100).toFixed(1)}`);
                             }
 
-                            // STABILITY CHECK
-                            if (targetState === stage) {
-                                stableFrameCount++;
-                            } else {
-                                if (stableFrameCount >= STABILITY_FRAMES) {
-                                    if (directionFrameCount >= DIRECTION_FRAMES) {
-                                        const previousState = stage;
-                                        stage = targetState;
-                                        stableFrameCount = 0;
-
-                                        console.log(`🔄 STATE: ${previousState} → ${stage}`);
-
-                                        // COUNT REP: down → up → down cycle
-                                        if (previousState === 'up' && stage === 'down' && repInProgress) {
-                                            if (movementRange >= MIN_MOVEMENT) {
-                                                repCount++;
-                                                repCountDisplay.textContent = repCount;
-                                                cooldownFrames = COOLDOWN_FRAME_COUNT;
-                                                speak(repCount);
-                                                console.log(`✅ REP COUNTED! #${repCount}`);
-
-                                                // Reset tracking
-                                                minWristY = wristY;
-                                                maxWristY = wristY;
-                                            } else {
-                                                console.log(`⚠️ Partial rep: ${movementRange.toFixed(3)}`);
-                                            }
-                                            repInProgress = false;
-                                        }
-
-                                        if (stage === 'down' || (stage === 'transition' && previousState === 'down')) {
-                                            repInProgress = true;
-                                        }
-                                    }
-                                }
-                            }
+                            // Reset tracking
+                            stage = 'down';
+                            repStarted = false;
+                            minWristY = wristY;
+                            maxWristY = wristY;
+                            console.log('🔄 State: UP → DOWN');
                         }
 
                         // Update display
                         if (stage === 'down') {
-                            stageDisplay.textContent = 'FRONT - DOWN (Now raise!)';
-                        } else if (stage === 'up') {
-                            stageDisplay.textContent = 'FRONT - UP (Now lower!)';
+                            stageDisplay.textContent = 'DOWN - Raise arm!';
                         } else {
-                            stageDisplay.textContent = `FRONT - MOVING (${(diff * 100).toFixed(0)})`;
+                            stageDisplay.textContent = 'UP - Lower arm!';
                         }
-
-                        // Store for next frame
-                        previousAngle = diff;
                     }
 
                     // =====================================================
@@ -1106,18 +970,15 @@
                     if (stage === 'up') {
                         stageOverlayEl.textContent = `${viewType.toUpperCase()} - UP ✓`;
                         stageOverlayEl.classList.add('up');
-                    } else if (stage === 'down') {
-                        stageOverlayEl.textContent = `${viewType.toUpperCase()} - DOWN`;
-                        stageOverlayEl.classList.remove('up');
                     } else {
-                        stageOverlayEl.textContent = `${viewType.toUpperCase()} - MOVING...`;
+                        stageOverlayEl.textContent = `${viewType.toUpperCase()} - DOWN`;
                         stageOverlayEl.classList.remove('up');
                     }
 
                     // Update metrics
                     if (viewType === 'side') {
                         const angle = calculateAngle(dominantShoulder, dominantElbow, dominantWrist);
-                        const repRange = repInProgress ? (repMaxAngle - repMinAngle) : 0;
+                        const repRange = repStarted ? (maxAngleInRep - minAngleInRep) : 0;
                         metricsEl.textContent = `Angle: ${Math.round(angle)}° | Range: ${Math.round(repRange)}°`;
 
                     } else {
@@ -1127,16 +988,19 @@
                         const movement = (maxWristY - minWristY) * 100;
                         metricsEl.textContent = `Wrist: ${(diff * 100).toFixed(0)} | Move: ${movement.toFixed(1)}`;
 
-                        // Update feedback based on elbow stability
+                        // Update feedback based on elbow stability - ONLY warn if EXCESSIVE movement
                         const elbowY = dominantElbow.y;
-                        const elbowMovement = Math.abs(elbowY - initialElbowY) * 100;
-                        const elbowStable = Math.abs(elbowY - initialElbowY) < ELBOW_MOVEMENT_THRESHOLD;
+                        const elbowMovementPx = Math.abs(elbowY - initialElbowY) * 100;
 
-                        if (elbowStable) {
-                            feedbackOverlayEl.textContent = '✓ Good form - Elbow stable';
+                        // Only show warning if elbow moves A LOT (> 40 pixels)
+                        if (elbowMovementPx < 40) {
+                            feedbackOverlayEl.textContent = '✓ Good form!';
                             feedbackOverlayEl.className = '';
+                        } else if (elbowMovementPx < 60) {
+                            feedbackOverlayEl.textContent = '⚠️ Try to keep elbow steadier';
+                            feedbackOverlayEl.className = 'warning';
                         } else {
-                            feedbackOverlayEl.textContent = '⚠️ Keep elbow steady (relaxed)';
+                            feedbackOverlayEl.textContent = '⚠️ Keep elbow steady';
                             feedbackOverlayEl.className = 'warning';
                         }
                     }
